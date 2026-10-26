@@ -329,6 +329,16 @@ html,body{font-weight:500;background:#0a0a0c}
 .spdseg button.press,.spb.press{transform:scale(.88);transition-duration:.06s}
 #undo.press{transform:translateX(-50%) scale(.93)}
 /* 封印中：ステージ名に重ねず右端の札にする */
+/* 正式名『呪界ディフェンス』のロゴ */
+#title .l2{font-family:'Dela Gothic One',var(--f-jp);font-weight:400;font-size:25px;letter-spacing:12px;padding-left:12px;margin-top:6px;color:#f3d98b;
+  text-shadow:0 0 12px rgba(212,175,55,.75),0 0 2px #fff,0 2px 0 #000}
+#title .sub{letter-spacing:5px}
+#hud .title{display:block;line-height:1;text-align:center}
+#hud .title small{display:block;font-family:'Dela Gothic One',var(--f-jp);font-size:7.5px;letter-spacing:1px;margin:3px 0 0;color:var(--gold2);text-shadow:0 0 6px rgba(212,175,55,.7)}
+/* Xシェア */
+#over .xshare{display:none;align-items:center;justify-content:center;min-height:52px;padding:13px 26px;font-size:15px;color:#fff;text-shadow:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02)),rgba(8,8,10,.85)}
+#over .xshare::before{background:linear-gradient(135deg,#fff,rgba(255,255,255,.2) 50%,rgba(243,217,139,.7))}
 .stg.lock .info{padding-right:78px}
 .stg.lock::after{content:"🔒 封印中";inset:auto;right:10px;top:50%;transform:translateY(-50%);padding:5px 9px;font-size:13px;letter-spacing:2px;
   border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.55);white-space:nowrap}
@@ -337,7 +347,7 @@ html,body{font-weight:500;background:#0a0a0c}
 <body>
 <div id="app">
   <div id="hud">
-    <div class="title">呪界<small>JUKAI</small></div>
+    <div class="title">呪界<small>ディフェンス</small></div>
     <div class="stat" id="money"></div>
     <div class="stat" id="life"></div>
     <div class="stat" id="stage"></div>
@@ -371,7 +381,7 @@ html,body{font-weight:500;background:#0a0a0c}
     </div>
   </div>
   <div id="title"><svg class="sigil" viewBox="-100 -100 200 200" fill="none" stroke="#c4122f" stroke-width=".7"><path id="sgr" d="M0,-86 a86,86 0 1,1 -.1,0"/><circle r="97"/><circle r="92" stroke-dasharray="1 3"/><circle r="78"/><circle r="38" stroke="#d4af37"/><polygon points="0,-78 46,63 -74,-24 74,-24 -46,63"/><text font-size="8.5" fill="#ff2a4a" stroke="none" letter-spacing="3"><textPath href="#sgr">呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨</textPath></text></svg><svg class="sigil s2" viewBox="-100 -100 200 200" fill="none" stroke="#d4af37" stroke-width=".8"><circle r="96"/><circle r="84" stroke-dasharray="6 4"/><polygon points="0,-84 73,42 -73,42"/><polygon points="0,84 73,-42 -73,-42"/></svg>
-    <div class="logo"><div class="l1">呪界</div><div class="l2">JUKAI · DEFENSE</div><div class="sub">CURSED TOWER DEFENSE — 呪界防衛戦</div></div>
+    <div class="logo"><div class="l1">呪界</div><div class="l2">ディフェンス</div><div class="sub">CURSED TOWER DEFENSE</div></div>
     <div class="sel-h">SELECT STAGE</div>
     <div id="stages"></div>
     <div class="tip">クリアすると次のステージが解放されます</div>
@@ -383,7 +393,7 @@ html,body{font-weight:500;background:#0a0a0c}
       <a href="https://red-freegames.github.io/privacy.html" target="_blank" rel="noopener">プライバシー</a>
     </footer>
   </div>
-  <div id="over"><h1 id="oTitle"></h1><p id="oMsg"></p><div class="row"><button class="btn" id="oBtn1"></button><button class="btn blue" id="oBtn2"></button></div><a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a><a class="fb-link" id="fbResult" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a></div>
+  <div id="over"><h1 id="oTitle"></h1><p id="oMsg"></p><div class="row"><button class="btn" id="oBtn1"></button><button class="btn blue" id="oBtn2"></button></div><a class="btn xshare" id="oShare" target="_blank" rel="noopener">𝕏 でシェアする</a><a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a><a class="fb-link" id="fbResult" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a></div>
   <!-- HOME：プレイ中は確認してからタイトルへ -->
   <div id="homeOv"><div class="hcard"><h2>タイトルに戻りますか？</h2><p>このステージの進行状況はリセットされます</p>
     <div class="row"><button class="btn blue" id="homeNo">続ける</button><button class="btn red" id="homeYes">🏠 戻る</button></div></div></div>
@@ -674,7 +684,8 @@ function update(dt){
       G.state='stageclear';closePop();G.placing=null;markClear(G.stage);
       const refund=G.towers.reduce((a,t)=>a+t.spent,0);G.money+=refund;
       showOver('STAGE CLEAR!','#ffd23f',`STAGE ${G.stage}「${STAGES[G.stage-1].name}」突破！<br>WAVEボーナス +${bonus}G<br>配置キャラは全額返金 +${refund}G（次のマップで再配置）<br>拠点ライフは全回復！`,
-        '次のステージへ ▶',()=>{G.stage++;G.money=Math.max(G.money,STAGE_MONEY[G.stage-1]);startStage()},'ステージ選択',showTitle);
+        '次のステージへ ▶',()=>{G.stage++;G.money=Math.max(G.money,STAGE_MONEY[G.stage-1]);startStage()},'ステージ選択',showTitle,
+        shareText(`STAGE ${G.stage}「${STAGES[G.stage-1].name}」を突破！`,G.life));
     }else{G.state='ready';G.banner={text:G.wave===4?`ボス戦準備金 +${bonus}G`:`WAVE ${G.wave} CLEAR!  +${bonus}G`,t:2,col:'#ffd23f'}}
     syncUI(true);
   }
@@ -1687,12 +1698,17 @@ $('pSell').onclick=()=>{const t=G.sel;if(!t)return;const v=Math.floor(t.spent*.6
   sellArm=0;G.money+=v;
   G.towers=G.towers.filter(o=>o!==t);text(t.x,t.y,'+'+v+'G','#ffd23f');burst(t.x,t.y,'#aaa',10);closePop();syncUI(true)};
 
-function showOver(title,col,msg,b1,f1,b2,f2){
+function showOver(title,col,msg,b1,f1,b2,f2,share){
   $('oTitle').textContent=title;$('oTitle').style.color=col;$('oMsg').innerHTML=msg;
   $('oBtn1').textContent=b1;$('oBtn1').onclick=f1;
   $('oBtn2').style.display=b2?'':'none';if(b2){$('oBtn2').textContent=b2;$('oBtn2').onclick=f2}
+  // クリア時だけXシェアを出す（本文・ハッシュタグ・URL入り）
+  const sh=$('oShare');sh.style.display=share?'flex':'none';
+  if(share){sh.href='https://twitter.com/intent/tweet?text='+encodeURIComponent(share)+'&url='+encodeURIComponent('https://red-freegames.github.io/jukai-defense/');
+    sh.onclick=()=>track('share',{stage:G.stage,all:G.state==='win'})}
   $('over').style.display='flex';
 }
+const shareText=(head,life)=>`『呪界ディフェンス』${head}\n残り封印 ${life}/10 ⚔️ 呪霊の群れを術師5人で迎え撃つ無料ブラウザゲーム\n#呪界ディフェンス #REDFREEGAMES`;
 function openPop(t){hideUndo();sellArm=0;G.sel=t;G.placing=null;$('pop').style.display='block';refreshPop();placePop();syncUI(true)}
 function closePop(){if(G)G.sel=null;$('pop').style.display='none'}
 function placePop(){
@@ -1741,7 +1757,8 @@ function syncUI(force){
 function endGame(win){
   if(G.state==='win'||G.state==='lose')return;
   G.state=win?'win':'lose';closePop();G.placing=null;G.winT=0;
-  if(win){markClear(5);showOver('🎉 ALL CLEAR!!','#ffd23f',`全5ステージ・25WAVE突破！<br>呪いの王の厨房を制圧した！ 残りライフ ${G.life}`,'ステージ選択へ',showTitle)}
+  if(win){markClear(5);showOver('🎉 ALL CLEAR!!','#ffd23f',`『呪界ディフェンス』完全制覇！<br>全5ステージ・25WAVE突破、呪いの王の厨房を制圧した！<br>残り封印 ${G.life}/10`,'ステージ選択へ',showTitle,null,null,
+    shareText(`全5ステージ・25WAVEを完全制覇！呪いの王を討ち取った👑`,G.life))}
   else{track('game_over',{stage:G.stage,wave:G.wave});}
   if(!win)showOver('GAME OVER','#ff4d6d',`STAGE ${G.stage} - WAVE ${G.wave} で拠点が陥落…`,
     'このステージから再挑戦',()=>{G.money=G.stageMoney;startStage()},'ステージ選択',showTitle);
