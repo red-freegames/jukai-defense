@@ -189,7 +189,7 @@ canvas#cv{border-radius:6px}
 #title .l2{font-size:15px;letter-spacing:10px}
 #stages{flex-direction:column;flex-wrap:nowrap;align-items:stretch;width:100%;max-width:360px;gap:8px}
 .stg{width:auto;display:flex;align-items:center;gap:12px;padding:5px 10px 5px 6px}
-.stg canvas{width:34px;aspect-ratio:13/24;flex:none}
+.stg canvas{width:38px;aspect-ratio:9/15;flex:none}
 .stg .info{flex:1;min-width:0}
 .stg .no{margin-top:0}
 .stg.lock::after{font-size:16px}
@@ -212,6 +212,30 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
 #homeOv p{font-size:12px;color:var(--dim);margin-bottom:14px}
 #homeOv .row{display:flex;gap:10px;justify-content:center}
 #homeOv .btn{padding:11px 18px}
+/* ===== 指で確実に押せるサイズ（タップ領域はおおむね44px以上） ===== */
+.homebtn{min-height:42px;padding:8px 10px;font-size:12px}
+.card{padding-top:6px}
+.card canvas{width:54px;height:54px}
+.card .cs{font-size:15px}
+.card .tg{font-size:8px;padding:1px 4px}
+.spb{padding:13px 0;font-size:13px;margin-top:5px}
+#ctrl{gap:8px;margin-top:8px}
+#ctrl .btn{min-height:54px;font-size:16px}
+#ctrl .spdseg button{min-width:54px;min-height:54px;font-size:15px}
+#pop .btn{min-height:50px;font-size:14px;padding:12px 10px}
+#pop .x{width:46px;height:46px;right:0;top:0;font-size:28px;display:flex;align-items:center;justify-content:center}
+#pop .pt{padding-right:42px}
+#over .btn,#homeOv .btn{min-height:52px;padding:13px 22px;font-size:15px}
+.fb-link{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border:1px solid rgba(255,255,255,.2);background:rgba(20,12,28,.85);color:var(--txt);text-decoration:none;font-size:13px;margin-top:4px}
+.fb-link:hover{border-color:var(--gold);color:var(--gold2)}
+#title .more{min-height:54px;font-size:15px;padding:15px 32px}
+.site-foot{gap:8px;margin-top:6px}
+.site-foot a{display:flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.5);font-size:12px}
+.site-foot span{width:100%;text-align:center;font-size:11px}
+.stg{min-height:66px}
+#hint{font-size:13px;padding:8px 14px}
+#undo{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:none;z-index:6;min-height:50px;padding:13px 22px;font-size:14px;color:#fff;
+  background:linear-gradient(180deg,#3a2a66,#1a1036);border-color:var(--gold2);box-shadow:0 0 18px rgba(212,175,55,.5);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -227,6 +251,7 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
   <div id="wrap">
     <canvas id="cv"></canvas>
     <div id="hint"></div>
+    <button class="btn" id="undo">↶ 置き直す（全額返金）</button>
     <div id="pop">
       <button class="x" id="pClose">×</button>
       <div class="phead"><canvas id="pImg" width="176" height="140"></canvas>
@@ -269,7 +294,8 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
 (()=>{
 'use strict';
 // 縦画面（スマホ縦持ち）用の盤面：13×24マス
-const W=520,H=960,CS=40,COLS=13,ROWS=24;
+// 指で狙いやすいよう、盤面は9×15マス（1マスが画面上で約40px以上になる）
+const W=360,H=600,CS=40,COLS=9,ROWS=15;
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const wrap=document.getElementById('wrap');
 const FONT='"Rajdhani","Zen Kaku Gothic New",sans-serif',FONT2='"Yuji Syuku","Zen Kaku Gothic New",serif';
@@ -278,20 +304,21 @@ const VIG=(()=>{const g=ctx.createRadialGradient(W/2,H/2,H*.45,W/2,H/2,W*.62);g.
 const SCAN=(()=>{const c=document.createElement('canvas');c.width=4;c.height=4;const x=c.getContext('2d');x.fillStyle='rgba(0,0,0,.09)';x.fillRect(0,3,4,1);return ctx.createPattern(c,'repeat')})();
 
 // ===== ステージ =====
+// ref=旧盤面でのルート長（マス）。ルートが短くなった分だけ敵を遅くして、通過時間＝難易度を保つ
 // th: base/base2=地の色, acc/acc2=発光色, path=通路の底, fog=瘴気, rune=紋様の色, edge=通路の縁（明るいネオン）, floor=通路の床
 const STAGES=[
-  {name:'高専グラウンド（夜）',path:[[2,-1],[2,17],[6,17],[6,5],[10,5],[10,23]],
+  {name:'高専グラウンド（夜）',ref:56,path:[[1,-1],[1,3],[7,3],[7,7],[1,7],[1,11],[7,11],[7,14]],
     th:{base:'#07050d',base2:'#150c26',acc:'#b84dff',acc2:'#ff3d9a',path:'#040208',fog:'rgba(150,70,255,.13)',rune:'#8a4dff',edge:'#7ef9ff',floor:'#1c1530'}},
-  {name:'夕暮れの商店街',path:[[1,-1],[1,5],[11,5],[11,11],[1,11],[1,17],[11,17],[11,23]],
+  {name:'夕暮れの商店街',ref:54,path:[[1,-1],[1,12],[4,12],[4,2],[7,2],[7,14]],
     th:{base:'#0b0406',base2:'#200a0e',acc:'#ff5a3d',acc2:'#ffb347',path:'#050102',fog:'rgba(255,90,40,.10)',rune:'#d0452c',edge:'#ffd36b',floor:'#24141a'}},
-  {name:'真夜中の駅地下',path:[[11,-1],[11,3],[1,3],[1,20],[11,20],[11,8],[5,8],[5,15],[8,15]],
+  {name:'真夜中の駅地下',ref:69,path:[[7,-1],[7,13],[1,13],[1,1],[5,1],[5,10],[3,10],[3,5]],
     th:{base:'#03060c',base2:'#0a1324',acc:'#3de3ff',acc2:'#9b5cff',path:'#010306',fog:'rgba(60,200,255,.09)',rune:'#2a8ad8',edge:'#5fffb0',floor:'#0f1e26'}},
-  {name:'吹雪の離島',path:[[6,-1],[6,4],[1,4],[1,10],[11,10],[11,16],[1,16],[1,21],[8,21],[8,23]],
+  {name:'吹雪の離島',ref:56,path:[[1,-1],[1,2],[7,2],[7,5],[1,5],[1,8],[7,8],[7,11],[1,11],[1,14]],
     th:{base:'#060a12',base2:'#132033',acc:'#a8dcff',acc2:'#ffffff',path:'#03050a',fog:'rgba(190,225,255,.11)',rune:'#6fa6d8',snow:true,edge:'#9fe8ff',floor:'#18243a'}},
-  {name:'呪いの王の厨房',path:[[1,-1],[1,21],[4,21],[4,2],[7,2],[7,21],[10,21],[10,2],[12,2],[12,23]],
+  {name:'呪いの王の厨房',ref:111,path:[[1,-1],[1,1],[7,1],[7,3],[1,3],[1,5],[7,5],[7,7],[1,7],[1,9],[7,9],[7,11],[1,11],[1,13],[7,13],[7,14]],
     th:{base:'#090103',base2:'#22040a',acc:'#ff1a3a',acc2:'#ffb000',path:'#040001',fog:'rgba(255,20,40,.13)',rune:'#b0001c',edge:'#ffcf4a',floor:'#2a0e12'}}
 ];
-const BOSS_HP=[1800,5500,26000,56000,120000]; // STAGE3は詰まりやすかったので 34000→26000
+const BOSS_HP=[1800,5500,44200,95200,204000]; // STAGE3以降は盤面縮小に合わせて1.7倍（STAGE3は以前の調整26000×1.7）
 const BOSS_ARM=[1,1,.8,.6,.5];   // ボスの通常攻撃耐性（必殺技は等倍）。STAGE3は .7→.8
 let PATH=[],segs=[],pathLen=0,grid=[];
 
@@ -307,6 +334,8 @@ function setupStage(){
     const[ax,ay]=PATH[i],[bx,by]=PATH[i+1],len=Math.hypot(bx-ax,by-ay);
     segs.push({ax,ay,bx,by,len,start:pathLen});pathLen+=len;
   }
+  // 旧盤面と同じ通過時間になるよう、敵の速度・押し戻し量をルート長の比で縮める
+  G.spdK=(pathLen/CS)/S.ref;
   grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
   for(let i=0;i<S.path.length-1;i++){
     let[c0,r0]=S.path[i];const[c1,r1]=S.path[i+1],dc=Math.sign(c1-c0),dr=Math.sign(r1-r0);
@@ -347,7 +376,8 @@ const ETYPES={
   boss:{hp:1,spd:22,r:28,rew:0,col:'#2b0f3a'}
 };
 // ステージ別の雑魚HP倍率（1〜2は易しめ、3から急上昇）
-const HPM=[1,1.6,8,14,22];
+// 9×15の盤面ではタワーが通路を広く守れるため、STAGE3以降は耐久を1.7倍にして旧盤面と同等の手ごたえに
+const HPM=[1,1.6,13.6,23.8,37.4];
 function makeWave(st,wv){
   const g=(st-1)*5+wv,q=[];
   const n={grunt:5+2*wv+2*(st-1),fast:wv>=2||st>=2?wv+2*(st-1)-1:0,
@@ -409,7 +439,7 @@ function spawn(t,swarm){
   const rew=t==='boss'?250+150*G.stage:Math.round(d.rew*(1+.12*(G.stage-1)));
   const arm=t==='boss'?BOSS_ARM[G.stage-1]:d.arm||1;
   const p=posAt(0);
-  G.enemies.push({t,d:0,x:p.x,y:p.y,hp,maxHp:hp,spd:d.spd,r:d.r,rew,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6});
+  G.enemies.push({t,d:0,x:p.x,y:p.y,hp,maxHp:hp,spd:d.spd*G.spdK,r:d.r,rew,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6});
   if(swarm){G.banner={text:'呪霊の群れが押し寄せてくる！',t:1.6,col:'#ff3d9a'};shake(.4,5)}
   if(t==='boss'){G.warn=3;G.banner={text:'⚠️ 特級・ヤバい化け物 出現 ⚠️',t:2.6,col:'#ff4d6d'};shake(.8,7)}
 }
@@ -426,7 +456,7 @@ function special(t){
   switch(t.type){
     case 'yuji':G.rushes.push({t,tg:strongest(al),hits:8,timer:.4,dmg:SPV.yuji[L-1]});shake(.4,7);break;
     case 'megumi':
-      for(const e of al){const push=(e.t==='boss'?.15:1)*SPV.megumiPush[L-1];e.d=Math.max(0,e.d-push);const p=posAt(e.d);
+      for(const e of al){const push=(e.t==='boss'?.15:1)*SPV.megumiPush[L-1]*G.spdK;e.d=Math.max(0,e.d-push);const p=posAt(e.d);
         G.fx.push({k:'dog',x0:e.x,y0:e.y,x1:p.x,y1:p.y,life:.45,max:.45});e.x=p.x;e.y=p.y;hurt(e,SPV.megumiDmg[L-1],true,'#b388ff',true);
         G.fx.push({k:'puddle',x:p.x,y:p.y,life:1.2,max:1.2})}
       G.fx.push({k:'shadowwave',life:.9,max:.9});shake(.5,8);break;
@@ -469,7 +499,7 @@ function update(dt){
       case 'megumi':if(front){t.cd=1/D.rate[L];t.anim=.25;t.face=front.x<t.x?-1:1;
         G.fx.push({k:'dog',x0:t.x,y0:t.y,x1:front.x,y1:front.y,life:.25,max:.25},{k:'claw',x:front.x,y:front.y,life:.25,max:.25,col:'#b388ff'});
         for(const e of G.enemies)if(!e.dead&&Math.hypot(e.x-front.x,e.y-front.y)<45+e.r){hurt(e,D.dmg[L],e===front);
-          if(e.t!=='boss'){e.d=Math.max(0,e.d-D.push[L]);const p=posAt(e.d);e.x=p.x;e.y=p.y}}
+          if(e.t!=='boss'){e.d=Math.max(0,e.d-D.push[L]*G.spdK);const p=posAt(e.d);e.x=p.x;e.y=p.y}}
         G.fx.push({k:'ring',x:front.x,y:front.y,r:8,to:45,life:.25,max:.25,col:'#7c4dff'})}break;
       case 'nobara':if(front){t.cd=1/D.rate[L];t.anim=.2;t.face=front.x<t.x?-1:1;
         G.shots.push({x:t.x+6*t.face,y:t.y-8,tg:front,dmg:D.dmg[L]})}break;
@@ -1033,9 +1063,9 @@ function drawDomain(){
   for(let i=0;i<5;i++){const rr=(G.time*120+i*150)%750;ctx.strokeStyle=`rgba(154,216,255,${.5*(1-rr/750)})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(G.domX,G.domY,rr,0,7);ctx.stroke()}
   for(const s of STARS){const an=s.a+G.time*.15*s.sp,x=G.domX+Math.cos(an)*s.r,y=G.domY+Math.sin(an)*s.r*.7;
     ctx.fillStyle=`rgba(255,255,255,${.4+.6*Math.abs(Math.sin(G.time*3+s.a*5))})`;ctx.fillRect(x,y,s.s,s.s)}
-  ctx.font=`bold 110px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='rgba(200,180,255,.13)';ctx.fillText('無量空腹',W/2,H/2);
+  ctx.font=`bold 76px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='rgba(200,180,255,.13)';ctx.fillText('無量空腹',W/2,H/2);
   ctx.font=`bold 40px ${FONT}`;for(let i=0;i<6;i++){const an=G.time*.5+i*1.05;ctx.fillText(['🍙','🍜','🍣','🍛','🍔','🍰'][i],G.domX+Math.cos(an)*170,G.domY+Math.sin(an)*110)}
-  ctx.font=`bold 13px ${FONT}`;ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillText(`領域展開『無量空腹』… 敵は空腹で動けない ${Math.max(0,Math.min(5,G.domain)).toFixed(1)}s`,W/2,26);
+  ctx.font=`bold 11px ${FONT}`;ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillText(`領域展開『無量空腹』… 敵は空腹で動けない ${Math.max(0,Math.min(5,G.domain)).toFixed(1)}s`,W/2,26);
   ctx.textBaseline='alphabetic';ctx.restore();
 }
 // 空に浮かぶ巨大な邪悪な顔（吊り上がった4つの目と牙の笑み）
@@ -1058,15 +1088,15 @@ function drawKitchen(){
   ctx.save();ctx.globalAlpha=a*.55;ctx.fillStyle='#2a0303';ctx.fillRect(-20,-20,W+40,H+40);
   ctx.globalAlpha=a*.35;ctx.strokeStyle='#ff3b3b';ctx.lineWidth=1;
   for(let i=-H;i<W;i+=48){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+H,H);ctx.stroke();ctx.beginPath();ctx.moveTo(i+H,0);ctx.lineTo(i,H);ctx.stroke()}
-  ctx.globalAlpha=a*.15;ctx.font=`bold 80px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#ffb3b3';ctx.fillText('厨房の調理場',W/2,H/2);
-  ctx.textBaseline='alphabetic';evilSky(ctx,W/2,H/2-30,1.2,a*.5,G.time);ctx.textBaseline='middle';
+  ctx.globalAlpha=a*.15;ctx.font=`bold 54px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#ffb3b3';ctx.fillText('厨房の調理場',W/2,H/2);
+  ctx.textBaseline='alphabetic';evilSky(ctx,W/2,H/2-30,Math.min(1.2,W/420),a*.5,G.time);ctx.textBaseline='middle';
   ctx.globalAlpha=a;
   for(let i=0;i<9;i++){const x=(i*113+G.time*60)%W,y=((G.time*420+i*97)%(H+80))-40;
     ctx.save();ctx.translate(x,y);ctx.rotate(.5+i);ctx.fillStyle='#ddd';ctx.fillRect(-4,-22,14,26);ctx.fillStyle='#5d4037';ctx.fillRect(-2,4,6,14);ctx.restore()}
   ctx.lineWidth=3;
   for(let i=0;i<7;i++){const x=Math.random()*W,y=Math.random()*H,an=Math.random()*3.14,l=120+Math.random()*200;
     ctx.strokeStyle=Math.random()<.5?'#fff':'#ff4d4d';ctx.beginPath();ctx.moveTo(x-Math.cos(an)*l,y-Math.sin(an)*l);ctx.lineTo(x+Math.cos(an)*l,y+Math.sin(an)*l);ctx.stroke()}
-  ctx.font=`bold 13px ${FONT}`;ctx.fillStyle='#fff';ctx.fillText(`領域展開『厨房の調理場』… 全域みじん切り中 ${Math.max(0,Math.min(4,G.kitchen)).toFixed(1)}s`,W/2,H-20);
+  ctx.font=`bold 11px ${FONT}`;ctx.fillStyle='#fff';ctx.fillText(`領域展開『厨房の調理場』… 全域みじん切り中 ${Math.max(0,Math.min(4,G.kitchen)).toFixed(1)}s`,W/2,H-20);
   ctx.textBaseline='alphabetic';ctx.restore();
 }
 
@@ -1140,7 +1170,7 @@ function drawCutin(){
   ctx.fillStyle=`rgba(0,0,0,${.9*fade})`;ctx.fillRect(0,0,W,H);
   const vg=ctx.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,W*.65);vg.addColorStop(0,'rgba(120,0,20,0)');vg.addColorStop(1,`rgba(150,0,24,${.5*fade})`);ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
   if(c.type==='sukuna'){ctx.fillStyle=`rgba(90,0,8,${.4*fade})`;ctx.fillRect(0,0,W,H);
-    evilSky(ctx,W/2,H/2-10,1.5,.45*fade,e*3);
+    evilSky(ctx,W/2,H/2-10,Math.min(1.5,W/400),.45*fade,e*3);
     ctx.save();ctx.strokeStyle='#ff3344';ctx.shadowColor='#ff1a2a';ctx.shadowBlur=16;ctx.globalAlpha=fade*.8;
     for(let b=0;b<3;b++){let x=Math.random()*W,y=0;ctx.lineWidth=1+Math.random()*2.5;ctx.beginPath();ctx.moveTo(x,y);while(y<H){x+=(Math.random()-.5)*60;y+=20+Math.random()*30;ctx.lineTo(x,y)}ctx.stroke()}
     ctx.restore()}
@@ -1197,7 +1227,7 @@ function drawCutin(){
   ctx.shadowColor=col;ctx.fillStyle=col;{const dw=(L.center?W-60:W-374)*easeOut(lp);ctx.fillRect(L.center?L.tx-dw/2:334,L.div,dw,1.5)}ctx.restore();
   // 6) 技名：筆文字の血文字（1文字ずつ叩きつけ、血が垂れる）
   const chars=[...c.txt],tx=L.tx,ty=L.ty,maxW=L.maxW;let fs=78;
-  ctx.font=`${fs}px ${FONT2}`;while(ctx.measureText(c.txt).width>maxW&&fs>28){fs-=2;ctx.font=`${fs}px ${FONT2}`}
+  ctx.font=`${fs}px ${FONT2}`;while(ctx.measureText(c.txt).width>maxW&&fs>16){fs-=2;ctx.font=`${fs}px ${FONT2}`}
   ctx.textAlign='center';let cx=L.center?tx-ctx.measureText(c.txt).width/2:tx;
   for(let i=0;i<chars.length;i++){
     const ch=chars[i],w=ctx.measureText(ch).width,t0=inT+.035*i,p=Math.max(0,Math.min(1,(e-t0)/.18));
@@ -1215,7 +1245,7 @@ function drawCutin(){
   }
   // 7) サブ（金のタイプライター）
   const sub=c.sub,n=Math.max(0,Math.min(sub.length,Math.floor((e-inT-.2)*40)));
-  ctx.textAlign=L.center?'center':'left';ctx.font=`500 18px ${FONT}`;
+  ctx.textAlign=L.center?'center':'left';ctx.font=`500 ${L.center?14:18}px ${FONT}`;
   const st=sub.slice(0,n)+(n<sub.length&&n>0?'▌':'');ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.strokeText(st,L.center?tx:tx+4,L.sub);
   ctx.fillStyle='#f3d98b';ctx.shadowColor='#d4af37';ctx.shadowBlur=8;ctx.fillText(st,L.center?tx:tx+4,L.sub);ctx.shadowBlur=0;
   // 8) 朱の落款
@@ -1380,10 +1410,10 @@ function draw(){
   // CRT風の走査線と周辺減光
   ctx.fillStyle=VIG;ctx.fillRect(0,0,W,H);
   ctx.fillStyle=SCAN;ctx.fillRect(0,0,W,H);
-  if(G.state==='ready'&&G.wave===0&&G.stage===1&&!G.banner){
+  if(G.state==='ready'&&G.wave===0&&G.stage===1&&!G.banner&&!G.towers.length&&!G.placing){
     ctx.fillStyle='rgba(0,0,0,.82)';ctx.fillRect(15,H/2-52,W-30,104);ctx.strokeStyle='rgba(212,175,55,.6)';ctx.lineWidth=1;ctx.strokeRect(15.5,H/2-51.5,W-31,103);
     ctx.fillStyle='#c4122f';ctx.fillRect(15,H/2-52,W-30,2);
-    ctx.fillStyle='#ece4d6';ctx.font=`500 15px ${FONT}`;ctx.textAlign='center';
+    ctx.fillStyle='#ece4d6';ctx.font=`500 12.5px ${FONT}`;ctx.textAlign='center';
     ctx.fillText('下のキャラを選んで、マス目ブロックをタップで配置！',W/2,H/2-12);
     ctx.fillStyle='#f3d98b';ctx.fillText('準備ができたら「WAVE開始」を押そう',W/2,H/2+22);
   }
@@ -1395,24 +1425,39 @@ const canPlace=(c,r)=>c>=0&&c<COLS&&r>=0&&r<ROWS&&grid[r][c]===0&&!towerAt(c,r);
 function toCell(ev){const rc=cv.getBoundingClientRect(),x=(ev.clientX-rc.left)/rc.width*W,y=(ev.clientY-rc.top)/rc.height*H;return{x,y,c:Math.floor(x/CS),r:Math.floor(y/CS)}}
 cv.addEventListener('pointermove',ev=>{G.hover=toCell(ev)});
 cv.addEventListener('pointerleave',()=>{G.hover=null});
+// キャラのタップ判定：足元のマスだけでなく頭まで含めた広い範囲で、指に一番近いキャラを選ぶ
+function towerHit(x,y){let best=null,bd=1e9;
+  for(const t of G.towers){const dx=x-t.x,dy=y-(t.y-10);if(Math.abs(dx)<=26&&dy>=-40&&dy<=32){const d=dx*dx+dy*dy;if(d<bd){bd=d;best=t}}}
+  return best}
+// 置けないマスをタップしても、指から近い（34px以内）置けるマスに吸着させる
+function snapCell(h){if(canPlace(h.c,h.r))return{c:h.c,r:h.r};let best=null,bd=34*34;
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const c=h.c+dc,r=h.r+dr;if(!canPlace(c,r))continue;
+    const d=(c*CS+CS/2-h.x)**2+(r*CS+CS/2-h.y)**2;if(d<bd){bd=d;best={c,r}}}
+  return best}
+// 置いた直後の3秒だけ「置き直す（全額返金）」を出す。指の誤タップ対策
+let undoTimer=0;
+function showUndo(t){G.undoT=t;$('undo').style.display='block';clearTimeout(undoTimer);undoTimer=setTimeout(hideUndo,3000)}
+function hideUndo(){if(G)G.undoT=null;$('undo').style.display='none'}
 cv.addEventListener('pointerdown',ev=>{
   if(G.state!=='ready'&&G.state!=='wave')return;
   const h=toCell(ev);G.hover=h;
-  const hit=towerAt(h.c,h.r);
-  if(hit&&!G.placing){openPop(hit);return}
   if(G.placing){
     const D=DEFS[G.placing];
     if(G.money<D.cost){text(h.x,h.y,'マネー不足！','#ff4d6d');return}
-    if(!canPlace(h.c,h.r)){text(h.x,h.y,hit?'もう誰かいる！':'そこには置けない！','#ff4d6d');return}
-    G.money-=D.cost;const x=h.c*CS+CS/2,y=h.r*CS+CS/2;
-    G.towers.push({type:G.placing,c:h.c,r:h.r,x,y,lv:1,cd:0,spCd:D.ct*.3,anim:0,face:1,spent:D.cost});
+    const s=snapCell(h);
+    if(!s){text(h.x,h.y,towerHit(h.x,h.y)?'もう誰かいる！':'そこには置けない！','#ff4d6d');return}
+    G.money-=D.cost;const x=s.c*CS+CS/2,y=s.r*CS+CS/2;
+    const t={type:G.placing,c:s.c,r:s.r,x,y,lv:1,cd:0,spCd:D.ct*.3,anim:0,face:1,spent:D.cost};G.towers.push(t);
     burst(x,y,'#fff',14);G.fx.push({k:'ring',x,y,r:5,to:36,life:.3,max:.3,col:'#fff'});
+    showUndo(t);
     if(!ev.shiftKey)G.placing=null;
     syncUI(true);return;
   }
-  if(hit){G.placing=null;openPop(hit);return}
+  const hit=towerHit(h.x,h.y);
+  if(hit){openPop(hit);return}
   closePop();
 });
+$('undo').onclick=()=>{const t=G.undoT;if(t&&G.towers.includes(t)&&t.lv===1){G.money+=t.spent;G.towers=G.towers.filter(o=>o!==t);if(G.sel===t)closePop();text(t.x,t.y,'+'+t.spent+'G','#ffd23f')}hideUndo();syncUI(true)};
 window.addEventListener('keydown',ev=>{if(ev.key==='Escape'){G.placing=null;closePop();syncUI(true)}});
 
 // ===== UI =====
@@ -1480,9 +1525,9 @@ const PROG_KEY='jkd_progress';
 function loadProg(){try{return JSON.parse(localStorage.getItem(PROG_KEY))||{un:1,cl:[]}}catch(e){return{un:1,cl:[]}}}
 function markClear(st){track('stage_clear',{stage:st});const p=loadProg();p.un=Math.max(p.un,Math.min(5,st+1));if(!p.cl.includes(st))p.cl.push(st);try{localStorage.setItem(PROG_KEY,JSON.stringify(p))}catch(e){}}
 function drawPreview(c,S){
-  const k=104/W,pts=S.path.map(([a,b])=>[(a*CS+CS/2)*k,(b*CS+CS/2)*k]);
-  c.fillStyle=S.th.base2;c.fillRect(0,0,104,192);
-  c.strokeStyle='rgba(255,255,255,.05)';for(let i=0;i<104;i+=CS*k){c.beginPath();c.moveTo(i,0);c.lineTo(i,192);c.stroke()}
+  const k=96/W,pts=S.path.map(([a,b])=>[(a*CS+CS/2)*k,(b*CS+CS/2)*k]);
+  c.fillStyle=S.th.base2;c.fillRect(0,0,96,160);
+  c.strokeStyle='rgba(255,255,255,.05)';for(let i=0;i<96;i+=CS*k){c.beginPath();c.moveTo(i,0);c.lineTo(i,160);c.stroke()}
   const ln=(w,col)=>{c.lineWidth=w;c.strokeStyle=col;c.lineJoin='miter';c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.stroke()};
   c.shadowColor=S.th.edge;c.shadowBlur=6;ln(CS*k+2,S.th.edge);c.shadowBlur=0;ln(CS*k-1,S.th.floor);
   const[ex,ey]=pts[pts.length-1];c.fillStyle='#ff3d6d';c.shadowColor='#ff3d6d';c.shadowBlur=8;c.fillRect(ex-4,ey-4,8,8);c.shadowBlur=0;
@@ -1492,7 +1537,7 @@ function showTitle(){
   const p=loadProg(),box=$('stages');box.innerHTML='';
   STAGES.forEach((S,i)=>{const n=i+1,lock=n>p.un&&location.hash!=='#debug';
     const el=document.createElement('div');el.className='stg'+(lock?' lock':'');
-    const pc=document.createElement('canvas');pc.width=104;pc.height=192;drawPreview(pc.getContext('2d'),S);el.appendChild(pc);
+    const pc=document.createElement('canvas');pc.width=96;pc.height=160;drawPreview(pc.getContext('2d'),S);el.appendChild(pc);
     el.insertAdjacentHTML('beforeend',`<div class="info"><div class="no">STAGE ${n}</div><div class="nm">${S.name}</div><div class="df">危険度 ${'★'.repeat(n)}${'☆'.repeat(5-n)}</div></div>${p.cl.includes(n)?'<span class="badge">CLEAR</span>':''}`);
     if(!lock)el.onclick=()=>{$('title').style.display='none';newGame(n);track('game_start',{stage:n})};
     box.appendChild(el)});
@@ -1514,7 +1559,7 @@ function showOver(title,col,msg,b1,f1,b2,f2){
   $('oBtn2').style.display=b2?'':'none';if(b2){$('oBtn2').textContent=b2;$('oBtn2').onclick=f2}
   $('over').style.display='flex';
 }
-function openPop(t){G.sel=t;G.placing=null;$('pop').style.display='block';refreshPop();placePop();syncUI(true)}
+function openPop(t){hideUndo();G.sel=t;G.placing=null;$('pop').style.display='block';refreshPop();placePop();syncUI(true)}
 function closePop(){if(G)G.sel=null;$('pop').style.display='none'}
 function placePop(){
   // 縦画面：タワーが下半分なら上端に、上半分なら下端にドック（タワーを隠さない）
