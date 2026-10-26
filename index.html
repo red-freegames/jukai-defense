@@ -189,7 +189,7 @@ canvas#cv{border-radius:6px}
 #title .l2{font-size:15px;letter-spacing:10px}
 #stages{flex-direction:column;flex-wrap:nowrap;align-items:stretch;width:100%;max-width:360px;gap:8px}
 .stg{width:auto;display:flex;align-items:center;gap:12px;padding:5px 10px 5px 6px}
-.stg canvas{width:38px;aspect-ratio:9/15;flex:none}
+.stg canvas{width:40px;aspect-ratio:9/13;flex:none}
 .stg .info{flex:1;min-width:0}
 .stg .no{margin-top:0}
 .stg.lock::after{font-size:16px}
@@ -236,6 +236,22 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
 #hint{font-size:13px;padding:8px 14px}
 #undo{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:none;z-index:6;min-height:50px;padding:13px 22px;font-size:14px;color:#fff;
   background:linear-gradient(180deg,#3a2a66,#1a1036);border-color:var(--gold2);box-shadow:0 0 18px rgba(212,175,55,.5);white-space:nowrap}
+/* ===== 盤面を横幅いっぱいに（余白・枠なし）／下部パネルを整理 ===== */
+#wrap{padding:0}
+canvas#cv{border:none;border-radius:0;box-shadow:none}
+@media (min-width:600px){#wrap{padding:6px}canvas#cv{border:1px solid rgba(212,175,55,.35);border-radius:6px}}
+#dock{padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.card{padding-top:4px}
+.card canvas{width:48px;height:48px}
+.card .cs{font-size:14px}
+.spb{padding:11px 0;margin-top:4px}
+#ctrl{margin-top:6px}
+#ctrl .btn{min-height:50px}
+#ctrl .spdseg button{min-width:50px;min-height:50px}
+#cancelPlace{display:none;flex:1;font-size:16px;letter-spacing:2px}
+#pop .psep{height:1px;margin:12px 0 2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)}
+#pop .btn.sell{color:#ffb4b4;background:#140a10;border-color:rgba(255,90,90,.45);text-shadow:none}
+#pop .btn.sell.armed{color:#fff;background:linear-gradient(180deg,#a00c26,#40020c);border-color:#ff7a8a;box-shadow:0 0 14px rgba(255,42,74,.6)}
 </style>
 </head>
 <body>
@@ -261,7 +277,8 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
       <button class="btn up" id="pUp"></button>
       <div class="ctbar"><div id="pCt"></div></div>
       <button class="btn red" id="pSp"></button>
-      <button class="btn blue" id="pSell"></button>
+      <div class="psep"></div>
+      <button class="btn sell" id="pSell"></button>
     </div>
   </div>
   <!-- 親指で操作する下部パネル：キャラ（タップで配置／下の帯で必殺技）＋操作ボタン -->
@@ -270,6 +287,7 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
     <div id="ctrl">
       <div class="spdseg" id="spd" title="ゲーム速度"><button data-s="1" class="on">x1</button><button data-s="2">x2</button><button data-s="4">x4</button></div>
       <button class="btn" id="next">WAVE開始 ▶</button>
+      <button class="btn red" id="cancelPlace">× 配置キャンセル</button>
     </div>
   </div>
   <div id="title"><svg class="sigil" viewBox="-100 -100 200 200" fill="none" stroke="#c4122f" stroke-width=".7"><path id="sgr" d="M0,-86 a86,86 0 1,1 -.1,0"/><circle r="97"/><circle r="92" stroke-dasharray="1 3"/><circle r="78"/><circle r="38" stroke="#d4af37"/><polygon points="0,-78 46,63 -74,-24 74,-24 -46,63"/><text font-size="8.5" fill="#ff2a4a" stroke="none" letter-spacing="3"><textPath href="#sgr">呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨</textPath></text></svg><svg class="sigil s2" viewBox="-100 -100 200 200" fill="none" stroke="#d4af37" stroke-width=".8"><circle r="96"/><circle r="84" stroke-dasharray="6 4"/><polygon points="0,-84 73,42 -73,42"/><polygon points="0,84 73,-42 -73,-42"/></svg>
@@ -294,29 +312,30 @@ a.btn{text-decoration:none;text-align:center;display:inline-block}
 (()=>{
 'use strict';
 // 縦画面（スマホ縦持ち）用の盤面：13×24マス
-// 指で狙いやすいよう、盤面は9×15マス（1マスが画面上で約40px以上になる）
-const W=360,H=600,CS=40,COLS=9,ROWS=15;
+// 盤面は9×13マス。スマホ縦画面の横幅いっぱいに広がる比率（1マスが画面上で約42px）
+const W=360,H=520,CS=40,COLS=9,ROWS=13;
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const wrap=document.getElementById('wrap');
 const FONT='"Rajdhani","Zen Kaku Gothic New",sans-serif',FONT2='"Yuji Syuku","Zen Kaku Gothic New",serif';
 let K=1;
-const VIG=(()=>{const g=ctx.createRadialGradient(W/2,H/2,H*.45,W/2,H/2,W*.62);g.addColorStop(0,'rgba(10,0,4,0)');g.addColorStop(1,'rgba(10,0,4,.6)');return g})();
-const SCAN=(()=>{const c=document.createElement('canvas');c.width=4;c.height=4;const x=c.getContext('2d');x.fillStyle='rgba(0,0,0,.09)';x.fillRect(0,3,4,1);return ctx.createPattern(c,'repeat')})();
+// 周辺減光：縦長盤面でも内側<外側になるよう半径を短辺・対角線から決める（逆転すると盤面全体が暗く沈む）
+const VIG=(()=>{const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.45,W/2,H/2,Math.hypot(W,H)*.55);g.addColorStop(0,'rgba(10,0,4,0)');g.addColorStop(1,'rgba(10,0,4,.35)');return g})();
+const SCAN=(()=>{const c=document.createElement('canvas');c.width=4;c.height=4;const x=c.getContext('2d');x.fillStyle='rgba(0,0,0,.05)';x.fillRect(0,3,4,1);return ctx.createPattern(c,'repeat')})();
 
 // ===== ステージ =====
 // ref=旧盤面でのルート長（マス）。ルートが短くなった分だけ敵を遅くして、通過時間＝難易度を保つ
 // th: base/base2=地の色, acc/acc2=発光色, path=通路の底, fog=瘴気, rune=紋様の色, edge=通路の縁（明るいネオン）, floor=通路の床
 const STAGES=[
-  {name:'高専グラウンド（夜）',ref:56,path:[[1,-1],[1,3],[7,3],[7,7],[1,7],[1,11],[7,11],[7,14]],
-    th:{base:'#07050d',base2:'#150c26',acc:'#b84dff',acc2:'#ff3d9a',path:'#040208',fog:'rgba(150,70,255,.13)',rune:'#8a4dff',edge:'#7ef9ff',floor:'#1c1530'}},
-  {name:'夕暮れの商店街',ref:54,path:[[1,-1],[1,12],[4,12],[4,2],[7,2],[7,14]],
-    th:{base:'#0b0406',base2:'#200a0e',acc:'#ff5a3d',acc2:'#ffb347',path:'#050102',fog:'rgba(255,90,40,.10)',rune:'#d0452c',edge:'#ffd36b',floor:'#24141a'}},
-  {name:'真夜中の駅地下',ref:69,path:[[7,-1],[7,13],[1,13],[1,1],[5,1],[5,10],[3,10],[3,5]],
-    th:{base:'#03060c',base2:'#0a1324',acc:'#3de3ff',acc2:'#9b5cff',path:'#010306',fog:'rgba(60,200,255,.09)',rune:'#2a8ad8',edge:'#5fffb0',floor:'#0f1e26'}},
-  {name:'吹雪の離島',ref:56,path:[[1,-1],[1,2],[7,2],[7,5],[1,5],[1,8],[7,8],[7,11],[1,11],[1,14]],
-    th:{base:'#060a12',base2:'#132033',acc:'#a8dcff',acc2:'#ffffff',path:'#03050a',fog:'rgba(190,225,255,.11)',rune:'#6fa6d8',snow:true,edge:'#9fe8ff',floor:'#18243a'}},
-  {name:'呪いの王の厨房',ref:111,path:[[1,-1],[1,1],[7,1],[7,3],[1,3],[1,5],[7,5],[7,7],[1,7],[1,9],[7,9],[7,11],[1,11],[1,13],[7,13],[7,14]],
-    th:{base:'#090103',base2:'#22040a',acc:'#ff1a3a',acc2:'#ffb000',path:'#040001',fog:'rgba(255,20,40,.13)',rune:'#b0001c',edge:'#ffcf4a',floor:'#2a0e12'}}
+  {name:'高専グラウンド（夜）',ref:56,path:[[1,-1],[1,3],[7,3],[7,7],[1,7],[1,10],[7,10],[7,12]],
+    th:{base:'#110b20',base2:'#2a1848',acc:'#b84dff',acc2:'#ff3d9a',path:'#040208',fog:'rgba(150,70,255,.2)',rune:'#8a4dff',edge:'#7ef9ff',floor:'#1c1530'}},
+  {name:'夕暮れの商店街',ref:54,path:[[1,-1],[1,10],[4,10],[4,2],[7,2],[7,12]],
+    th:{base:'#1a0a0e',base2:'#3c1620',acc:'#ff5a3d',acc2:'#ffb347',path:'#050102',fog:'rgba(255,90,40,.17)',rune:'#d0452c',edge:'#ffd36b',floor:'#24141a'}},
+  {name:'真夜中の駅地下',ref:69,path:[[7,-1],[7,11],[1,11],[1,1],[5,1],[5,8],[3,8],[3,4]],
+    th:{base:'#08101e',base2:'#16294a',acc:'#3de3ff',acc2:'#9b5cff',path:'#010306',fog:'rgba(60,200,255,.16)',rune:'#2a8ad8',edge:'#5fffb0',floor:'#0f1e26'}},
+  {name:'吹雪の離島',ref:56,path:[[1,-1],[1,2],[7,2],[7,5],[1,5],[1,8],[7,8],[7,11],[1,11],[1,12]],
+    th:{base:'#0e1626',base2:'#243856',acc:'#a8dcff',acc2:'#ffffff',path:'#03050a',fog:'rgba(190,225,255,.17)',rune:'#6fa6d8',snow:true,edge:'#9fe8ff',floor:'#18243a'}},
+  {name:'呪いの王の厨房',ref:111,path:[[1,-1],[1,1],[7,1],[7,3],[1,3],[1,5],[7,5],[7,7],[1,7],[1,9],[7,9],[7,11],[1,11],[1,12]],
+    th:{base:'#180509',base2:'#3e0a14',acc:'#ff1a3a',acc2:'#ffb000',path:'#040001',fog:'rgba(255,20,40,.2)',rune:'#b0001c',edge:'#ffcf4a',floor:'#2a0e12'}}
 ];
 const BOSS_HP=[1800,5500,44200,95200,204000]; // STAGE3以降は盤面縮小に合わせて1.7倍（STAGE3は以前の調整26000×1.7）
 const BOSS_ARM=[1,1,.8,.6,.5];   // ボスの通常攻撃耐性（必殺技は等倍）。STAGE3は .7→.8
@@ -1457,6 +1476,7 @@ cv.addEventListener('pointerdown',ev=>{
   if(hit){openPop(hit);return}
   closePop();
 });
+$('cancelPlace').onclick=()=>{G.placing=null;G.hover=null;syncUI(true)};
 $('undo').onclick=()=>{const t=G.undoT;if(t&&G.towers.includes(t)&&t.lv===1){G.money+=t.spent;G.towers=G.towers.filter(o=>o!==t);if(G.sel===t)closePop();text(t.x,t.y,'+'+t.spent+'G','#ffd23f')}hideUndo();syncUI(true)};
 window.addEventListener('keydown',ev=>{if(ev.key==='Escape'){G.placing=null;closePop();syncUI(true)}});
 
@@ -1526,8 +1546,8 @@ function loadProg(){try{return JSON.parse(localStorage.getItem(PROG_KEY))||{un:1
 function markClear(st){track('stage_clear',{stage:st});const p=loadProg();p.un=Math.max(p.un,Math.min(5,st+1));if(!p.cl.includes(st))p.cl.push(st);try{localStorage.setItem(PROG_KEY,JSON.stringify(p))}catch(e){}}
 function drawPreview(c,S){
   const k=96/W,pts=S.path.map(([a,b])=>[(a*CS+CS/2)*k,(b*CS+CS/2)*k]);
-  c.fillStyle=S.th.base2;c.fillRect(0,0,96,160);
-  c.strokeStyle='rgba(255,255,255,.05)';for(let i=0;i<96;i+=CS*k){c.beginPath();c.moveTo(i,0);c.lineTo(i,160);c.stroke()}
+  c.fillStyle=S.th.base2;c.fillRect(0,0,96,139);
+  c.strokeStyle='rgba(255,255,255,.05)';for(let i=0;i<96;i+=CS*k){c.beginPath();c.moveTo(i,0);c.lineTo(i,139);c.stroke()}
   const ln=(w,col)=>{c.lineWidth=w;c.strokeStyle=col;c.lineJoin='miter';c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.stroke()};
   c.shadowColor=S.th.edge;c.shadowBlur=6;ln(CS*k+2,S.th.edge);c.shadowBlur=0;ln(CS*k-1,S.th.floor);
   const[ex,ey]=pts[pts.length-1];c.fillStyle='#ff3d6d';c.shadowColor='#ff3d6d';c.shadowBlur=8;c.fillRect(ex-4,ey-4,8,8);c.shadowBlur=0;
@@ -1537,7 +1557,7 @@ function showTitle(){
   const p=loadProg(),box=$('stages');box.innerHTML='';
   STAGES.forEach((S,i)=>{const n=i+1,lock=n>p.un&&location.hash!=='#debug';
     const el=document.createElement('div');el.className='stg'+(lock?' lock':'');
-    const pc=document.createElement('canvas');pc.width=96;pc.height=160;drawPreview(pc.getContext('2d'),S);el.appendChild(pc);
+    const pc=document.createElement('canvas');pc.width=96;pc.height=139;drawPreview(pc.getContext('2d'),S);el.appendChild(pc);
     el.insertAdjacentHTML('beforeend',`<div class="info"><div class="no">STAGE ${n}</div><div class="nm">${S.name}</div><div class="df">危険度 ${'★'.repeat(n)}${'☆'.repeat(5-n)}</div></div>${p.cl.includes(n)?'<span class="badge">CLEAR</span>':''}`);
     if(!lock)el.onclick=()=>{$('title').style.display='none';newGame(n);track('game_start',{stage:n})};
     box.appendChild(el)});
@@ -1550,7 +1570,11 @@ $('pUp').onclick=()=>{const t=G.sel;if(!t||t.lv>=3)return;const c=DEFS[t.type].u
   G.money-=c;t.spent+=c;t.lv++;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
   text(t.x,t.y-30,'LV UP!!','#ffd23f',20);refreshPop();syncUI(true)};
 $('pSp').onclick=()=>{if(G.sel)special(G.sel)};
-$('pSell').onclick=()=>{const t=G.sel;if(!t)return;const v=Math.floor(t.spent*.6);G.money+=v;
+// 撤去（売却）：誤タップ防止のため、1回目で確認表示、2.5秒以内の2回目で確定
+let sellArm=0;
+$('pSell').onclick=()=>{const t=G.sel;if(!t)return;const v=Math.floor(t.spent*.6);
+  if(performance.now()>sellArm){sellArm=performance.now()+2500;refreshPop();return}
+  sellArm=0;G.money+=v;
   G.towers=G.towers.filter(o=>o!==t);text(t.x,t.y,'+'+v+'G','#ffd23f');burst(t.x,t.y,'#aaa',10);closePop();syncUI(true)};
 
 function showOver(title,col,msg,b1,f1,b2,f2){
@@ -1559,7 +1583,7 @@ function showOver(title,col,msg,b1,f1,b2,f2){
   $('oBtn2').style.display=b2?'':'none';if(b2){$('oBtn2').textContent=b2;$('oBtn2').onclick=f2}
   $('over').style.display='flex';
 }
-function openPop(t){hideUndo();G.sel=t;G.placing=null;$('pop').style.display='block';refreshPop();placePop();syncUI(true)}
+function openPop(t){hideUndo();sellArm=0;G.sel=t;G.placing=null;$('pop').style.display='block';refreshPop();placePop();syncUI(true)}
 function closePop(){if(G)G.sel=null;$('pop').style.display='none'}
 function placePop(){
   // 縦画面：タワーが下半分なら上端に、上半分なら下端にドック（タワーを隠さない）
@@ -1583,7 +1607,8 @@ function refreshPop(){
   sp.textContent=t.spCd>0?`必殺技『${D.sp}』 CT ${Math.ceil(t.spCd)}s`:`必殺技『${D.sp}』発動！`;
   sp.disabled=t.spCd>0||!G.enemies.length;
   $('pCt').style.width=(100*(1-t.spCd/D.ct))+'%';
-  $('pSell').textContent=`売却 +${Math.floor(t.spent*.6)}G`;
+  const armed=performance.now()<sellArm;$('pSell').classList.toggle('armed',armed);
+  $('pSell').textContent=armed?`⚠ もう一度タップで撤去（+${Math.floor(t.spent*.6)}G）`:`🗑️ 撤去（売却 +${Math.floor(t.spent*.6)}G）`;
 }
 let last={};
 function syncUI(force){
@@ -1596,10 +1621,12 @@ function syncUI(force){
   const segs=$('wgauge').children,prog=G.state==='wave'&&G.waveTotal?1-(G.queue.length+G.enemies.length)/G.waveTotal:1;
   for(let i=0;i<5;i++){const n=i+1,f=n<G.wave||(n===G.wave&&G.state!=='wave')?1:n===G.wave?Math.max(0,prog):0;
     segs[i].firstChild.style.width=(f*100)+'%';segs[i].classList.toggle('now',n===G.wave&&G.state==='wave')}
+  // 配置モード中は WAVE開始 の場所に大きな「配置キャンセル」を出す
+  $('cancelPlace').style.display=G.placing?'block':'none';$('next').style.display=G.placing?'none':'';
   const nd=G.state!=='ready'||G.wave>=5;$('next').disabled=nd;$('next').textContent=G.wave>=5?'WAVE開始 ▶':`WAVE ${G.wave+1} 開始 ▶`;
   for(const k in cards)cards[k].classList.toggle('sel',G.placing===k);
   const hint=$('hint');
-  if(G.placing){hint.style.display='block';hint.textContent=`${DEFS[G.placing].name}：光っているマスをタップ（Escでキャンセル）`}else hint.style.display='none';
+  if(G.placing){hint.style.display='block';hint.textContent=`${DEFS[G.placing].name}：光っているマスをタップして配置`}else hint.style.display='none';
 }
 function endGame(win){
   if(G.state==='win'||G.state==='lose')return;
@@ -1614,7 +1641,7 @@ function endGame(win){
 // ===== リサイズ =====
 function fit(){
   const r=wrap.getBoundingClientRect();
-  const s=Math.max(.1,Math.min((r.width-14)/W,(r.height-14)/H));
+  const s=Math.max(.1,Math.min((r.width-2)/W,(r.height-2)/H)); // 余白なしで横幅いっぱい
   cv.style.width=Math.floor(W*s)+'px';cv.style.height=Math.floor(H*s)+'px';
   const nk=Math.max(1,Math.min(3,s*(window.devicePixelRatio||1))); // 高DPIでも鮮明に（最大3倍）
   if(nk!==K||!bg||cv.width!==Math.round(W*nk)){K=nk;cv.width=Math.round(W*K);cv.height=Math.round(H*K);buildBg()}
