@@ -328,6 +328,10 @@ html,body{font-weight:500;background:#0a0a0c}
 .card.press{transform:scale(.92);filter:brightness(1.2);transition-duration:.06s}
 .spdseg button.press,.spb.press{transform:scale(.88);transition-duration:.06s}
 #undo.press{transform:translateX(-50%) scale(.93)}
+/* 封印中：ステージ名に重ねず右端の札にする */
+.stg.lock .info{padding-right:78px}
+.stg.lock::after{content:"🔒 封印中";inset:auto;right:10px;top:50%;transform:translateY(-50%);padding:5px 9px;font-size:13px;letter-spacing:2px;
+  border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.55);white-space:nowrap}
 </style>
 </head>
 <body>
