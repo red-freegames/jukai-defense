@@ -706,7 +706,11 @@ function startStage(){
 function text(x,y,s,col,size=15){G.texts.push({x,y,s,col,size,life:.8,max:.8,vx:(Math.random()-.5)*30})}
 function spark(x,y,col,big){if(G.fx.length<260)G.fx.push({k:'spark',x:x+(Math.random()-.5)*8,y:y+(Math.random()-.5)*8,col,big,a:Math.random()*.8,life:.14,max:.14})}
 function burst(x,y,col,n,sp=120){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=sp*(.3+Math.random());G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.5+Math.random()*.3,col,sz:2+Math.random()*3})}}
-function shake(t,m){if(G.shake<=0)G.shakeMag=0;G.shake=Math.max(G.shake,t);G.shakeMag=Math.max(G.shakeMag,m)}
+// 画面揺れ：全体を控えめに。倍速中とAUTO必殺はさらに弱く短くして、盤面を見失わないようにする
+let spAuto=false;
+function shake(t,m){const k=.5*(G.speed>=4?.35:G.speed>=2?.6:1)*(spAuto?.5:1);t*=G.speed>1||spAuto?.6:1;m=Math.min(6,m*k);
+  if(m<.6)return;
+  if(G.shake<=0)G.shakeMag=0;G.shake=Math.max(G.shake,t);G.shakeT=Math.max(G.shake,G.shakeT||0);G.shakeMag=Math.max(G.shakeMag,m)}
 function cutin(type,x,y){const D=DEFS[type];G.cutin={type,txt:D.cut,col:D.col,el:0,max:2,x,y}}
 
 // 無量空腹：発動0.4秒後から7秒間、ボスも含めて全敵が完全停止し、受けるダメージ+30%
@@ -766,6 +770,7 @@ function special(t,auto){
   if(t.spCd>0||G.state!=='wave'&&G.state!=='ready')return;
   const D=DEFS[t.type],L=t.lv,v=D.spv[L-1],al=alive();
   if(!al.length&&D.sk!=='heal'){text(t.x,t.y-30,'敵がいない！','#aaa',14);return}
+  spAuto=!!auto;
   switch(D.sk){
     case 'rush':G.rushes.push({t,tg:strongest(al),hits:8,timer:.4,dmg:v});shake(.4,7);break;
     case 'push':
@@ -800,6 +805,7 @@ function special(t,auto){
       for(const e of al)if(Math.hypot(e.x-c.x,e.y-c.y)<R+e.r){hurt(e,v,true,D.col,true);stunE(e,1.5)}
       G.fx.push({k:'nova',x:c.x,y:c.y,col:D.col,R:R*1.5,life:.6,max:.6},{k:'boom',x:c.x,y:c.y,life:.5,max:.5});burst(c.x,c.y,D.col,50,320);shake(1,15);break}
   }
+  spAuto=false;
   // 手動は全画面カットイン。AUTOは画面左下の小テロップだけにして、ゲームのテンポを止めない
   if(auto){G.minis=G.minis.filter(m=>m.t>0).slice(-2);G.minis.push({type:t.type,txt:D.sp,rc:D.rc,t:1.4});G.fx.push({k:'nova',x:t.x,y:t.y,col:D.col,life:.5,max:.5})}
   else cutin(t.type,t.x,t.y);
@@ -1067,7 +1073,7 @@ function updateFx(dt,rdt){
   for(const f of G.fx)f.life-=dt;
   G.fx=G.fx.filter(f=>f.life>0);
   // 画面揺れ・カットイン・バナーは倍速に関係なく実時間で進める
-  if(G.shake>0)G.shake-=rdt;
+  if(G.shake>0){G.shake-=rdt;if(G.shake<=0)G.shakeT=0}
   if(G.cutin){G.cutin.el+=rdt;if(G.cutin.el>=G.cutin.max){const c=G.cutin;G.cutin=null;
     // カットイン明け：呪力の解放（画面を駆け抜ける衝撃波＋閃光）
     G.fx.push({k:'nova',x:c.x,y:c.y,col:c.col,life:.7,max:.7},{k:'flash',col:c.col,a:.3,life:.3,max:.3});shake(.4,10)}}
@@ -1993,7 +1999,7 @@ function drawFx(f){
 function draw(){
   ctx.setTransform(K,0,0,K,0,0);
   ctx.save();
-  if(G.shake>0){const m=G.shakeMag;ctx.translate((Math.random()-.5)*m*2,(Math.random()-.5)*m*2)}
+  if(G.shake>0){const m=G.shakeMag*Math.min(1,G.shake/(G.shakeT||G.shake));ctx.translate((Math.random()-.5)*m*2,(Math.random()-.5)*m*2)}
   ctx.imageSmoothingEnabled=false;ctx.fillStyle='#000';ctx.fillRect(-20,-20,W+40,H+40);ctx.drawImage(bg,0,0,W,H);
   if(G.placing){
     for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(grid[r][c]===0&&!towerAt(c,r)){ctx.fillStyle=`rgba(212,175,55,${.07+.05*Math.sin(G.time*4+c+r)})`;ctx.fillRect(c*CS+3,r*CS+3,CS-6,CS-6)}
