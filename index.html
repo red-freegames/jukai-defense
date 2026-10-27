@@ -331,7 +331,7 @@ canvas#cv{display:block;touch-action:none;background:#000}
     <div id="ctrl">
       <div class="spdseg" id="spd" title="ゲーム速度"><button data-s="1" class="on">x1</button><button data-s="2">x2</button><button data-s="4">x4</button></div>
       <button class="tgl" id="autoSp" aria-pressed="false" title="必殺技を賢く自動発動"><i></i><span>必殺技</span><b>AUTO</b></button>
-      <button class="tgl up" id="autoUp" aria-pressed="false" title="呪力があれば自動で強化"><i></i><span>自動</span><b class="jp">進化</b></button>
+      <button class="tgl up" id="autoUp" aria-pressed="false" title="呪力があれば自動で強化（手数料込みで強化費1.3倍）"><i></i><span>自動</span><b class="jp">進化</b></button>
       <button class="btn" id="next">WAVE開始 ▶</button>
       <button class="btn red" id="cancelPlace">× 配置キャンセル</button>
     </div>
@@ -429,10 +429,10 @@ const STAGES=[
 const LAST=STAGES.length;
 // アンカー間を対数補間して、ステージごとの数値を滑らかに伸ばす
 const lerpLog=(A,s)=>{for(let i=1;i<A.length;i++)if(s<=A[i][0]){const[s0,v0]=A[i-1],[s1,v1]=A[i],k=(s-s0)/(s1-s0);return Math.exp(Math.log(v0)+(Math.log(v1)-Math.log(v0))*k)}return A[A.length-1][1]};
-const HP_A=[[1,1],[3,1.6],[10,9],[20,18],[30,27]];          // 雑魚の耐久倍率
-const BOSS_A=[[1,1800],[3,4000],[10,30000],[20,52000],[30,92000]];
+const HP_A=[[1,3.6],[3,5.6],[10,9.5],[20,19],[30,29]];          // 雑魚の耐久倍率
+const BOSS_A=[[1,6000],[3,12000],[10,34000],[20,58000],[30,98000]];
 const MONEY_A=[[1,450],[3,800],[10,1900],[20,4200],[30,7600]]; // ステージ選択から始めた時の所持金（序盤に1〜2体しか置けない額）
-const AREA_SPD=[1,1.08,1.16],AREA_ARM=[.9,.7,.55];
+const AREA_SPD=[1.05,1.1,1.16],AREA_ARM=[.9,.7,.55];
 const hpMul=s=>lerpLog(HP_A,s),bossHp=s=>Math.round(lerpLog(BOSS_A,s)/100)*100,stageMoney=s=>Math.round(lerpLog(MONEY_A,s)/50)*50;
 let PATH=[],segs=[],pathLen=0,grid=[];
 
@@ -561,28 +561,29 @@ const ETYPES={
   grunt:{hp:40,spd:52,r:12,rew:9,col:'#8e5cf0'},
   fast:{hp:26,spd:98,r:9,rew:10,col:'#f15bb5'},
   tank:{hp:220,spd:32,r:15,rew:24,col:'#2ec4b6'},
-  armor:{hp:300,spd:38,r:14,rew:30,col:'#6f7fd8',arm:.45},
+  armor:{hp:300,spd:38,r:14,rew:30,col:'#6f7fd8',arm:.45,lk:2},
   healer:{hp:70,spd:44,r:12,rew:16,col:'#5fffb0',heal:.08},
   ghost:{hp:70,spd:62,r:11,rew:14,col:'#c8d8ff',evade:1},
   splitter:{hp:110,spd:42,r:14,rew:12,col:'#ff9a3d',split:3},
   mini:{hp:24,spd:92,r:7,rew:3,col:'#ffb04a'},
-  golem:{hp:650,spd:26,r:17,rew:45,col:'#9a8a70',arm:.15},
-  boss:{hp:1,spd:22,r:28,rew:0,col:'#2b0f3a'}
+  golem:{hp:560,spd:26,r:17,rew:45,col:'#9a8a70',arm:.15,lk:2},
+  boss:{hp:1,spd:22,r:28,rew:0,col:'#2b0f3a',lk:10}
 };
+// lk：拠点に届いた時に削られる封印の数（重い敵ほど痛い）。副将（一級呪霊）は5
 const TRAIT_TXT={S:'群れ',A:'装甲',F:'高速',H:'回復役',G:'幽霊',P:'分裂',K:'岩鬼'};
 const BOSS_TXT={ran:'呪縛弾（キャラを封じる）',sum:'雑魚を召喚',reg:'自己再生',tou:'超堅牢',swi:'俊足'};
 // 何が来るか（デッキ編成のヒント）
 const TRAIT_HINT={S:'範囲攻撃',A:'装甲無視・必殺',F:'減速・スタン',H:'射撃で先に倒す',G:'単体攻撃は当たらない。範囲攻撃か眼鏡補佐の見破り',P:'範囲攻撃',K:'装甲無視'};
 function makeWave(st,wv){
-  const S=STAGES[st-1],tr=S.tr,q=[],has=c=>tr.includes(c),base=5+2*wv+Math.floor(st*.45);
+  const S=STAGES[st-1],tr=S.tr,q=[],has=c=>tr.includes(c),base=Math.floor(6+2.6*wv+st*.45);
   const n={grunt:base,
     fast:(wv>=2||st>=2)?Math.floor(base*.3)+(has('F')?Math.floor(base*.45):0):0,
     tank:st>=2&&wv>=2?Math.floor((wv+st*.3)/2):0,
-    armor:has('A')?Math.floor((wv+1+st*.25)/1.6):0,
+    armor:has('A')?Math.floor((wv*1.3+st*.22)/1.7):0,
     healer:has('H')?1+Math.floor((wv+st*.15)/2.5):0,
     ghost:has('G')?Math.floor((wv+2+st*.25)/1.1):0,
     splitter:has('P')?Math.floor((wv+1+st*.2)/1.8):0,
-    golem:has('K')?Math.floor((wv+1+st*.12)/1.4):0};
+    golem:has('K')?Math.floor((wv*1.2+st*.1)/1.6):0};
   // 特徴のある種類を多めにして、ステージごとに必要な役割をはっきりさせる
   if(has('G'))n.grunt=Math.floor(n.grunt*.7);
   const gap={grunt:Math.max(.32,.9-.02*st-.03*wv),fast:.45,tank:1.2,armor:1.3,healer:1.4,ghost:.6,splitter:1.1,golem:1.8};
@@ -591,7 +592,20 @@ function makeWave(st,wv){
   // 群れ：途中で一気に押し寄せる（範囲攻撃・範囲必殺の使いどころ）
   if((st>=3&&wv>=2)||(has('S')&&wv>=1)){const sw=[],m=Math.floor((has('S')?11:5)+st*.6+wv*2);for(let k=0;k<m;k++)sw.push({t:k%3?'fast':'grunt',gap:.13});
     sw[0].swarm=true;sw[sw.length-1].gap=1.5;q.splice(Math.floor(q.length*.5),0,...sw)}
-  if(wv===5)q.push({t:'boss',gap:3});
+  // 後半WAVEの総攻撃：最後に強敵が間を空けずに雪崩れ込む
+  const hv=['tank',...(has('A')||st>=10?['armor']:[]),...(has('K')||st>=15?['golem']:[]),...(has('P')?['splitter']:[])];
+  if(wv>=4){const k=Math.floor(1+st*.12+(wv-4)*2);
+    for(let j=0;j<k;j++)q.push({t:hv[j%hv.length],gap:.55});
+    for(let j=0;j<6+Math.floor(st*.5);j++)q.push({t:j%2?'fast':'grunt',gap:.16})}
+  if(wv===5){
+    q.push({t:'boss',gap:7});
+    // ボスの後ろから時間差で強敵の波。必殺技1発（領域の停止）では全部を止められない
+    // STAGE 6以降は2波目の先頭に副将（一級呪霊）が付く
+    const waves=st>=24?3:st>=8?2:1;
+    for(let w=0;w<waves;w++){if(w===1&&st>=6)q.push({t:'boss',sub:true,gap:1.2});
+      for(let j=0;j<2+Math.floor(st*.08);j++)q.push({t:hv[(j+w)%hv.length],gap:.6});q[q.length-1].gap=7}
+    if(waves===1&&st>=6)q.push({t:'boss',sub:true,gap:1});
+  }
   return q;
 }
 
@@ -636,26 +650,29 @@ function hurt(e,dmg,show,col,sp){
     text(e.x,e.y-10,'+'+e.rew+'G','#ffd23f',13);
     burst(e.x,e.y,e.col,e.t==='boss'?60:10,e.t==='boss'?300:120);
     // 分裂：小さな呪霊が3体こぼれ落ちる
-    if(e.split)for(let i=0;i<e.split;i++)spawn('mini',false,Math.max(0,e.d-6+i*6));
-    if(e.t==='boss'){shake(1,14);burst(e.x,e.y,'#ffd23f',60,350);if(G.stage===LAST)G.winT=1}
+    if(e.split)for(let i=0;i<e.split;i++)spawn('mini',false,Math.max(0,e.d-6+i*6),{free:1});
+    if(e.t==='boss'){shake(1,14);burst(e.x,e.y,'#ffd23f',60,350);if(G.stage===LAST&&!e.sub&&!G.queue.length&&!alive().length)G.winT=1}
   }
 }
 // 単体攻撃：幽霊は見破られていないと避ける
 function hitOne(t,e,dmg,col,pierce){
   if(e.evade&&!t.sight&&Math.random()<e.evade){if(Math.random()<.3)text(e.x,e.y-e.r-6,'すり抜け','#c8d8ff',11);return false}
   hurt(e,dmg,true,col,pierce);return true}
-function spawn(t,swarm,at=0){
-  const S=STAGES[G.stage-1],d=ETYPES[t],m=hpMul(G.stage)*(1+.14*(Math.max(1,G.wave)-1));
-  let hp=t==='boss'?bossHp(G.stage):d.hp*m,arm=t==='boss'?AREA_ARM[S.area]:d.arm||1,spd=d.spd*G.spdK;
-  const rew=t==="boss"?250+60*G.stage:Math.round(d.rew*(1+.05*(G.stage-1))); // 後半の稼ぎすぎを抑える
-  const ab=t==='boss'?S.boss:[];
+// o.sub：副将（ボスの45%の体力・能力なし）／o.free：召喚・分裂（倒しても呪力なし）
+function spawn(t,swarm,at=0,o={}){
+  const S=STAGES[G.stage-1],d=ETYPES[t],m=hpMul(G.stage)*[0,.92,1.06,1.24,1.44,1.6][Math.max(1,G.wave)],sub=!!o.sub;
+  // 敵の足はステージが進むほど速くなる（STAGE30で+12%）
+  let hp=t==='boss'?bossHp(G.stage)*(sub?.45:1):d.hp*m,arm=t==='boss'?AREA_ARM[S.area]:d.arm||1,spd=d.spd*G.spdK*(t!=='boss'?1+.004*(G.stage-1):sub?1.2:1/AREA_SPD[S.area]*[1,1.08,1.16][S.area]);
+  const rew=o.free?0:t==="boss"?(sub?80+20*G.stage:200+40*G.stage):Math.round(d.rew*.9*(1+.04*(G.stage-1))); // 後半の稼ぎすぎを抑える
+  const ab=t==='boss'&&!sub?S.boss:[];
   if(ab.includes('tou')){hp*=1.15;arm*=.5}
   if(ab.includes('swi'))spd*=1.3;
   const p=posAt(at);
-  G.enemies.push({t,d:at,x:p.x,y:p.y,hp,maxHp:hp,spd,r:d.r,rew,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6,
+  G.enemies.push({t,sub,d:at,x:p.x,y:p.y,hp,maxHp:hp,spd,r:sub?22:d.r,rew,lk:sub?5:d.lk||1,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6,
     heal:d.heal||0,evade:d.evade||0,split:d.split||0,ab,abT:3,stunT:0,dotT:0,dot:0});
   if(swarm){G.banner={text:'呪霊の群れが押し寄せてくる！',t:1.6,col:'#ff3d9a'};shake(.4,5)}
-  if(t==='boss'){G.warn=3;G.banner={text:ab.length?`⚠️ 特級呪霊：${ab.map(a=>BOSS_TXT[a].replace(/（.*）/,'')).join('・')} ⚠️`:'⚠️ 特級・ヤバい化け物 出現 ⚠️',t:2.6,col:'#ff4d6d'};shake(.8,7)}
+  if(sub){G.warn=2;G.banner={text:'⚠️ 一級呪霊が後を追ってくる！ ⚠️',t:2.2,col:'#ff8a3d'};shake(.5,6)}
+  else if(t==='boss'){G.warn=3;G.banner={text:ab.length?`⚠️ 特級呪霊：${ab.map(a=>BOSS_TXT[a].replace(/（.*）/,'')).join('・')} ⚠️`:'⚠️ 特級・ヤバい化け物 出現 ⚠️',t:2.6,col:'#ff4d6d'};shake(.8,7)}
 }
 const alive=()=>G.enemies.filter(e=>!e.dead);
 const strongest=a=>a.reduce((x,y)=>y.hp>x.hp?y:x);
@@ -768,13 +785,16 @@ function autoSpecial(){
   for(const t of ready)if(wantSp(t,al,gojoReady)){special(t,true);autoGap=1;return}
 }
 // 自動進化：コストの高いキャラから、同じなら配置順に。置き直し猶予中のキャラは除く
-function upgrade(t){const c=DEFS[t.type].up[t.lv-1];if(t.lv>=3||G.money<c)return false;
+// 自動進化は手数料つき（強化費の1.3倍）。任せきりにすると呪力が枯れる
+const AUTO_FEE=1.3,CARRY_MAX=.2;
+const upCost=(t,auto)=>Math.round(DEFS[t.type].up[t.lv-1]*(auto?AUTO_FEE:1)/10)*10;
+function upgrade(t,auto){const c=upCost(t,auto);if(t.lv>=3||G.money<c)return false;
   G.money-=c;t.spent+=c;t.lv++;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
   text(t.x,t.y-30,'LV UP!!','#ffd23f',20);if(G.sel===t)refreshPop();return true}
 function autoUpgrade(){
   if(G.state!=='ready'&&G.state!=='wave')return;
   const c=G.towers.map((t,i)=>({t,i})).filter(o=>o.t.lv<3&&o.t!==G.undoT).sort((a,b)=>DEFS[b.t.type].cost-DEFS[a.t.type].cost||a.i-b.i);
-  for(const o of c)if(upgrade(o.t)){syncUI(true);return}
+  for(const o of c)if(upgrade(o.t,true)){syncUI(true);return}
 }
 function syncAuto(){for(const[id,k]of[['autoSp','sp'],['autoUp','up']]){const b=$(id);b.classList.toggle('on',AUTO[k]);b.setAttribute('aria-pressed',AUTO[k])}}
 
@@ -786,7 +806,7 @@ function update(dt){
   if(G.winT>0){G.winT-=dt;if(G.winT<=0){endGame(true);return}}
   if(G.state==='wave'){
     G.incomeT+=dt;if(G.incomeT>=1){G.incomeT-=1;G.money+=2+incomeBonus()}
-    if(G.queue.length){G.spawnT-=dt;if(G.spawnT<=0){const it=G.queue.shift();spawn(it.t,it.swarm);G.spawnT=it.gap}}
+    if(G.queue.length){G.spawnT-=dt;if(G.spawnT<=0){const it=G.queue.shift();spawn(it.t,it.swarm,0,it);G.spawnT=it.gap}}
   }
   if(G.warn>0)G.warn-=dt;
   if(G.buffAll>0)G.buffAll-=dt;if(G.hasteAll>0)G.hasteAll-=dt;
@@ -902,7 +922,7 @@ function update(dt){
     e.slow=0;
     const p=posAt(e.d);e.x=p.x;e.y=p.y;
     if(e.d>=pathLen){
-      e.dead=true;const dmg=e.t==='boss'?10:1;G.life=Math.max(0,G.life-dmg);
+      e.dead=true;const dmg=e.lk;G.life=Math.max(0,G.life-dmg);
       shake(.3,8);text(p.x,p.y-30,'-'+dmg+'♥','#ff4d6d',22);burst(p.x,p.y,'#ff4d6d',15);
       if(G.life<=0){endGame(false);return}
     }
@@ -911,7 +931,7 @@ function update(dt){
 
   if(G.state==='wave'&&!G.queue.length&&!G.enemies.length&&G.winT<=0){
     // WAVE4 クリア時はボス戦に備えた準備金を上乗せ
-    const bonus=40+14*G.stage+10*G.wave+(G.wave===4?60*G.stage:0);G.money+=bonus;
+    const bonus=35+10*G.stage+8*G.wave+(G.wave===4?45*G.stage:0);G.money+=bonus;
     if(G.wave>=5){
       if(G.stage>=LAST){endGame(true);return}
       stageClear(bonus);
@@ -935,7 +955,7 @@ function bossAbility(e,dt){
   if(e.ab.includes('ran')){ // 呪縛弾：近くのキャラを3秒封じる
     const tg=G.towers.filter(t=>!(t.stunT>0)&&Math.hypot(t.x-e.x,t.y-e.y)<190).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
     if(tg){tg.stunT=3;G.beams.push({x:e.x,y:e.y,a:Math.atan2(tg.y-e.y,tg.x-e.x),len:Math.hypot(tg.x-e.x,tg.y-e.y),w:6,life:.4,max:.4,col:'#c04dff'});text(tg.x,tg.y-40,'封印された！','#d48aff',13)}}
-  if(e.ab.includes('sum')){for(let i=0;i<3;i++)spawn('grunt',false,Math.max(0,e.d-14-i*10));G.fx.push({k:'ring',x:e.x,y:e.y,r:10,to:60,life:.5,max:.5,col:'#ff2a3a'})}
+  if(e.ab.includes('sum')){for(let i=0;i<3;i++)spawn('grunt',false,Math.max(0,e.d-14-i*10),{free:1});G.fx.push({k:'ring',x:e.x,y:e.y,r:10,to:60,life:.5,max:.5,col:'#ff2a3a'})}
 }
 function updateFx(dt,rdt){
   for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.92;p.vy*=.92;p.life-=dt}
@@ -1463,7 +1483,7 @@ function drawEnemy(e){
   const hg=ctx.createLinearGradient(e.x-bw/2,0,e.x+bw/2,0);hg.addColorStop(0,'#8a0018');hg.addColorStop(1,f>.5?'#ff3a4a':f>.25?'#ffb000':'#ff1a2a');
   ctx.fillStyle=hg;ctx.fillRect(e.x-bw/2,by,bw*f,boss?4:2);
   if(e.arm<1){ctx.fillStyle='#d4af37';ctx.fillRect(e.x-bw/2-5,by-1,3,boss?6:4)}
-  if(boss){ctx.font=`700 10px ${FONT}`;ctx.textAlign='center';ctx.fillStyle='#ff3a4a';ctx.fillText(e.ab.length?'特級：'+e.ab.map(a=>BOSS_TXT[a].slice(0,2)).join('・'):'特級呪霊',e.x,by-4)}
+  if(boss){ctx.font=`700 10px ${FONT}`;ctx.textAlign='center';ctx.fillStyle='#ff3a4a';ctx.fillText(e.sub?'一級呪霊':e.ab.length?'特級：'+e.ab.map(a=>BOSS_TXT[a].slice(0,2)).join('・'):'特級呪霊',e.x,by-4)}
 }
 
 // ===== 背景（呪界） =====
@@ -2218,11 +2238,12 @@ $('dkGo').onclick=()=>{if(!dk.deck.length)return;saveDeck(dk.deck);$('deck').sty
 function stageClear(bonus){
   G.state='stageclear';closePop();G.placing=null;
   const S=STAGES[G.stage-1],newly=markClear(G.stage);
-  const refund=G.towers.reduce((a,t)=>a+t.spent,0);G.money+=refund;
   const un=newly.map(k=>`<span class="unl" data-k="${k}"><small>NEW CHARACTER</small><b>${DEFS[k].name}</b>${roleBadge(k)}</span>`).join('');
   const nxt=G.stage+1;
-  showOver('STAGE CLEAR!','#ffd23f',`STAGE ${G.stage}「${S.name}」突破！<br>WAVEボーナス +${bonus}G ／ 配置キャラは全額返金 +${refund}G${un?'<br>'+un:''}`,
-    '次のステージへ ▶',()=>openDeck(nxt,G.money),'ステージ選択',showTitle,
+  // 稼ぎを次のステージへ溜め込めないよう、持ち越しは次の初期呪力の20%まで（キャラの返金はなし）
+  const keep=Math.min(G.money,Math.round(stageMoney(Math.min(nxt,LAST))*CARRY_MAX/10)*10);
+  showOver('STAGE CLEAR!','#ffd23f',`STAGE ${G.stage}「${S.name}」突破！<br>WAVEボーナス +${bonus}G ／ 残った呪力から +${keep}G を持ち越し（上限20%）${un?'<br>'+un:''}`,
+    '次のステージへ ▶',()=>openDeck(nxt,stageMoney(Math.min(nxt,LAST))+keep),'ステージ選択',showTitle,
     shareText(`STAGE ${G.stage}「${S.name}」を突破！`+(newly.length?`新キャラ『${DEFS[newly[0]].name}』を解放`:''),G.life));
   for(const u of $('oMsg').querySelectorAll('.unl'))u.prepend(charIcon(u.dataset.k,64,64));
 }
