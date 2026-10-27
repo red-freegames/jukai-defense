@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>呪界ディフェンス</title>
 <meta name="theme-color" content="#030205">
-<meta name="description" content="呪霊が押し寄せる呪界を、5人の術師で守り抜け。漆黒とネオンのダークオカルト・タワーディフェンス。キャラを配置・強化し、必殺技のカットインで一掃せよ。全5ステージ・25WAVE、スマホ縦画面対応。">
+<meta name="description" content="呪霊が押し寄せる呪界を、20人の術師から選んだ5人のデッキで守り抜け。漆黒とネオンのダークオカルト・タワーディフェンス。全30ステージ、クリアで新キャラ解放。必殺技のカットインで一掃せよ。スマホ縦画面対応。">
 <meta property="og:title" content="呪界ディフェンス">
-<meta property="og:description" content="5人の術師を配置して呪霊の群れを迎え撃つダークオカルト・タワーディフェンス。必殺技カットインで一掃せよ。全5ステージ・25WAVE。">
+<meta property="og:description" content="20人の術師から5人のデッキを組み、呪霊の群れを迎え撃つダークオカルト・タワーディフェンス。全30ステージ、クリアで新キャラ解放。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://red-freegames.github.io/jukai-defense/">
 <meta property="og:image" content="https://red-freegames.github.io/jukai-defense/og.jpg">
@@ -360,6 +360,65 @@ html,body{font-weight:500;background:#0a0a0c}
 .stg.lock .info{padding-right:78px}
 .stg.lock::after{content:"🔒 封印中";inset:auto;right:10px;top:50%;transform:translateY(-50%);padding:5px 9px;font-size:13px;letter-spacing:2px;
   border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.55);white-space:nowrap}
+/* ===== 全30ステージ：エリア切り替え＋2列のステージ一覧 ===== */
+#areaTabs{position:relative;z-index:1;display:flex;gap:6px;width:100%;max-width:400px}
+.atab{flex:1;position:relative;min-height:46px;border:none;border-radius:12px;cursor:pointer;color:#8d8299;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  font-family:var(--f-jp);font-weight:800;font-size:12px;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.atab::before{content:"";position:absolute;inset:0;padding:1px;border-radius:inherit;background:var(--edge);pointer-events:none;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.atab.press{transform:scale(.93)}
+.atab small{font-family:var(--f-num);font-size:8.5px;letter-spacing:1.5px;color:var(--gold)}
+.atab.on{color:#fff;background:linear-gradient(180deg,rgba(255,60,90,.3),rgba(110,6,24,.45)),var(--glass);box-shadow:0 0 14px rgba(255,42,74,.4)}
+.atab.on::before{background:var(--edge-red)!important}
+.atab.lock{opacity:.5}
+#stages{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-width:400px}
+#stages .stg{min-height:74px;padding:6px 6px 6px 5px;gap:7px;align-items:flex-start}
+#stages .stg canvas{width:34px}
+#stages .stg .no{font-size:10px;letter-spacing:2px}
+#stages .stg .no b{color:#ff4d6d;font-size:9px}
+#stages .stg .nm{font-size:12px;white-space:normal;line-height:1.25;margin-top:1px}
+#stages .stg .tr{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+#stages .stg .tr i{font-style:normal;font-size:8.5px;font-weight:800;padding:0 4px;border-radius:4px;background:rgba(255,42,74,.18);color:#ffb4c0;border:1px solid rgba(255,42,74,.3)}
+#stages .stg .rw{font-size:9px;color:#9fffd0;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stages .stg .badge{top:6px;right:6px;font-size:8px;padding:0 4px}
+#stages .stg.areaboss::before{background:var(--edge-red)!important}
+#stages .stg.lock .info{padding-right:0}
+#stages .stg.lock::after{content:"🔒";right:6px;top:auto;bottom:6px;transform:none;padding:2px 6px;font-size:12px;letter-spacing:0}
+/* ===== デッキ編成 ===== */
+#deck{position:absolute;inset:0;z-index:11;display:none;flex-direction:column;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+  background:radial-gradient(ellipse at 50% 0%,rgba(196,18,47,.18),transparent 55%),rgba(10,10,12,.97);overflow:hidden}
+.dk-st{font-family:var(--f-brush);font-size:18px;color:#fff;text-shadow:0 0 10px rgba(255,42,74,.6);line-height:1.2}
+.dk-st small{display:block;font-family:var(--f-jp);font-size:10px;color:var(--gold);letter-spacing:2px;text-shadow:none}
+.dk-threat{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.dk-threat .th{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:7px;background:rgba(255,42,74,.14);border:1px solid rgba(255,42,74,.35);color:#ffc8d0}
+.dk-threat .th em{font-style:normal;font-weight:500;color:#9fffd0;margin-left:3px}
+.dk-threat .th.boss{background:rgba(192,77,255,.16);border-color:rgba(192,77,255,.45);color:#e8c8ff}
+.dk-label{font-family:var(--f-jp);font-weight:800;font-size:12px;color:var(--gold2);letter-spacing:2px}
+.dk-label small{color:var(--dim);font-weight:500;letter-spacing:0}
+.dk-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.dks{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;cursor:pointer;background:var(--glass);display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-num);font-size:16px;color:#4a4256;box-shadow:0 0 0 1px rgba(243,217,139,.55),0 0 12px rgba(212,175,55,.25)}
+.dks.empty{box-shadow:0 0 0 1px rgba(255,255,255,.12) inset;border:1px dashed rgba(255,255,255,.18)}
+.dks canvas{width:100%;height:100%}
+.dks span{position:absolute;left:0;right:0;bottom:0;font-family:var(--f-jp);font-size:9px;font-weight:800;color:#fff;text-align:center;background:rgba(0,0,0,.6)}
+.dk-info{min-height:52px;font-size:11.5px;line-height:1.5;color:#d8d0e4;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.dk-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-content:start;padding:2px}
+.dkc{position:relative;border-radius:11px;padding:5px 3px 6px;cursor:pointer;text-align:center;background:var(--glass2);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px rgba(255,255,255,.08);
+  transition:transform .14s cubic-bezier(.3,1.6,.5,1)}
+.dkc canvas{width:52px;height:52px;border-radius:50%;box-shadow:0 0 0 1px rgba(243,217,139,.4)}
+.dkc .nm{font-size:9px;font-weight:800;line-height:1.2;color:#eee6f6;margin-top:3px;min-height:22px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dkc .cs{font-family:var(--f-num);font-size:9.5px;color:var(--gold2);margin-top:2px}
+.dkc .cs span{font-family:var(--f-jp);font-size:8px;font-weight:800;color:#000;padding:0 3px;border-radius:3px}
+.dkc .no{position:absolute;top:3px;left:4px;font-family:var(--f-num);font-size:12px;color:#fff;text-shadow:0 0 6px #ff2a4a}
+.dkc.on{box-shadow:0 0 0 1.5px #ff6a8a,0 0 14px rgba(255,42,74,.45);background:linear-gradient(180deg,rgba(255,60,90,.18),rgba(20,8,14,.8))}
+.dkc.lock{opacity:.55}
+.dkc .lk{width:52px;height:52px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;background:#120e18;box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+.dkc.lock .cs{font-family:var(--f-jp);font-size:8.5px;color:var(--dim);line-height:1.25}
+.dkc.press{transform:scale(.92)}
+.dk-foot{display:flex;gap:6px}
+.dk-foot .btn{min-height:50px;font-size:14px;padding:10px 6px}
+.dk-foot #dkGo{flex:1.4}.dk-foot #dkBack,.dk-foot #dkRec{flex:1}
+#over .unl{display:inline-block;margin-top:6px;padding:4px 10px;border-radius:8px;color:#0a0a0c;font-weight:800;background:linear-gradient(90deg,#9fffd0,#f3d98b);box-shadow:0 0 14px rgba(95,255,176,.5)}
 </style>
 </head>
 <body>
@@ -403,8 +462,9 @@ html,body{font-weight:500;background:#0a0a0c}
   <div id="title"><svg class="sigil" viewBox="-100 -100 200 200" fill="none" stroke="#c4122f" stroke-width=".7"><path id="sgr" d="M0,-86 a86,86 0 1,1 -.1,0"/><circle r="97"/><circle r="92" stroke-dasharray="1 3"/><circle r="78"/><circle r="38" stroke="#d4af37"/><polygon points="0,-78 46,63 -74,-24 74,-24 -46,63"/><text font-size="8.5" fill="#ff2a4a" stroke="none" letter-spacing="3"><textPath href="#sgr">呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨 呪 封 滅 禁 縛 怨</textPath></text></svg><svg class="sigil s2" viewBox="-100 -100 200 200" fill="none" stroke="#d4af37" stroke-width=".8"><circle r="96"/><circle r="84" stroke-dasharray="6 4"/><polygon points="0,-84 73,42 -73,42"/><polygon points="0,84 73,-42 -73,-42"/></svg>
     <div class="logo"><div class="l1">呪界</div><div class="l2">ディフェンス</div><div class="sub">CURSED TOWER DEFENSE</div></div>
     <div class="sel-h">SELECT STAGE</div>
+    <div id="areaTabs"></div>
     <div id="stages"></div>
-    <div class="tip">クリアすると次のステージが解放されます</div>
+    <div class="tip">クリアすると次のステージと新しい術師が解放されます（全30ステージ・20キャラ）</div>
     <a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a>
     <a class="fb-link" id="fbTitle" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a>
     <footer class="site-foot">
@@ -415,6 +475,15 @@ html,body{font-weight:500;background:#0a0a0c}
   </div>
   <div id="over"><h1 id="oTitle"></h1><p id="oMsg"></p><div class="row"><button class="btn" id="oBtn1"></button><button class="btn blue" id="oBtn2"></button></div><a class="btn xshare" id="oShare" target="_blank" rel="noopener">𝕏 でシェアする</a><a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a><a class="fb-link" id="fbResult" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a></div>
   <!-- HOME：プレイ中は確認してからタイトルへ -->
+  <!-- 出撃前のデッキ編成：20体から5体を選ぶ -->
+  <div id="deck">
+    <div class="dk-head"><div class="dk-st" id="dkSt"></div><div class="dk-threat" id="dkThreat"></div></div>
+    <div class="dk-label">出撃デッキ <small>（タップで外す）</small></div>
+    <div class="dk-slots" id="dkSlots"></div>
+    <div class="dk-info" id="dkInfo"></div>
+    <div class="dk-grid" id="dkGrid"></div>
+    <div class="dk-foot"><button class="btn blue" id="dkBack">戻る</button><button class="btn blue" id="dkRec">おすすめ編成</button><button class="btn red" id="dkGo">出撃 ▶</button></div>
+  </div>
   <div id="homeOv"><div class="hcard"><h2>タイトルに戻りますか？</h2><p>このステージの進行状況はリセットされます</p>
     <div class="row"><button class="btn blue" id="homeNo">続ける</button><button class="btn red" id="homeYes">🏠 戻る</button></div></div></div>
 </div>
@@ -434,23 +503,48 @@ let K=1;
 const VIG=(()=>{const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.45,W/2,H/2,Math.hypot(W,H)*.55);g.addColorStop(0,'rgba(10,0,4,0)');g.addColorStop(1,'rgba(10,0,4,.35)');return g})();
 const SCAN=(()=>{const c=document.createElement('canvas');c.width=4;c.height=4;const x=c.getContext('2d');x.fillStyle='rgba(0,0,0,.05)';x.fillRect(0,3,4,1);return ctx.createPattern(c,'repeat')})();
 
-// ===== ステージ =====
-// ref=旧盤面でのルート長（マス）。ルートが短くなった分だけ敵を遅くして、通過時間＝難易度を保つ
-// th: base/base2=地の色, acc/acc2=発光色, path=通路の底, fog=瘴気, rune=紋様の色, edge=通路の縁（明るいネオン）, floor=通路の床
-const STAGES=[
-  {name:'高専グラウンド（夜）',ref:56,path:[[1,-1],[1,3],[7,3],[7,7],[1,7],[1,10],[7,10],[7,12]],
-    th:{base:'#110b20',base2:'#2a1848',acc:'#b84dff',acc2:'#ff3d9a',path:'#040208',fog:'rgba(150,70,255,.2)',rune:'#8a4dff',edge:'#7ef9ff',floor:'#1c1530'}},
-  {name:'夕暮れの商店街',ref:54,path:[[1,-1],[1,10],[4,10],[4,2],[7,2],[7,12]],
-    th:{base:'#1a0a0e',base2:'#3c1620',acc:'#ff5a3d',acc2:'#ffb347',path:'#050102',fog:'rgba(255,90,40,.17)',rune:'#d0452c',edge:'#ffd36b',floor:'#24141a'}},
-  {name:'真夜中の駅地下',ref:69,path:[[7,-1],[7,11],[1,11],[1,1],[5,1],[5,8],[3,8],[3,4]],
-    th:{base:'#08101e',base2:'#16294a',acc:'#3de3ff',acc2:'#9b5cff',path:'#010306',fog:'rgba(60,200,255,.16)',rune:'#2a8ad8',edge:'#5fffb0',floor:'#0f1e26'}},
-  {name:'吹雪の離島',ref:56,path:[[1,-1],[1,2],[7,2],[7,5],[1,5],[1,8],[7,8],[7,11],[1,11],[1,12]],
-    th:{base:'#0e1626',base2:'#243856',acc:'#a8dcff',acc2:'#ffffff',path:'#03050a',fog:'rgba(190,225,255,.17)',rune:'#6fa6d8',snow:true,edge:'#9fe8ff',floor:'#18243a'}},
-  {name:'呪いの王の厨房',ref:111,path:[[1,-1],[1,1],[7,1],[7,3],[1,3],[1,5],[7,5],[7,7],[1,7],[1,9],[7,9],[7,11],[1,11],[1,12]],
-    th:{base:'#180509',base2:'#3e0a14',acc:'#ff1a3a',acc2:'#ffb000',path:'#040001',fog:'rgba(255,20,40,.2)',rune:'#b0001c',edge:'#ffcf4a',floor:'#2a0e12'}}
+// ===== ステージ（全30：3エリア×10） =====
+// ルートの型（9×13マス）。エリアごとに左右反転して使い回す
+const ROUTES=[
+  [[1,-1],[1,3],[7,3],[7,7],[1,7],[1,10],[7,10],[7,12]],
+  [[1,-1],[1,10],[4,10],[4,2],[7,2],[7,12]],
+  [[7,-1],[7,11],[1,11],[1,1],[5,1],[5,8],[3,8],[3,4]],
+  [[1,-1],[1,2],[7,2],[7,5],[1,5],[1,8],[7,8],[7,11],[1,11],[1,12]],
+  [[4,-1],[4,4],[1,4],[1,8],[7,8],[7,12]],
+  [[4,-1],[4,2],[7,2],[7,11],[1,11],[1,5],[4,5],[4,8]],
+  [[1,-1],[1,11],[3,11],[3,1],[5,1],[5,11],[7,11],[7,1]],
+  [[7,-1],[7,4],[2,4],[2,12]],
+  [[4,-1],[4,3],[1,3],[1,6],[7,6],[7,9],[4,9],[4,12]],
+  [[1,-1],[1,1],[7,1],[7,3],[1,3],[1,5],[7,5],[7,7],[1,7],[1,9],[7,9],[7,11],[1,11],[1,12]]
 ];
-const BOSS_HP=[1800,5500,44200,68000,160000]; // STAGE3以降は盤面縮小に合わせて1.7倍（STAGE3は以前の調整26000×1.7）。STAGE4/5は実プレイで倒しきれない報告を受けて大きめに減らす
-const BOSS_ARM=[1,1,.8,.65,.55];   // ボスの通常攻撃耐性（必殺技は等倍）。STAGE3は .7→.8、STAGE4は .6→.65、STAGE5は .5→.55
+// th: base/base2=地の色, acc/acc2=発光色, path=通路の底, fog=瘴気, rune=紋様の色, edge=通路の縁（明るいネオン）, floor=通路の床
+const THEMES=[
+  {base:'#110b20',base2:'#2a1848',acc:'#b84dff',acc2:'#ff3d9a',path:'#040208',fog:'rgba(150,70,255,.2)',rune:'#8a4dff',edge:'#7ef9ff',floor:'#1c1530'},
+  {base:'#1a0a0e',base2:'#3c1620',acc:'#ff5a3d',acc2:'#ffb347',path:'#050102',fog:'rgba(255,90,40,.17)',rune:'#d0452c',edge:'#ffd36b',floor:'#24141a'},
+  {base:'#08101e',base2:'#16294a',acc:'#3de3ff',acc2:'#9b5cff',path:'#010306',fog:'rgba(60,200,255,.16)',rune:'#2a8ad8',edge:'#5fffb0',floor:'#0f1e26'},
+  {base:'#0e1626',base2:'#243856',acc:'#a8dcff',acc2:'#ffffff',path:'#03050a',fog:'rgba(190,225,255,.17)',rune:'#6fa6d8',snow:true,edge:'#9fe8ff',floor:'#18243a'},
+  {base:'#180509',base2:'#3e0a14',acc:'#ff1a3a',acc2:'#ffb000',path:'#040001',fog:'rgba(255,20,40,.2)',rune:'#b0001c',edge:'#ffcf4a',floor:'#2a0e12'},
+  {base:'#07140d',base2:'#163a24',acc:'#5fff9a',acc2:'#d4ff5f',path:'#010402',fog:'rgba(80,255,150,.16)',rune:'#2a9a5a',edge:'#b8ff6b',floor:'#0f2418'},
+  {base:'#14110a',base2:'#3a3018',acc:'#ffcf4a',acc2:'#ff7a2a',path:'#050402',fog:'rgba(255,200,80,.15)',rune:'#b08a2a',edge:'#ffe08a',floor:'#241e10'}
+];
+// 敵の特徴：S群れ A装甲 F高速 H回復 G幽霊 P分裂 K岩鬼（超装甲）／ボス能力：ran呪縛弾 sum召喚 reg再生 tou堅牢 swi俊足
+const AREAS=['呪術高専編','呪いの街編','呪界決戦編'];
+const STAGES=[
+  ['高専グラウンド（夜）',0,0,0,'',''],['夕暮れの商店街',1,0,1,'F',''],['旧校舎の渡り廊下',2,0,0,'SA',''],['霧の竹林',4,0,5,'FH',''],['廃病院の中庭',3,0,2,'SAH','sum'],
+  ['鳥居の参道',5,0,6,'AF','reg'],['雨の高架下',8,0,2,'SG','swi'],['真夜中の駅地下',2,1,2,'AHG','tou'],['吹雪の離島',3,1,3,'FPG','sum'],['呪胎の産声',6,0,4,'SAHP','ran tou'],
+  ['電脳横丁',0,1,2,'FG','ran'],['神社の大階段',1,1,6,'AK','tou'],['地下水路',5,1,2,'HPS','reg'],['廃遊園地',4,1,1,'GFS','sum'],['交差点の大混乱',7,0,0,'SFP','swi sum'],
+  ['骨董屋の蔵',8,1,6,'AKH','ran'],['墓地の丘',2,0,5,'GHS','reg'],['赤い月の港',6,1,4,'FPK','sum ran'],['呪霊の巣窟',3,0,0,'SGHP','sum reg'],['帳の降りた街',9,1,4,'SAKHG','ran tou sum'],
+  ['灰の荒野',1,0,6,'AKF','tou swi'],['逆さ城',5,0,0,'GHP','ran reg'],['血の湖',7,1,4,'SPF','sum'],['無限回廊',6,0,2,'GKH','tou ran'],['千の鳥居',8,0,6,'SAG','reg sum'],
+  ['天元の結界',0,0,3,'KHP','ran tou reg'],['黄泉比良坂',2,1,5,'SGFH','swi sum ran'],['呪物保管庫',4,0,1,'AKPG','tou reg sum'],['五百年の封印',3,1,4,'SAKHGP','ran swi reg'],['呪いの王の厨房',9,0,4,'SAFKHGP','ran sum reg tou']
+].map(([name,r,mir,th,tr,boss],i)=>({name,no:i+1,area:Math.floor(i/10),path:ROUTES[r].map(([c,y])=>[mir?COLS-1-c:c,y]),th:THEMES[th],tr,boss:boss?boss.split(' '):[]}));
+const LAST=STAGES.length;
+// アンカー間を対数補間して、ステージごとの数値を滑らかに伸ばす
+const lerpLog=(A,s)=>{for(let i=1;i<A.length;i++)if(s<=A[i][0]){const[s0,v0]=A[i-1],[s1,v1]=A[i],k=(s-s0)/(s1-s0);return Math.exp(Math.log(v0)+(Math.log(v1)-Math.log(v0))*k)}return A[A.length-1][1]};
+const HP_A=[[1,1],[3,1.6],[10,9],[20,18],[30,27]];          // 雑魚の耐久倍率
+const BOSS_A=[[1,1800],[3,4000],[10,30000],[20,55000],[30,105000]];
+const MONEY_A=[[1,400],[3,1100],[10,3500],[20,8000],[30,14000]]; // ステージ選択から始めた時の所持金
+const AREA_SPD=[1,1.08,1.16],AREA_ARM=[.9,.7,.55];
+const hpMul=s=>lerpLog(HP_A,s),bossHp=s=>Math.round(lerpLog(BOSS_A,s)/100)*100,stageMoney=s=>Math.round(lerpLog(MONEY_A,s)/50)*50;
 let PATH=[],segs=[],pathLen=0,grid=[];
 
 function posAt(d){
@@ -465,8 +559,8 @@ function setupStage(){
     const[ax,ay]=PATH[i],[bx,by]=PATH[i+1],len=Math.hypot(bx-ax,by-ay);
     segs.push({ax,ay,bx,by,len,start:pathLen});pathLen+=len;
   }
-  // 旧盤面と同じ通過時間になるよう、敵の速度・押し戻し量をルート長の比で縮める
-  G.spdK=(pathLen/CS)/S.ref;
+  // どのルートでも通過時間がほぼ同じになるよう、敵の速度・押し戻し量をルート長に比例させる。後半エリアほど速い
+  G.spdK=(pathLen/CS)/56*AREA_SPD[S.area];
   grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
   for(let i=0;i<S.path.length-1;i++){
     let[c0,r0]=S.path[i];const[c1,r1]=S.path[i+1],dc=Math.sign(c1-c0),dr=Math.sign(r1-r0);
@@ -481,43 +575,97 @@ function setupStage(){
 }
 
 // ===== キャラ =====
+// atk（通常攻撃の型）: melee近接単体 / splash着弾点の範囲 / snipe弾で単体 / pierce装甲無視 / beam直線貫通 / cleave射程内全員
+//   stun周期的に全員スタン / dot出血 / field減速フィールド / aura周囲の味方を強化（攻撃力・攻撃速度）/ regen拠点回復 / income呪力生成
+// sk（必殺の型）は special() を参照。unlock=このステージをクリアすると解放（0は最初から）
 const DEFS={
-  yuji:{name:'虎頭の拳闘士',role:'低コスト・爆速近接（単体）',tag:'近接',cost:100,up:[120,260],dmg:[12,24,48],rate:[2.5,3,3.6],range:[72,78,86],ct:12,
-    sp:'漆黒の一閃',spR:'コクセン・ラッシュ',cut:'漆黒の一閃！！',col:'#ffb000',
-    desc:L=>`威力 ${DEFS.yuji.dmg[L-1]} / 攻撃 ${DEFS.yuji.rate[L-1]}回/秒`},
-  megumi:{name:'影使いの式神使い',role:'中コスト・召喚＆ノックバック（範囲）',tag:'範囲',cost:220,up:[220,420],dmg:[15,32,66],rate:[1,1.1,1.25],range:[95,110,125],push:[6,10,14],ct:22,
-    sp:'影あそびの庭',spR:'カンゴウ・ガーデン',cut:'影あそびの庭！！',col:'#9b5cff',
-    desc:L=>`威力 ${DEFS.megumi.dmg[L-1]}(範囲) / 押し戻し ${DEFS.megumi.push[L-1]}`},
-  nobara:{name:'藁人形の呪術師',role:'中コスト・長距離狙撃（単体）',tag:'狙撃',cost:300,up:[300,600],dmg:[60,140,300],rate:[.8,.85,.95],range:[200,240,290],ct:18,
-    sp:'藁人形のワラワラ爆破',spR:'カンザシ風',cut:'ワラワラ爆破！！',col:'#ff8a3d',
-    desc:L=>`威力 ${DEFS.nobara.dmg[L-1]} / 射程 ${DEFS.nobara.range[L-1]}`},
-  gojo:{name:'無下限の目隠し男',role:'超高コスト・スロー＆全体7秒停止',tag:'支援',cost:700,up:[800,1300],dmg:[10,22,45],slow:[.35,.5,.65],range:[120,135,150],ct:55,
-    sp:'無量空腹',spR:'むりょうくうふく / 領域展開',cut:'領域展開『無量空腹』！！',col:'#2a8bff',
-    desc:L=>`威力 ${DEFS.gojo.dmg[L-1]}/秒 / 減速 ${DEFS.gojo.slow[L-1]*100}%`},
-  sukuna:{name:'両面呪いの王',role:'最強高コスト・純粋火力（範囲連斬）',tag:'最強',cost:1000,up:[1100,1800],dmg:[55,120,260],rate:[1.4,1.6,1.9],range:[110,125,145],ct:45,
-    sp:'厨房の調理場',spR:'フクマ・キッチン / 領域展開',cut:'領域展開『厨房の調理場』！！',col:'#ff3b3b',
-    desc:L=>`威力 ${DEFS.sukuna.dmg[L-1]}(範囲) / ${DEFS.sukuna.rate[L-1]}回/秒`}
+  yuji:{name:'虎頭の拳闘士',tag:'近接',role:'低コスト・爆速近接（単体）',atk:'melee',cost:100,up:[120,260],dmg:[12,24,48],rate:[2.5,3,3.6],range:[72,78,86],ct:12,
+    sp:'漆黒の一閃',sk:'rush',spv:[80,160,300],cut:'漆黒の一閃！！',col:'#ffb000',unlock:0},
+  megumi:{name:'影使いの式神使い',tag:'範囲',role:'中コスト・範囲＋ノックバック',atk:'splash',aoe:45,push:[6,10,14],cost:220,up:[220,420],dmg:[22,46,95],rate:[1,1.1,1.25],range:[95,110,125],ct:22,
+    sp:'影あそびの庭',sk:'push',spv:[160,220,280],spv2:[60,130,260],cut:'影あそびの庭！！',col:'#9b5cff',unlock:0},
+  nobara:{name:'藁人形の呪術師',tag:'狙撃',role:'中コスト・長距離狙撃（単体）',atk:'snipe',cost:300,up:[300,600],dmg:[60,140,300],rate:[.8,.85,.95],range:[200,240,290],ct:18,
+    sp:'藁人形のワラワラ爆破',sk:'bombs',spv:[200,400,800],cut:'ワラワラ爆破！！',col:'#ff8a3d',unlock:0},
+  ijichi:{name:'残業続きの眼鏡補佐',tag:'サポ',role:'周囲の味方の攻撃力UP＋幽霊を見破る',atk:'aura',aura:'dmg',pw:[.25,.35,.5],cost:180,up:[180,360],range:[90,105,120],ct:40,
+    sp:'残業の帳',sk:'buffAll',spv:[1.4,1.5,1.7],cut:'残業の帳！！',col:'#7fb0ff',unlock:0},
+  panda:{name:'着ぐるみの大熊',tag:'妨害',role:'重い一撃で大きく押し戻す（範囲）',atk:'splash',aoe:40,push:[16,22,28],cost:260,up:[260,480],dmg:[42,84,170],rate:[.6,.65,.7],range:[70,78,86],ct:26,
+    sp:'ゴリラの核',sk:'quake',spv:[150,300,600],cut:'ゴリラの核！！',col:'#7dff9a',unlock:1},
+  nishimiya:{name:'箒乗りの魔女っ子',tag:'サポ',role:'周囲の味方の攻撃速度UP',atk:'aura',aura:'rate',pw:[.2,.3,.45],cost:200,up:[200,400],range:[90,105,120],ct:40,
+    sp:'箒の追い風',sk:'hasteAll',spv:[1.5,1.7,1.9],cut:'箒の追い風！！',col:'#ff7ad9',unlock:2},
+  maki:{name:'呪具使いの眼鏡剣士',tag:'破魔',role:'装甲を無視する斬撃（単体）',atk:'pierce',cost:280,up:[280,560],dmg:[45,95,200],rate:[1.2,1.3,1.5],range:[80,88,96],ct:20,
+    sp:'天与の一太刀',sk:'nuke',spv:[600,1300,2800],cut:'天与の一太刀！！',col:'#5fff9a',unlock:3},
+  inumaki:{name:'呪言のおにぎり少年',tag:'妨害',role:'周期的に射程内の敵を全員スタン',atk:'stun',stun:[.8,1,1.2],cost:240,up:[240,480],dmg:[10,20,40],rate:[.3,.33,.38],range:[85,95,105],ct:35,
+    sp:'「動くな」',sk:'stunAll',spv:[2,2.5,3],cut:'呪言「動くな」！！',col:'#b088ff',unlock:4},
+  mai:{name:'二丁拳銃の妹',tag:'狙撃',role:'速射の中距離射撃（回復役に強い）',atk:'snipe',cost:320,up:[320,600],dmg:[22,45,95],rate:[2,2.2,2.5],range:[150,165,180],ct:22,
+    sp:'弾幕の嵐',sk:'rain',spv:[80,170,360],cut:'弾幕の嵐！！',col:'#ff6a8a',unlock:5},
+  todo:{name:'拍手好きの大男',tag:'範囲',role:'高火力の衝撃波（広い範囲）',atk:'splash',aoe:58,push:[4,6,8],cost:450,up:[450,800],dmg:[95,200,420],rate:[.8,.85,.9],range:[75,82,90],ct:28,
+    sp:'不義遊戯の拍手',sk:'quake',spv:[400,850,1800],cut:'不義遊戯の拍手！！',col:'#ffb04a',unlock:6},
+  miwa:{name:'居合の三つ編み',tag:'妨害',role:'素早い居合で斬った敵を減速',atk:'melee',slow:[.4,.5,.6],cost:200,up:[200,400],dmg:[16,32,64],rate:[2,2.3,2.6],range:[70,76,82],ct:25,
+    sp:'簡易領域・抜刀',sk:'counter',spv:[200,400,800],cut:'簡易領域・抜刀！！',col:'#7fd0ff',unlock:7},
+  mechamaru:{name:'遠隔操作の傀儡',tag:'貫通',role:'直線上の敵をまとめて撃ち抜くビーム',atk:'beam',cost:380,up:[380,700],dmg:[55,115,240],rate:[.65,.7,.75],range:[180,200,220],ct:26,
+    sp:'極ノ番・大砲',sk:'beamNuke',spv:[500,1100,2300],cut:'極ノ番・大砲！！',col:'#ff4a4a',unlock:8},
+  kamo:{name:'赤血の貴公子',tag:'持続',role:'出血の矢（装甲を無視する持続ダメージ）',atk:'dot',dot:[25,50,105],cost:300,up:[300,560],dmg:[15,30,60],rate:[1,1.1,1.2],range:[140,155,170],ct:28,
+    sp:'赤縛・百斂',sk:'bleedAll',spv:[120,250,520],cut:'赤縛・百斂！！',col:'#ff3a5a',unlock:9},
+  shoko:{name:'保健室の女医',tag:'サポ',role:'拠点の封印（ライフ）を少しずつ回復',atk:'regen',regen:[40,30,20],cost:300,up:[300,600],range:[60,60,60],ct:60,
+    sp:'反転術式',sk:'heal',spv:[2,3,4],cut:'反転術式！！',col:'#7fe0ff',unlock:10},
+  hakari:{name:'博打打ちの熱血漢',tag:'近接',role:'近接単体。たまに大当たりで超強化',atk:'melee',jack:.04,cost:380,up:[380,700],dmg:[40,85,180],rate:[1.5,1.6,1.8],range:[72,78,86],ct:35,
+    sp:'大当たり確変',sk:'jackpot',spv:[100,200,400],cut:'大当たり確変！！',col:'#5fffd0',unlock:12},
+  mei:{name:'烏使いの守銭奴',tag:'サポ',role:'呪力を生み出す＋烏の連鎖攻撃',atk:'income',inc:[3,5,8],chain:3,cost:350,up:[350,650],dmg:[12,25,50],rate:[1,1,1],range:[110,125,140],ct:40,
+    sp:'烏の神風',sk:'goldRush',spv:[150,300,600],spv2:[200,400,800],cut:'烏の神風！！',col:'#d4af37',unlock:14},
+  choso:{name:'血を操る長兄',tag:'貫通',role:'装甲を無視して直線を貫く血の矢',atk:'beam',pierce:true,cost:520,up:[520,900],dmg:[90,190,400],rate:[.5,.55,.6],range:[170,190,210],ct:24,
+    sp:'穿血',sk:'beamNuke',spv:[900,1900,4000],cut:'穿血！！',col:'#ff2a2a',unlock:16},
+  yuta:{name:'純愛の特級術師',tag:'最強',role:'射程内の敵全員を斬る高火力',atk:'cleave',cost:850,up:[900,1500],dmg:[60,130,280],rate:[1.3,1.5,1.7],range:[105,120,135],ct:40,
+    sp:'純愛の一撃',sk:'rika',spv:[900,1900,4000],cut:'純愛の一撃！！',col:'#ff4a9a',unlock:18},
+  gojo:{name:'無下限の目隠し男',tag:'最強',role:'減速フィールド＋必殺で全敵7秒停止',atk:'field',slow:[.35,.5,.65],cost:1000,up:[1000,1600],dmg:[16,34,70],range:[125,140,155],ct:55,
+    sp:'無量空腹',sk:'domain',spv:[90,180,350],cut:'領域展開『無量空腹』！！',col:'#2a8bff',unlock:24},
+  sukuna:{name:'両面呪いの王',tag:'最強',role:'射程内を連続で斬る最強火力',atk:'cleave',cost:1200,up:[1300,2000],dmg:[60,130,280],rate:[1.4,1.6,1.9],range:[110,125,145],ct:45,
+    sp:'厨房の調理場',sk:'kitchen',spv:[220,450,850],cut:'領域展開『厨房の調理場』！！',col:'#ff3b3b',unlock:29}
 };
+const CHAR_IDS=Object.keys(DEFS);
+const ATK_TXT={melee:'近接',splash:'範囲',snipe:'射撃',pierce:'装甲無視',beam:'直線貫通',cleave:'全周',stun:'スタン',dot:'出血',field:'減速場',aura:'強化',regen:'回復',income:'資金'};
+// 強化パネルとデッキ画面の説明文
+function descOf(k,L){const D=DEFS[k],i=L-1;
+  if(D.atk==='aura')return `周囲の味方の${D.aura==='dmg'?'攻撃力':'攻撃速度'} +${Math.round(D.pw[i]*100)}%${D.aura==='dmg'?'／幽霊を見破る':''}`;
+  if(D.atk==='regen')return `${D.regen[i]}秒ごとに封印を1回復`;
+  if(D.atk==='income')return `呪力 +${D.inc[i]}/秒 ／ 烏 ${D.dmg[i]}×${D.chain}体`;
+  if(D.atk==='field')return `威力 ${D.dmg[i]}/秒 ／ 減速 ${Math.round(D.slow[i]*100)}%`;
+  if(D.atk==='stun')return `${(1/D.rate[i]).toFixed(1)}秒ごとにスタン${D.stun[i]}秒 ／ 威力 ${D.dmg[i]}`;
+  if(D.atk==='dot')return `威力 ${D.dmg[i]}＋出血 ${D.dot[i]}/秒 ／ 射程 ${D.range[i]}`;
+  return `威力 ${D.dmg[i]}${D.atk==='splash'||D.atk==='cleave'?'(範囲)':''} ／ ${D.rate[i]}回/秒`+(D.push?` ／ 押し戻し ${D.push[i]}`:'')+(D.slow?` ／ 減速${Math.round(D.slow[i]*100)}%`:'')}
 // arm: 通常攻撃のダメージ倍率（必殺技は等倍で通る）
+// arm: 通常攻撃のダメージ倍率（必殺技・装甲無視は等倍）／heal: 周囲の味方を毎秒回復 ／evade: 単体攻撃を回避 ／split: 倒すと分裂
 const ETYPES={
   grunt:{hp:40,spd:52,r:12,rew:9,col:'#8e5cf0'},
   fast:{hp:26,spd:98,r:9,rew:10,col:'#f15bb5'},
   tank:{hp:220,spd:32,r:15,rew:24,col:'#2ec4b6'},
   armor:{hp:300,spd:38,r:14,rew:30,col:'#6f7fd8',arm:.45},
+  healer:{hp:70,spd:44,r:12,rew:16,col:'#5fffb0',heal:.08},
+  ghost:{hp:70,spd:62,r:11,rew:14,col:'#c8d8ff',evade:1},
+  splitter:{hp:110,spd:42,r:14,rew:12,col:'#ff9a3d',split:3},
+  mini:{hp:24,spd:92,r:7,rew:3,col:'#ffb04a'},
+  golem:{hp:650,spd:26,r:17,rew:45,col:'#9a8a70',arm:.15},
   boss:{hp:1,spd:22,r:28,rew:0,col:'#2b0f3a'}
 };
-// ステージ別の雑魚HP倍率（1〜2は易しめ、3から急上昇）
-// 9×15の盤面ではタワーが通路を広く守れるため、STAGE3以降は耐久を1.7倍にして旧盤面と同等の手ごたえに
-const HPM=[1,1.6,13.6,23.8,37.4];
+const TRAIT_TXT={S:'群れ',A:'装甲',F:'高速',H:'回復役',G:'幽霊',P:'分裂',K:'岩鬼'};
+const BOSS_TXT={ran:'呪縛弾（キャラを封じる）',sum:'雑魚を召喚',reg:'自己再生',tou:'超堅牢',swi:'俊足'};
+// 何が来るか（デッキ編成のヒント）
+const TRAIT_HINT={S:'範囲攻撃',A:'装甲無視・必殺',F:'減速・スタン',H:'射撃で先に倒す',G:'単体攻撃は当たらない。範囲攻撃か眼鏡補佐の見破り',P:'範囲攻撃',K:'装甲無視'};
 function makeWave(st,wv){
-  const g=(st-1)*5+wv,q=[];
-  const n={grunt:5+2*wv+2*(st-1),fast:wv>=2||st>=2?wv+2*(st-1)-1:0,
-    tank:st>=2||wv>=3?Math.floor((wv+2*st-3)/2):0,armor:st>=3?Math.floor((wv+st-2)/2):0};
-  const gap={grunt:Math.max(.35,.9-.03*g),fast:.45,tank:1.2,armor:1.4};
-  const pat=['grunt','fast','grunt','tank','armor'];let i=0;
-  while(n.grunt+n.fast+n.tank+n.armor>0){const t=pat[i++%5];if(n[t]>0){n[t]--;q.push({t,gap:gap[t]})}}
-  // ステージ3以降は途中で「群れ」が一気に押し寄せる（範囲必殺の使いどころ）
-  if(st>=3&&wv>=2){const sw=[];for(let k=0;k<6+2*st+wv-(st===3&&wv===5?8:0);k++)sw.push({t:k%3?'fast':'grunt',gap:.13});
+  const S=STAGES[st-1],tr=S.tr,q=[],has=c=>tr.includes(c),base=5+2*wv+Math.floor(st*.45);
+  const n={grunt:base,
+    fast:(wv>=2||st>=2)?Math.floor(base*.3)+(has('F')?Math.floor(base*.45):0):0,
+    tank:st>=2&&wv>=2?Math.floor((wv+st*.3)/2):0,
+    armor:has('A')?Math.floor((wv+1+st*.25)/1.6):0,
+    healer:has('H')?1+Math.floor((wv+st*.15)/2.5):0,
+    ghost:has('G')?Math.floor((wv+2+st*.25)/1.1):0,
+    splitter:has('P')?Math.floor((wv+1+st*.2)/1.8):0,
+    golem:has('K')?Math.floor((wv+1+st*.12)/1.4):0};
+  // 特徴のある種類を多めにして、ステージごとに必要な役割をはっきりさせる
+  if(has('G'))n.grunt=Math.floor(n.grunt*.7);
+  const gap={grunt:Math.max(.32,.9-.02*st-.03*wv),fast:.45,tank:1.2,armor:1.3,healer:1.4,ghost:.6,splitter:1.1,golem:1.8};
+  const pat=['grunt','fast','healer','grunt','tank','ghost','armor','splitter','grunt','golem'];let i=0,left=()=>Object.values(n).reduce((a,b)=>a+b,0);
+  while(left()>0){const t=pat[i++%pat.length];if(n[t]>0){n[t]--;q.push({t,gap:gap[t]})}}
+  // 群れ：途中で一気に押し寄せる（範囲攻撃・範囲必殺の使いどころ）
+  if((st>=3&&wv>=2)||(has('S')&&wv>=1)){const sw=[],m=Math.floor((has('S')?11:5)+st*.6+wv*2);for(let k=0;k<m;k++)sw.push({t:k%3?'fast':'grunt',gap:.13});
     sw[0].swarm=true;sw[sw.length-1].gap=1.5;q.splice(Math.floor(q.length*.5),0,...sw)}
   if(wv===5)q.push({t:'boss',gap:3});
   return q;
@@ -525,18 +673,16 @@ function makeWave(st,wv){
 
 // ===== 状態 =====
 let G;
-// ステージ選択から始めた時の所持金（通しプレイで持ち越す額の目安）
-const STAGE_MONEY=[400,2000,4500,9000,15000];
-function newGame(n=1){
-  G={stage:n,money:STAGE_MONEY[n-1],life:10,wave:0,state:'ready',towers:[],enemies:[],queue:[],spawnT:0,
-     fx:[],parts:[],texts:[],rushes:[],shots:[],bombs:[],domain:0,domainLv:1,domX:W/2,domY:H/2,kitchen:0,kitchenLv:1,
+function newGame(n=1,deck){
+  G={stage:n,money:stageMoney(n),life:10,wave:0,state:'ready',towers:[],enemies:[],queue:[],spawnT:0,deck:deck||loadDeck(),
+     fx:[],parts:[],texts:[],rushes:[],shots:[],bombs:[],domain:0,domainLv:1,domX:W/2,domY:H/2,kitchen:0,kitchenLv:1,buffAll:0,buffMul:1,hasteAll:0,hasteMul:1,
      cutin:null,shake:0,shakeMag:0,time:0,incomeT:0,speed:G?G.speed:1,sel:null,placing:null,banner:null,hover:null,warn:0,winT:0,stageMoney:400};
   if(location.hash==='#debug')G.money=G.stageMoney=99999;
-  startStage();
+  buildPanel();startStage();
 }
 function startStage(){
-  G.wave=0;G.life=10;G.state='ready';G.towers=[];G.enemies=[];G.queue=[];G.rushes=[];G.shots=[];G.bombs=[];
-  G.domain=0;G.kitchen=0;G.warn=0;G.placing=null;G.stageMoney=G.money;
+  G.wave=0;G.life=10;G.state='ready';G.towers=[];G.enemies=[];G.queue=[];G.rushes=[];G.shots=[];G.bombs=[];G.beams=[];
+  G.domain=0;G.kitchen=0;G.buffAll=0;G.hasteAll=0;G.warn=0;G.placing=null;G.stageMoney=G.money;
   setupStage();closePop();$('over').style.display='none';
   G.banner={text:`STAGE ${G.stage}「${STAGES[G.stage-1].name}」`,t:2.2,col:'#ffd23f'};
   syncUI(true);
@@ -547,13 +693,12 @@ function text(x,y,s,col,size=15){G.texts.push({x,y,s,col,size,life:.8,max:.8,vx:
 function spark(x,y,col,big){if(G.fx.length<260)G.fx.push({k:'spark',x:x+(Math.random()-.5)*8,y:y+(Math.random()-.5)*8,col,big,a:Math.random()*.8,life:.14,max:.14})}
 function burst(x,y,col,n,sp=120){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=sp*(.3+Math.random());G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.5+Math.random()*.3,col,sz:2+Math.random()*3})}}
 function shake(t,m){if(G.shake<=0)G.shakeMag=0;G.shake=Math.max(G.shake,t);G.shakeMag=Math.max(G.shakeMag,m)}
-function cutin(type,x,y){const D=DEFS[type];G.cutin={type,txt:D.cut,sub:`${D.sp}（${D.spR}）`,col:D.col,el:0,max:2,x,y}}
-const gIdx=()=>(G.stage-1)*5+Math.max(1,G.wave);
+function cutin(type,x,y){const D=DEFS[type];G.cutin={type,txt:D.cut,col:D.col,el:0,max:2,x,y}}
 
 // 無量空腹：発動0.4秒後から7秒間、ボスも含めて全敵が完全停止し、受けるダメージ+30%
 const DOM_FREEZE=7,DOM_TOTAL=DOM_FREEZE+.4,DOM_AMP=1.3;
 const domainOn=()=>G.domain>0&&G.domain<DOM_FREEZE;
-// sp=true は必殺技（装甲を無視）
+// sp=true は必殺技・装甲無視（装甲を貫く）
 function hurt(e,dmg,show,col,sp){
   if(e.dead)return;
   if(domainOn())dmg*=DOM_AMP;
@@ -564,49 +709,79 @@ function hurt(e,dmg,show,col,sp){
     e.dead=true;G.money+=e.rew;
     text(e.x,e.y-10,'+'+e.rew+'G','#ffd23f',13);
     burst(e.x,e.y,e.col,e.t==='boss'?60:10,e.t==='boss'?300:120);
-    if(e.t==='boss'){shake(1,14);burst(e.x,e.y,'#ffd23f',60,350);if(G.stage===5)G.winT=1}
+    // 分裂：小さな呪霊が3体こぼれ落ちる
+    if(e.split)for(let i=0;i<e.split;i++)spawn('mini',false,Math.max(0,e.d-6+i*6));
+    if(e.t==='boss'){shake(1,14);burst(e.x,e.y,'#ffd23f',60,350);if(G.stage===LAST)G.winT=1}
   }
 }
-function spawn(t,swarm){
-  // STAGE3 WAVE5 は雑魚の耐久を少し抑えてボス戦に集中できるように
-  const d=ETYPES[t],m=HPM[G.stage-1]*(1+.14*(Math.max(1,G.wave)-1))*(G.stage===3&&G.wave===5?.85:1);
-  const hp=t==='boss'?BOSS_HP[G.stage-1]:d.hp*m;
-  const rew=t==='boss'?250+150*G.stage:Math.round(d.rew*(1+.12*(G.stage-1)));
-  const arm=t==='boss'?BOSS_ARM[G.stage-1]:d.arm||1;
-  const p=posAt(0);
-  G.enemies.push({t,d:0,x:p.x,y:p.y,hp,maxHp:hp,spd:d.spd*G.spdK,r:d.r,rew,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6});
+// 単体攻撃：幽霊は見破られていないと避ける
+function hitOne(t,e,dmg,col,pierce){
+  if(e.evade&&!t.sight&&Math.random()<e.evade){if(Math.random()<.3)text(e.x,e.y-e.r-6,'すり抜け','#c8d8ff',11);return false}
+  hurt(e,dmg,true,col,pierce);return true}
+function spawn(t,swarm,at=0){
+  const S=STAGES[G.stage-1],d=ETYPES[t],m=hpMul(G.stage)*(1+.14*(Math.max(1,G.wave)-1));
+  let hp=t==='boss'?bossHp(G.stage):d.hp*m,arm=t==='boss'?AREA_ARM[S.area]:d.arm||1,spd=d.spd*G.spdK;
+  const rew=t==='boss'?250+60*G.stage:Math.round(d.rew*(1+.08*(G.stage-1)));
+  const ab=t==='boss'?S.boss:[];
+  if(ab.includes('tou')){hp*=1.15;arm*=.5}
+  if(ab.includes('swi'))spd*=1.4;
+  const p=posAt(at);
+  G.enemies.push({t,d:at,x:p.x,y:p.y,hp,maxHp:hp,spd,r:d.r,rew,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6,
+    heal:d.heal||0,evade:d.evade||0,split:d.split||0,ab,abT:3,stunT:0,dotT:0,dot:0});
   if(swarm){G.banner={text:'呪霊の群れが押し寄せてくる！',t:1.6,col:'#ff3d9a'};shake(.4,5)}
-  if(t==='boss'){G.warn=3;G.banner={text:'⚠️ 特級・ヤバい化け物 出現 ⚠️',t:2.6,col:'#ff4d6d'};shake(.8,7)}
+  if(t==='boss'){G.warn=3;G.banner={text:ab.length?`⚠️ 特級呪霊：${ab.map(a=>BOSS_TXT[a].replace(/（.*）/,'')).join('・')} ⚠️`:'⚠️ 特級・ヤバい化け物 出現 ⚠️',t:2.6,col:'#ff4d6d'};shake(.8,7)}
 }
 const alive=()=>G.enemies.filter(e=>!e.dead);
 const strongest=a=>a.reduce((x,y)=>y.hp>x.hp?y:x);
+// 敵の群れの中心（範囲必殺の狙い）
+const crowdAt=(al,R)=>{let best=al[0],bn=0;for(const e of al){let n=0;for(const o of al)if((o.x-e.x)**2+(o.y-e.y)**2<R*R)n++;if(n>bn){bn=n;best=e}}return best};
+function stunE(e,s){e.stunT=Math.max(e.stunT,e.t==='boss'?s*.4:s)}
 
-// ===== 必殺技 =====
-// 必殺技の威力（LV倍率込み）
-const SPV={yuji:[80,160,300],megumiPush:[160,220,280],megumiDmg:[60,130,260],nobara:[200,400,800],gojoDps:[90,180,350],sukunaDps:[220,450,850]};
+// ===== 必殺技（sk＝必殺の型） =====
 function special(t,auto){
   if(t.spCd>0||G.state!=='wave'&&G.state!=='ready')return;
-  const L=t.lv,al=alive();
-  if(!al.length){text(t.x,t.y-30,'敵がいない！','#aaa',14);return}
-  switch(t.type){
-    case 'yuji':G.rushes.push({t,tg:strongest(al),hits:8,timer:.4,dmg:SPV.yuji[L-1]});shake(.4,7);break;
-    case 'megumi':
+  const D=DEFS[t.type],L=t.lv,v=D.spv[L-1],al=alive();
+  if(!al.length&&D.sk!=='heal'){text(t.x,t.y-30,'敵がいない！','#aaa',14);return}
+  switch(D.sk){
+    case 'rush':G.rushes.push({t,tg:strongest(al),hits:8,timer:.4,dmg:v});shake(.4,7);break;
+    case 'push':
       // 必殺の押し戻しも同じ敵には5秒に1回まで（連続発動でのハメ防止）
-      for(const e of al){const push=e.spkT>G.time?0:(e.t==='boss'?.15:1)*SPV.megumiPush[L-1]*G.spdK;if(push)e.spkT=G.time+5;e.d=Math.max(0,e.d-push);const p=posAt(e.d);
-        G.fx.push({k:'dog',x0:e.x,y0:e.y,x1:p.x,y1:p.y,life:.45,max:.45});e.x=p.x;e.y=p.y;hurt(e,SPV.megumiDmg[L-1],true,'#b388ff',true);
+      for(const e of al){const push=e.spkT>G.time?0:(e.t==='boss'?.15:1)*v*G.spdK;if(push)e.spkT=G.time+5;e.d=Math.max(0,e.d-push);const p=posAt(e.d);
+        G.fx.push({k:'dog',x0:e.x,y0:e.y,x1:p.x,y1:p.y,life:.45,max:.45});e.x=p.x;e.y=p.y;hurt(e,D.spv2[L-1],true,'#b388ff',true);
         G.fx.push({k:'puddle',x:p.x,y:p.y,life:1.2,max:1.2})}
       G.fx.push({k:'shadowwave',life:.9,max:.9});shake(.5,8);break;
-    case 'nobara':{
-      const pool=[...al].sort(()=>Math.random()-.5);
-      for(let i=0;i<3;i++){const e=pool[i%pool.length];G.bombs.push({tg:e,x:e.x,y:e.y,t:.55+i*.25,dmg:SPV.nobara[L-1]})}
-      shake(.3,5);break}
-    case 'gojo':G.domain=DOM_TOTAL;G.domainLv=SPV.gojoDps[L-1];G.domX=t.x;G.domY=t.y;shake(1,12);G.fx.push({k:'nova',x:t.x,y:t.y,col:'#4de3ff',R:800,life:1,max:1});break;
-    case 'sukuna':G.kitchen=4.4;G.kitchenLv=SPV.sukunaDps[L-1];shake(1.2,14);break;
+    case 'bombs':{const pool=[...al].sort(()=>Math.random()-.5);
+      for(let i=0;i<3;i++){const e=pool[i%pool.length];G.bombs.push({tg:e,x:e.x,y:e.y,t:.55+i*.25,dmg:v})}shake(.3,5);break}
+    case 'domain':G.domain=DOM_TOTAL;G.domainLv=v;G.domX=t.x;G.domY=t.y;shake(1,12);G.fx.push({k:'nova',x:t.x,y:t.y,col:'#4de3ff',R:800,life:1,max:1});break;
+    case 'kitchen':G.kitchen=4.4;G.kitchenLv=v;shake(1.2,14);break;
+    case 'buffAll':G.buffAll=10;G.buffMul=v;for(const o of G.towers)G.fx.push({k:'ring',x:o.x,y:o.y,r:6,to:40,life:.5,max:.5,col:D.col});shake(.3,4);break;
+    case 'hasteAll':G.hasteAll=10;G.hasteMul=v;for(const o of G.towers)G.fx.push({k:'ring',x:o.x,y:o.y,r:6,to:40,life:.5,max:.5,col:D.col});shake(.3,4);break;
+    case 'nuke':{const e=strongest(al);hurt(e,v,true,'#5fff9a',true);G.fx.push({k:'cut',x:e.x,y:e.y,a:-.6,len:220,life:.35,max:.35},{k:'nova',x:e.x,y:e.y,col:D.col,R:90,life:.4,max:.4});shake(.6,12);break}
+    case 'stunAll':for(const e of al){stunE(e,v);G.fx.push({k:'ring',x:e.x,y:e.y,r:4,to:26,life:.4,max:.4,col:D.col})}G.fx.push({k:'nova',x:t.x,y:t.y,col:D.col,R:600,life:.6,max:.6});shake(.5,8);break;
+    case 'quake':{const c=crowdAt(al,90),R=110;
+      for(const e of al)if(Math.hypot(e.x-c.x,e.y-c.y)<R+e.r){hurt(e,v,true,D.col,true);stunE(e,1.5)}
+      G.fx.push({k:'nova',x:c.x,y:c.y,col:D.col,R:R*1.4,life:.5,max:.5},{k:'boom',x:c.x,y:c.y,life:.45,max:.45});burst(c.x,c.y,D.col,30,280);shake(.7,13);break}
+    case 'counter':for(const e of al)if(inR(t,e,D.range[L-1]*2.2)){hurt(e,v,true,D.col,true);e.slowT=6;e.slowV=.8;G.fx.push({k:'cut',x:e.x,y:e.y,a:Math.random()*3,len:60,life:.25,max:.25})}
+      G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:D.range[L-1]*2.2,life:.5,max:.5,col:D.col});shake(.4,8);break;
+    case 'beamNuke':{const e=strongest(al),a=Math.atan2(e.y-t.y,e.x-t.x);
+      G.beams.push({x:t.x,y:t.y-10,a,len:900,w:26,life:.5,max:.5,col:D.col});
+      for(const o of al)if(segDist(o.x,o.y,t.x,t.y,a,900)<26+o.r)hurt(o,v,true,D.col,true);shake(.7,12);break}
+    case 'rain':for(let i=0;i<14;i++){const e=al[Math.random()*al.length|0];G.shots.push({x:t.x+(Math.random()-.5)*20,y:t.y-10,tg:e,dmg:v,col:D.col,sp:true,delay:i*.06})}shake(.3,5);break;
+    case 'bleedAll':for(const e of al){e.dot=Math.max(e.dot,v);e.dotT=4;G.fx.push({k:'ring',x:e.x,y:e.y,r:4,to:22,life:.4,max:.4,col:D.col})}shake(.4,6);break;
+    case 'heal':{const h=Math.min(10-G.life,v);G.life+=h;text(W/2,H-60,`封印 +${h}`,'#7fe0ff',24);G.fx.push({k:'nova',x:t.x,y:t.y,col:D.col,R:300,life:.7,max:.7});break}
+    case 'jackpot':t.jackT=15;G.money+=v;text(t.x,t.y-40,`大当たり +${v}G`,'#5fffd0',18);burst(t.x,t.y,'#ffd23f',40,260);shake(.4,6);break;
+    case 'goldRush':{G.money+=D.spv2[L-1];text(t.x,t.y-40,`+${D.spv2[L-1]}G`,'#ffd23f',20);
+      for(const e of [...al].sort((a,b)=>b.hp-a.hp).slice(0,6)){hurt(e,v,true,D.col,true);G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.3,max:.3})}shake(.3,5);break}
+    case 'rika':{const c=crowdAt(al,120),R=150;
+      for(const e of al)if(Math.hypot(e.x-c.x,e.y-c.y)<R+e.r){hurt(e,v,true,D.col,true);stunE(e,1.5)}
+      G.fx.push({k:'nova',x:c.x,y:c.y,col:D.col,R:R*1.5,life:.6,max:.6},{k:'boom',x:c.x,y:c.y,life:.5,max:.5});burst(c.x,c.y,D.col,50,320);shake(1,15);break}
   }
-  cutin(t.type,t.x,t.y);t.spCd=DEFS[t.type].ct;
+  cutin(t.type,t.x,t.y);t.spCd=D.ct;
   // AUTO発動では開いている強化パネルを閉じない
   if(auto)text(t.x,t.y-44,'AUTO','#7fe8ff',12);else closePop();
 }
+// 点(px,py)と、(x,y)から角度aに伸びる長さlenの線分との距離
+function segDist(px,py,x,y,a,len){const dx=Math.cos(a),dy=Math.sin(a),u=Math.max(0,Math.min(len,(px-x)*dx+(py-y)*dy));return Math.hypot(px-(x+dx*u),py-(y+dy*u))}
 
 // ===== 必殺技AUTO／自動進化 =====
 const AUTO={sp:false,up:false};
@@ -618,29 +793,34 @@ function autoTick(dt){
   if(AUTO.up&&!G.placing)autoUpgrade();
   if(AUTO.sp&&G.state==='wave'&&!G.cutin&&autoGap<=0)autoSpecial();
 }
-// キャラごとの「美味しいタイミング」
+const STRONG={boss:1,tank:1,armor:1,golem:1};
+// 必殺の型ごとの「美味しいタイミング」
 function wantSp(t,al,gojoReady){
-  const R=DEFS[t.type].range[t.lv-1],prog=e=>e.d/pathLen,boss=al.find(e=>e.t==='boss'),
+  const D=DEFS[t.type],R=D.range[t.lv-1],prog=e=>e.d/pathLen,boss=al.find(e=>e.t==='boss'),
     lead=Math.max(...al.map(prog)),dom=domainOn(),inN=k=>al.filter(e=>inR(t,e,R*k)).length;
   // 拠点の目前まで来ているなら誰でも撃つ
   const danger=lead>.88;
   // ボスWAVEでボスがまだ出ていない間は、五条と宿儺の切り札を温存する
   const bossComing=!boss&&G.queue.some(q=>q.t==='boss');
-  // 五条がもうすぐ撃てるなら、宿儺は停止に合わせて待つ
-  const gojoSoon=gojoReady||G.towers.some(o=>o.type==='gojo'&&o.spCd<8);
-  switch(t.type){
-    case 'yuji':  // 強敵・ボスが自分の近くに来た時（五条の停止中ならダメージ増で最優先）
+  // 五条がもうすぐ撃てるなら、大技は停止に合わせて待つ
+  const gojoSoon=gojoReady||G.towers.some(o=>DEFS[o.type].sk==='domain'&&o.spCd<8);
+  switch(D.sk){
+    case 'rush':case 'nuke':case 'beamNuke':  // 強敵・ボスが近くに来た時（停止中ならダメージ増で最優先）
       if(boss&&gojoReady&&!dom)return false;
-      return al.some(e=>(e.t==='boss'||e.t==='tank'||e.t==='armor')&&inR(t,e,R*1.6))||(dom&&!!boss)||inN(1.2)>=5||danger;
-    case 'megumi':  // 射程内に群れている時、またはルート終盤まで押し込まれた時に押し戻す
+      return al.some(e=>STRONG[e.t]&&inR(t,e,R*1.8))||(dom&&!!boss)||(D.sk!=='rush'&&!!boss)||inN(1.2)>=5||danger;
+    case 'push':  // 群れている時、またはルート終盤まで押し込まれた時に押し戻す
       return inN(1.1)>=4||al.length>=9||lead>.75||(boss&&prog(boss)>.55);
-    case 'nobara':  // 射程内に複数捉えた時
-      return inN(1.5)>=3||(boss&&inR(t,boss,R*1.5))||danger;
-    case 'gojo':  // 領域：ボスがルートに乗った時、または大群・終盤の危機
+    case 'bombs':case 'rain':return inN(1.5)>=3||(boss&&inR(t,boss,R*1.5))||al.length>=8||danger;
+    case 'quake':case 'counter':case 'rika':case 'bleedAll':case 'goldRush':
+      return inN(1.4)>=4||al.length>=9||(boss&&inR(t,boss,R*1.6))||danger;
+    case 'stunAll':if(dom)return false;return (boss&&prog(boss)>.3)||al.length>=12||lead>.75;
+    case 'buffAll':case 'hasteAll':case 'jackpot':return G.towers.length>=3&&(!!boss||al.length>=10||danger);
+    case 'heal':return G.life<=7;
+    case 'domain':  // 領域：ボスがルートに乗った時、または大群・終盤の危機
       if(dom)return false;
       if(bossComing)return lead>.75;
       return (boss&&prog(boss)>.15)||al.length>=10||(lead>.7&&al.length>=4);
-    case 'sukuna':  // 停止中の追撃が最も効く。ボス戦では五条を待つ
+    case 'kitchen':  // 停止中の追撃が最も効く。ボス戦では五条を待つ
       if(G.kitchen>0)return false;
       if(dom)return true;
       if(bossComing)return lead>.8;
@@ -650,10 +830,11 @@ function wantSp(t,al,gojoReady){
   return false;
 }
 function autoSpecial(){
-  const al=alive();if(!al.length)return;
-  const ord={gojo:0,sukuna:1,yuji:2,nobara:3,megumi:4};
-  const ready=G.towers.filter(t=>t.spCd<=0).sort((a,b)=>ord[a.type]-ord[b.type]||b.lv-a.lv);
-  const gojoReady=ready.some(t=>t.type==='gojo');
+  const al=alive();
+  const ord={domain:0,stunAll:1,buffAll:2,hasteAll:3,kitchen:4,rika:5,jackpot:6};
+  const ready=G.towers.filter(t=>t.spCd<=0).sort((a,b)=>(ord[DEFS[a.type].sk]??9)-(ord[DEFS[b.type].sk]??9)||b.lv-a.lv);
+  if(!al.length){const h=ready.find(t=>DEFS[t.type].sk==='heal'&&G.life<=7);if(h){special(h,true);autoGap=1}return}
+  const gojoReady=ready.some(t=>DEFS[t.type].sk==='domain');
   // 1回に1体だけ。カットインが重ならないよう少し間を空ける
   for(const t of ready)if(wantSp(t,al,gojoReady)){special(t,true);autoGap=1;return}
 }
@@ -675,10 +856,11 @@ function update(dt){
   autoTick(dt);
   if(G.winT>0){G.winT-=dt;if(G.winT<=0){endGame(true);return}}
   if(G.state==='wave'){
-    G.incomeT+=dt;if(G.incomeT>=1){G.incomeT-=1;G.money+=2}
+    G.incomeT+=dt;if(G.incomeT>=1){G.incomeT-=1;G.money+=2+incomeBonus()}
     if(G.queue.length){G.spawnT-=dt;if(G.spawnT<=0){const it=G.queue.shift();spawn(it.t,it.swarm);G.spawnT=it.gap}}
   }
   if(G.warn>0)G.warn-=dt;
+  if(G.buffAll>0)G.buffAll-=dt;if(G.hasteAll>0)G.hasteAll-=dt;
   const domOn=domainOn();
   if(G.domain>0){G.domain-=dt;if(domOn)for(const e of G.enemies){hurt(e,G.domainLv*dt,false,null,true);
     if(Math.random()<dt*.3)text(e.x,e.y-e.r-10,'ぐぅ〜','#9ad8ff',12)}}
@@ -687,31 +869,52 @@ function update(dt){
     if(Math.random()<dt*8)shake(.1,4);
     if(Math.random()<dt*3)G.fx.push({k:'cut',x:Math.random()*W,y:Math.random()*H,a:Math.random()*3.14,len:240,life:.28,max:.28})}}
 
+  towerMods();
   for(const t of G.towers){
     const D=DEFS[t.type],L=t.lv-1,R=D.range[L];
     t.cd=Math.max(0,t.cd-dt);t.spCd=Math.max(0,t.spCd-dt);t.anim=Math.max(0,t.anim-dt);
+    if(t.jackT>0)t.jackT-=dt;
+    // 呪縛弾で封じられている間は何もしない
+    if(t.stunT>0){t.stunT-=dt;t.active=false;continue}
+    const dmg=D.dmg?D.dmg[L]*t.mD:0,rate=D.rate?D.rate[L]*t.mR:0;
+    if(D.atk==='regen'){if(G.state==='wave'){t.regT=(t.regT||0)+dt;if(t.regT>=D.regen[L]){t.regT=0;if(G.life<10){G.life++;text(t.x,t.y-34,'封印 +1','#7fe0ff',14);G.fx.push({k:'ring',x:t.x,y:t.y,r:6,to:40,life:.5,max:.5,col:D.col})}}}continue}
+    if(D.atk==='aura')continue;
+    if(D.atk==='field'){let any=false;
+      for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg*dt,false);e.slow=Math.max(e.slow,D.slow[L]*(e.t==='boss'?.5:1));any=true;if(Math.random()<dt*2.5)G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.15,max:.15});
+        if(Math.random()<dt*5)G.parts.push({x:e.x,y:e.y,vx:0,vy:-30,life:.4,col:'#9ad8ff',sz:3})}
+      t.active=any;continue}
+    if(t.cd>0)continue;
     let front=null;
-    if(t.type!=='gojo'&&t.cd<=0)for(const e of G.enemies)if(!e.dead&&inR(t,e,R)&&(!front||e.d>front.d))front=e;
-    switch(t.type){
-      case 'yuji':if(front){hurt(front,D.dmg[L],true);t.cd=1/D.rate[L];t.anim=.1;t.face=front.x<t.x?-1:1;
-        G.fx.push({k:'punch',x:front.x,y:front.y,life:.15,max:.15,lv:t.lv});if(Math.random()<.4)burst(front.x,front.y,'#ffe66d',3,80)}break;
-      case 'megumi':if(front){t.cd=1/D.rate[L];t.anim=.25;t.face=front.x<t.x?-1:1;
-        G.fx.push({k:'dog',x0:t.x,y0:t.y,x1:front.x,y1:front.y,life:.25,max:.25},{k:'claw',x:front.x,y:front.y,life:.25,max:.25,col:'#b388ff'});
-        for(const e of G.enemies)if(!e.dead&&Math.hypot(e.x-front.x,e.y-front.y)<45+e.r){hurt(e,D.dmg[L],e===front);
+    for(const e of G.enemies)if(!e.dead&&inR(t,e,R)&&(!front||e.d>front.d))front=e;
+    if(!front)continue;
+    t.cd=1/rate;t.face=front.x<t.x?-1:1;
+    switch(D.atk){
+      case 'melee':case 'pierce':{t.anim=.12;
+        const big=D.jack&&Math.random()<D.jack;if(big){t.jackT=Math.max(t.jackT||0,8);text(t.x,t.y-40,'大当たり！','#5fffd0',16)}
+        if(hitOne(t,front,dmg,D.atk==='pierce'?D.col:null,D.atk==='pierce')){
+          if(D.slow){front.slowT=1;front.slowV=D.slow[L]}}
+        G.fx.push({k:D.atk==='pierce'?'cut':'punch',x:front.x,y:front.y,a:Math.random()*3,len:40,life:.15,max:.15,lv:t.lv,col:D.atk==='pierce'?D.col:null});
+        if(Math.random()<.4)burst(front.x,front.y,D.col,3,80);break}
+      case 'splash':{t.anim=.25;const A=D.aoe;
+        G.fx.push({k:'claw',x:front.x,y:front.y,life:.25,max:.25,col:D.col});
+        if(t.type==='megumi')G.fx.push({k:'dog',x0:t.x,y0:t.y,x1:front.x,y1:front.y,life:.25,max:.25});
+        for(const e of G.enemies)if(!e.dead&&Math.hypot(e.x-front.x,e.y-front.y)<A+e.r){hurt(e,dmg,e===front);
           // 押し戻しは一度当たると0.8秒は効かない（複数配置でのハメ防止）。重い敵は半減
-          if(e.t!=='boss'&&!(e.kbT>G.time)){e.kbT=G.time+.8;e.d=Math.max(0,e.d-D.push[L]*G.spdK*(e.t==='tank'||e.t==='armor'?.5:1));const p=posAt(e.d);e.x=p.x;e.y=p.y}}
-        G.fx.push({k:'ring',x:front.x,y:front.y,r:8,to:45,life:.25,max:.25,col:'#7c4dff'})}break;
-      case 'nobara':if(front){t.cd=1/D.rate[L];t.anim=.2;t.face=front.x<t.x?-1:1;
-        G.shots.push({x:t.x+6*t.face,y:t.y-8,tg:front,dmg:D.dmg[L]})}break;
-      case 'gojo':{let any=false;
-        for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,D.dmg[L]*dt,false);e.slow=Math.max(e.slow,D.slow[L]*(e.t==='boss'?.5:1));any=true;if(Math.random()<dt*2.5)G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.15,max:.15});
-          if(Math.random()<dt*5)G.parts.push({x:e.x,y:e.y,vx:0,vy:-30,life:.4,col:'#9ad8ff',sz:3})}
-        t.active=any;break}
-      case 'sukuna':if(front){t.cd=1/D.rate[L];t.anim=.2;t.face=front.x<t.x?-1:1;let n=0;
-        for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,D.dmg[L],true,null);
+          if(D.push&&e.t!=='boss'&&!(e.kbT>G.time)){e.kbT=G.time+.8;e.d=Math.max(0,e.d-D.push[L]*G.spdK*(e.t==='tank'||e.t==='armor'||e.t==='golem'?.5:1));const p=posAt(e.d);e.x=p.x;e.y=p.y}}
+        G.fx.push({k:'ring',x:front.x,y:front.y,r:8,to:A,life:.25,max:.25,col:D.col});break}
+      case 'snipe':case 'dot':t.anim=.2;G.shots.push({x:t.x+6*t.face,y:t.y-8,tg:front,dmg,col:D.col,tw:t,dot:D.dot?D.dot[L]*t.mD:0});break;
+      case 'beam':{t.anim=.25;const a=Math.atan2(front.y-t.y,front.x-t.x);
+        G.beams.push({x:t.x,y:t.y-10,a,len:R,w:10,life:.25,max:.25,col:D.col});
+        for(const e of G.enemies)if(!e.dead&&segDist(e.x,e.y,t.x,t.y,a,R)<10+e.r)hurt(e,dmg,e===front,D.col,!!D.pierce);break}
+      case 'cleave':{t.anim=.2;let n=0;
+        for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg,true,null);
           if(n++<6)G.fx.push({k:'cut',x:e.x,y:e.y,a:Math.random()*3.14,len:e.r*2+24,life:.18,max:.18})}
-        // 演出のみ：爪の斬撃と不気味な笑い
-        G.fx.push({k:'claw',x:front.x,y:front.y,life:.3,max:.3});if(Math.random()<.1)text(t.x,t.y-50,['ケヒッ','ケヒヒ…','嗤'][Math.random()*3|0],'#ff2a3a',12)}break;
+        G.fx.push({k:'claw',x:front.x,y:front.y,life:.3,max:.3,col:D.col});
+        if(t.type==='sukuna'&&Math.random()<.1)text(t.x,t.y-50,['ケヒッ','ケヒヒ…','嗤'][Math.random()*3|0],'#ff2a3a',12);break}
+      case 'stun':{t.anim=.35;for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg,false);stunE(e,D.stun[L])}
+        G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:R,life:.4,max:.4,col:D.col});text(t.x,t.y-44,'「止まれ」','#d8c8ff',12);break}
+      case 'income':{t.anim=.2;let hit=0;const tg=[...G.enemies].filter(e=>!e.dead&&inR(t,e,R)).sort((a,b)=>b.d-a.d).slice(0,D.chain);
+        for(const e of tg){hurt(e,dmg,hit++===0,D.col);G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.18,max:.18})}break}
     }
   }
 
@@ -732,11 +935,16 @@ function update(dt){
   G.rushes=G.rushes.filter(r=>r.hits>0);
 
   for(const s of G.shots){
-    const tx=s.tg.x,ty=s.tg.y,dx=tx-s.x,dy=ty-s.y,dd=Math.hypot(dx,dy),st=900*dt;
-    if(dd<=st||s.tg.dead){if(!s.tg.dead){hurt(s.tg,s.dmg,true,'#ffb36b');burst(tx,ty,'#ffb36b',5,100);G.fx.push({k:'punch',x:tx,y:ty,life:.18,max:.18,col:'#ff8a3d'})}s.done=true}
+    if(s.delay>0){s.delay-=dt;continue}
+    const tx=s.tg.x,ty=s.tg.y,dx=tx-s.x,dy=ty-s.y,dd=Math.hypot(dx,dy),st=900*dt,col=s.col||'#ffb36b';
+    if(dd<=st||s.tg.dead){if(!s.tg.dead){
+        const ok=s.sp?(hurt(s.tg,s.dmg,true,col,true),true):hitOne(s.tw,s.tg,s.dmg,col,false);
+        if(ok&&s.dot){s.tg.dot=Math.max(s.tg.dot,s.dot);s.tg.dotT=3}
+        burst(tx,ty,col,5,100);G.fx.push({k:'punch',x:tx,y:ty,life:.18,max:.18,col})}s.done=true}
     else{s.x+=dx/dd*st;s.y+=dy/dd*st;s.a=Math.atan2(dy,dx)}
   }
   G.shots=G.shots.filter(s=>!s.done);
+  for(const b of G.beams)b.life-=dt;G.beams=G.beams.filter(b=>b.life>0);
 
   for(const b of G.bombs){
     if(!b.tg.dead){b.x=b.tg.x;b.y=b.tg.y}
@@ -751,8 +959,17 @@ function update(dt){
   for(const e of G.enemies){
     if(e.dead)continue;
     e.flash=Math.max(0,e.flash-dt);
-    // 無量空腹中はボスも含めて完全停止
-    e.d+=frozen?0:e.spd*(1-e.slow)*dt;
+    // 出血（装甲を無視）
+    if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,false,null,true);if(e.dotT<=0)e.dot=0;if(e.dead)continue}
+    // 回復役：周囲の仲間を癒す（ボスには少しだけ）
+    if(e.heal&&!frozen&&!(e.stunT>0)){e.hT=(e.hT||0)+dt;if(e.hT>=1){e.hT=0;
+      for(const o of G.enemies)if(!o.dead&&o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<75){o.hp=Math.min(o.maxHp,o.hp+o.maxHp*e.heal*(o.t==='boss'?.12:1))}
+      G.fx.push({k:'ring',x:e.x,y:e.y,r:6,to:75,life:.5,max:.5,col:'#5fffb0'})}}
+    if(e.t==='boss'&&!frozen)bossAbility(e,dt);
+    if(e.slowT>0){e.slowT-=dt;e.slow=Math.max(e.slow,(e.slowV||.4)*(e.t==='boss'?.5:1))}
+    const held=frozen||e.stunT>0;if(e.stunT>0)e.stunT-=dt;
+    // 無量空腹中・スタン中は完全停止
+    e.d+=held?0:e.spd*(1-Math.min(.85,e.slow))*dt;
     e.slow=0;
     const p=posAt(e.d);e.x=p.x;e.y=p.y;
     if(e.d>=pathLen){
@@ -765,17 +982,31 @@ function update(dt){
 
   if(G.state==='wave'&&!G.queue.length&&!G.enemies.length&&G.winT<=0){
     // WAVE4 クリア時はボス戦に備えた準備金を上乗せ
-    const bonus=40+12*gIdx()+(G.wave===4?100*G.stage:0);G.money+=bonus;
+    const bonus=40+14*G.stage+10*G.wave+(G.wave===4?60*G.stage:0);G.money+=bonus;
     if(G.wave>=5){
-      if(G.stage>=5){endGame(true);return}
-      G.state='stageclear';closePop();G.placing=null;markClear(G.stage);
-      const refund=G.towers.reduce((a,t)=>a+t.spent,0);G.money+=refund;
-      showOver('STAGE CLEAR!','#ffd23f',`STAGE ${G.stage}「${STAGES[G.stage-1].name}」突破！<br>WAVEボーナス +${bonus}G<br>配置キャラは全額返金 +${refund}G（次のマップで再配置）<br>拠点ライフは全回復！`,
-        '次のステージへ ▶',()=>{G.stage++;G.money=Math.max(G.money,STAGE_MONEY[G.stage-1]);startStage()},'ステージ選択',showTitle,
-        shareText(`STAGE ${G.stage}「${STAGES[G.stage-1].name}」を突破！`,G.life));
+      if(G.stage>=LAST){endGame(true);return}
+      stageClear(bonus);
     }else{G.state='ready';G.banner={text:G.wave===4?`ボス戦準備金 +${bonus}G`:`WAVE ${G.wave} CLEAR!  +${bonus}G`,t:2,col:'#ffd23f'}}
     syncUI(true);
   }
+}
+// 支援キャラの効果：周囲の味方の攻撃力・攻撃速度。眼鏡補佐の範囲内は幽霊を見破る
+function towerMods(){
+  for(const t of G.towers){t.mD=1;t.mR=1;t.sight=false}
+  for(const s of G.towers){const D=DEFS[s.type];if(D.atk!=='aura'||s.stunT>0)continue;const R=D.range[s.lv-1],p=D.pw[s.lv-1];
+    for(const t of G.towers){if(t===s||(t.x-s.x)**2+(t.y-s.y)**2>R*R)continue;
+      if(D.aura==='dmg'){t.mD=Math.min(1.8,t.mD+p);t.sight=true}else t.mR=Math.min(1.8,t.mR+p)}}
+  for(const t of G.towers){if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}}
+}
+const incomeBonus=()=>G.towers.reduce((a,t)=>a+(DEFS[t.type].atk==='income'&&!(t.stunT>0)?DEFS[t.type].inc[t.lv-1]:0),0);
+// ボスの特殊能力
+function bossAbility(e,dt){
+  if(e.ab.includes('reg'))e.hp=Math.min(e.maxHp,e.hp+e.maxHp*.0035*dt);
+  e.abT-=dt;if(e.abT>0)return;e.abT=e.ab.includes('ran')&&e.ab.includes('sum')?4:5;
+  if(e.ab.includes('ran')){ // 呪縛弾：近くのキャラを3秒封じる
+    const tg=G.towers.filter(t=>!(t.stunT>0)&&Math.hypot(t.x-e.x,t.y-e.y)<190).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
+    if(tg){tg.stunT=3;G.beams.push({x:e.x,y:e.y,a:Math.atan2(tg.y-e.y,tg.x-e.x),len:Math.hypot(tg.x-e.x,tg.y-e.y),w:6,life:.4,max:.4,col:'#c04dff'});text(tg.x,tg.y-40,'封印された！','#d48aff',13)}}
+  if(e.ab.includes('sum')){for(let i=0;i<3;i++)spawn('grunt',false,Math.max(0,e.d-14-i*10));G.fx.push({k:'ring',x:e.x,y:e.y,r:10,to:60,life:.5,max:.5,col:'#ff2a3a'})}
 }
 function updateFx(dt,rdt){
   for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.92;p.vy*=.92;p.life-=dt}
@@ -801,7 +1032,22 @@ const BUST={
   megumi:{hair:'#262645',hairD:'#06060e',hairL:'#7a7ac0',eye:'#3a8aff',skin:'#f2d0b6',cloth:'#171b36',clothD:'#07081a',trim:'#9b5cff',style:'spiky',mouth:'line',brow:-.15},
   nobara:{hair:'#ff8f3f',hairD:'#a8401a',hairL:'#ffd8b0',eye:'#c0602a',skin:'#f6d2b8',cloth:'#1d1733',clothD:'#0a0818',trim:'#ff8a3d',style:'bob',mouth:'smirk',brow:-.22},
   gojo:{hair:'#3f8fff',hairD:'#1634a0',hairL:'#c4e4ff',eye:'#4dffd2',skin:'#f6dac6',cloth:'#24163f',clothD:'#0e0820',trim:'#2a8bff',style:'side',mouth:'smirk',brow:0},
-  sukuna:{hair:'#1c1622',hairD:'#000000',hairL:'#ff4455',mesh:'#ff2a3a',eye:'#ff1a2a',skin:'#ecc9b0',cloth:'#2c0b12',clothD:'#0e0205',trim:'#ff2a3a',style:'back',mouth:'evil',brow:-.6}
+  sukuna:{hair:'#1c1622',hairD:'#000000',hairL:'#ff4455',mesh:'#ff2a3a',eye:'#ff1a2a',skin:'#ecc9b0',cloth:'#2c0b12',clothD:'#0e0205',trim:'#ff2a3a',style:'back',mouth:'evil',brow:-.6},
+  ijichi:{hair:'#2a2a36',hairD:'#0a0a12',hairL:'#8a90b0',eye:'#4a5a7a',skin:'#f2d4bc',cloth:'#1c2232',clothD:'#080a12',trim:'#7fb0ff',style:'side',mouth:'line',brow:.25,glasses:'#c8d4ff',prop:'tablet'},
+  panda:{hair:'#f4f4f6',hairD:'#b8b8c4',hairL:'#ffffff',eye:'#1a1a1a',skin:'#f6f6f8',cloth:'#1a1a1e',clothD:'#050506',trim:'#7dff9a',style:'buzz',mouth:'grin',brow:0,ears:'#141418',patch:'#141418',prop:'fist'},
+  nishimiya:{hair:'#ffd84a',hairD:'#c08a10',hairL:'#fff6c0',eye:'#8a6aff',skin:'#f8d8c4',cloth:'#2a1a40',clothD:'#0e0618',trim:'#ff7ad9',style:'long',mouth:'smirk',brow:-.05,hat:'#2a1a40',prop:'broom'},
+  maki:{hair:'#1d3a2a',hairD:'#06120a',hairL:'#6ac090',eye:'#c09a40',skin:'#f2d0b8',cloth:'#122018',clothD:'#040a06',trim:'#5fff9a',style:'twin',mouth:'line',brow:-.3,glasses:'#e0ffe8',prop:'sword'},
+  inumaki:{hair:'#e8e8f2',hairD:'#9a9ab8',hairL:'#ffffff',eye:'#a080ff',skin:'#f4d6c2',cloth:'#141428',clothD:'#05050e',trim:'#b088ff',style:'spiky',mouth:'line',brow:-.1,mask:'#141428',prop:'fist'},
+  todo:{hair:'#3a2a1a',hairD:'#100802',hairL:'#a07850',eye:'#4a3010',skin:'#e2b894',cloth:'#2a1a10',clothD:'#0a0502',trim:'#ffb04a',style:'bun',mouth:'grin',brow:-.45,scar:true,prop:'fist'},
+  miwa:{hair:'#4ab0ff',hairD:'#1a5aa8',hairL:'#d0ecff',eye:'#3a6aff',skin:'#f8d8c4',cloth:'#1a2440',clothD:'#070a18',trim:'#7fd0ff',style:'long',mouth:'line',brow:.05,prop:'sword'},
+  mechamaru:{hair:'#4a5568',hairD:'#1a2030',hairL:'#a0b0c8',eye:'#ff3a3a',skin:'#a8b2c4',cloth:'#2a3040',clothD:'#0a0e16',trim:'#ff4a4a',style:'buzz',mouth:'line',brow:0,visor:'#ff2a2a',prop:'cannon'},
+  mai:{hair:'#1a1a24',hairD:'#000000',hairL:'#7a7a9a',eye:'#c04a5a',skin:'#f6d6c4',cloth:'#2a1020',clothD:'#0c0408',trim:'#ff6a8a',style:'bob',mouth:'smirk',brow:-.15,prop:'gun'},
+  kamo:{hair:'#1a0f14',hairD:'#000000',hairL:'#6a3a4a',eye:'#8a1a2a',skin:'#f0d0bc',cloth:'#2a0a14',clothD:'#0a0206',trim:'#ff3a5a',style:'bun',mouth:'line',brow:-.1,prop:'bow'},
+  shoko:{hair:'#5a3a2a',hairD:'#1a0e08',hairL:'#b08a70',eye:'#6a5a4a',skin:'#f4d8c4',cloth:'#d8dce8',clothD:'#7a8098',trim:'#7fe0ff',style:'long',mouth:'smirk',brow:.1,mole:true,prop:'tablet'},
+  hakari:{hair:'#e8e8f2',hairD:'#8a8aa8',hairL:'#ffffff',eye:'#3aa0ff',skin:'#f2d0b8',cloth:'#1a1a26',clothD:'#06060c',trim:'#5fffd0',style:'mane',mouth:'grin',brow:-.35,prop:'fist'},
+  mei:{hair:'#ece4fa',hairD:'#9a8ab8',hairL:'#ffffff',eye:'#9a8ab0',skin:'#f6dcca',cloth:'#1a1420',clothD:'#06040a',trim:'#d4af37',style:'twin',mouth:'smirk',brow:.1,prop:'axe'},
+  choso:{hair:'#1a0f14',hairD:'#000000',hairL:'#6a3a3a',eye:'#6a2a1a',skin:'#ecc8b0',cloth:'#3a2a20',clothD:'#100a06',trim:'#ff3a2a',style:'twin',mouth:'line',brow:-.2,band:'#4a0a10',prop:'fist'},
+  yuta:{hair:'#14141c',hairD:'#000000',hairL:'#5a5a7a',eye:'#3a3a52',skin:'#f2d4c0',cloth:'#e8e8f0',clothD:'#8a90a8',trim:'#ff4a9a',style:'spiky',mouth:'line',brow:.05,prop:'sword'}
 };
 // 角度(度,0=真上)・長さ・幅・傾きで髪のトゲを作る
 const SPIKES={
@@ -809,14 +1055,21 @@ const SPIKES={
   spiky:[[-100,24,12,-18],[-76,30,12,-12],[-52,32,12,-8],[-27,34,11,-4],[0,36,11,0],[27,34,11,6],[52,32,12,10],[76,30,12,14],[100,24,12,18]],
   bob:[],
   side:[[-84,16,13,24],[-58,22,12,32],[-32,26,12,40],[-6,28,12,46],[20,24,12,50],[46,20,12,50],[72,16,13,40]],
-  back:[[-96,20,12,-34],[-70,26,11,-34],[-44,30,11,-30],[-18,32,11,-24],[8,32,11,-18],[34,28,11,-12],[60,24,11,-8],[86,18,12,-4]]
+  back:[[-96,20,12,-34],[-70,26,11,-34],[-44,30,11,-30],[-18,32,11,-24],[8,32,11,-18],[34,28,11,-12],[60,24,11,-8],[86,18,12,-4]],
+  long:[],twin:[],bun:[],buzz:[],
+  mane:[[-110,34,13,-24],[-84,42,13,-16],[-58,46,13,-10],[-30,50,12,-4],[0,52,12,0],[30,50,12,6],[58,46,13,12],[84,42,13,18],[110,34,13,26]]
 };
 const BANGS={ // x, 幅, 長さ, 先端のずれ
   quiff:[[22,7,16,10]],
   spiky:[[-28,8,38,-8],[-15,8,44,-4],[-1,8,46,2],[13,8,42,6],[27,8,36,10]],
   bob:[[-24,10,30,4],[-8,10,32,6],[8,10,30,8],[22,9,26,8]],
   side:[[-26,8,26,8],[-12,10,40,20],[4,10,46,24],[20,9,40,18],[32,7,30,12]],
-  back:[[-30,6,22,-10],[30,6,22,10]]
+  back:[[-30,6,22,-10],[30,6,22,10]],
+  long:[[-26,9,34,0],[-10,10,38,2],[6,10,38,2],[22,9,34,2]],
+  twin:[[-24,10,30,4],[-8,10,32,6],[8,10,30,8],[22,9,26,8]],
+  bun:[[-22,9,22,-4],[0,9,18,0],[22,9,22,4]],
+  buzz:[],
+  mane:[[-28,9,40,-10],[-14,9,46,-6],[0,9,48,0],[14,9,46,6],[28,9,40,10]]
 };
 const lgr=(c,y0,y1,a,b)=>{const g=c.createLinearGradient(0,y0,0,y1);g.addColorStop(0,a);g.addColorStop(1,b);return g};
 
@@ -849,7 +1102,11 @@ function drawBust(c,type,x,y,s,o={}){
   if(big&&!evil){const g=c.createRadialGradient(0,10,10,0,10,165);g.addColorStop(0,col+'aa');g.addColorStop(1,col+'00');c.fillStyle=g;c.fillRect(-180,-160,360,320)}
   if(evil&&fierce&&!head){c.save();c.globalCompositeOperation='lighter';evilFlames(c,0,-10,62,t,11,big?1:.7);c.restore()}
   // 後ろ髪
-  if(B.style==='bob')sf(()=>{c.beginPath();c.moveTo(-45,-30);c.quadraticCurveTo(-56,20,-40,42);c.lineTo(40,42);c.quadraticCurveTo(56,20,45,-30);c.closePath()},lgr(c,-30,42,B.hair,B.hairD));
+  if(B.ears)for(const sd of[-1,1])sf(()=>{c.beginPath();c.arc(sd*36,-56,15,0,7)},B.ears);
+  if(B.style==='bob'||B.style==='twin')sf(()=>{c.beginPath();c.moveTo(-45,-30);c.quadraticCurveTo(-56,20,-40,42);c.lineTo(40,42);c.quadraticCurveTo(56,20,45,-30);c.closePath()},lgr(c,-30,42,B.hair,B.hairD));
+  if(B.style==='long')sf(()=>{c.beginPath();c.moveTo(-46,-30);c.quadraticCurveTo(-62,40,-50,112);c.lineTo(50,112);c.quadraticCurveTo(62,40,46,-30);c.closePath()},lgr(c,-30,112,B.hair,B.hairD));
+  if(B.style==='twin')for(const sd of[-1,1])sf(()=>{c.beginPath();c.ellipse(sd*56,14,13,42,sd*.22,0,7)},lgr(c,-28,56,B.hair,B.hairD));
+  if(B.style==='bun')sf(()=>{c.beginPath();c.arc(0,-70,17,0,7)},hairG);
   if(B.style==='quiff')sf(capP,B.shave);
   else{const hp=()=>{capP();spikeP()};sf(hp,hairG);cel(hp,.32);if(!evil)rim(hp)}
   // 首と服
@@ -883,8 +1140,9 @@ function drawBust(c,type,x,y,s,o={}){
   if(evil&&fierce){const sh=lgr(c,-50,8,'rgba(10,0,6,.85)','rgba(10,0,6,0)');c.fillStyle=sh;c.fillRect(-40,-60,80,68)}
   c.restore();
   rim(faceP,2);
+  if(B.patch)for(const sd of[-1,1]){c.fillStyle=B.patch;c.beginPath();c.ellipse(sd*16,6,14,12,sd*.5,0,7);c.fill()}
   // 目
-  const blind=type==='gojo'&&!big;
+  const blind=(type==='gojo'&&!big)||!!B.visor;
   if(!blind)for(const sd of[-1,1]){
     c.save();c.translate(sd*15,5);c.scale(sd*1.15,1.15);
     if(evil){
@@ -930,7 +1188,7 @@ function drawBust(c,type,x,y,s,o={}){
   }
   // 鼻と口
   c.strokeStyle='rgba(140,70,70,.8)';c.lineWidth=1.6;c.beginPath();c.moveTo(1,18);c.lineTo(-1,22);c.stroke();
-  const mouth=big&&(type==='yuji'||type==='nobara'||type==='megumi')?'shout':B.mouth;
+  const mouth=big&&['yuji','nobara','megumi','panda','todo','hakari','mai','miwa','maki'].includes(type)?'shout':B.mouth;
   c.strokeStyle=BOUT;c.lineWidth=2;
   if(mouth==='evil'){
     const op=fierce?10:4;
@@ -958,7 +1216,7 @@ function drawBust(c,type,x,y,s,o={}){
   sf(bangP,hairG,4);
   c.fillStyle=hairG;c.beginPath();c.moveTo(-38,-40);c.quadraticCurveTo(0,-68,38,-40);c.lineTo(36,-30);c.quadraticCurveTo(0,-58,-36,-30);c.closePath();c.fill();
   cel(bangP,.25);
-  if(B.style==='bob')sf(()=>{c.beginPath();c.moveTo(-40,-30);c.quadraticCurveTo(-44,10,-34,36);c.lineTo(-28,20);c.lineTo(-30,-20);c.closePath();c.moveTo(40,-30);c.quadraticCurveTo(44,10,34,36);c.lineTo(28,20);c.lineTo(30,-20);c.closePath()},hairG,4);
+  if(B.style==='bob'||B.style==='long'||B.style==='twin')sf(()=>{c.beginPath();c.moveTo(-40,-30);c.quadraticCurveTo(-44,10,-34,36);c.lineTo(-28,20);c.lineTo(-30,-20);c.closePath();c.moveTo(40,-30);c.quadraticCurveTo(44,10,34,36);c.lineTo(28,20);c.lineTo(30,-20);c.closePath()},hairG,4);
   if(B.style==='quiff'){const qp=()=>{c.beginPath();c.ellipse(3,-44,39,23,-.08,0,7);spikeP()};sf(qp,hairG);cel(qp,.28);rim(qp);
     c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=1.5;c.beginPath();for(const sd of[-1,1])for(let i=0;i<3;i++){c.moveTo(sd*(29+i*3),-24);c.lineTo(sd*(30+i*3),-6)}c.stroke()}
   if(B.mesh){c.save();c.shadowColor=B.mesh;c.shadowBlur=8;sf(()=>{c.beginPath();c.moveTo(-20,-64);c.lineTo(-9,-64);c.lineTo(-22,-44);c.closePath();c.moveTo(8,-66);c.lineTo(18,-64);c.lineTo(26,-46);c.closePath();c.moveTo(32,-54);c.lineTo(40,-50);c.lineTo(42,-34);c.closePath()},B.mesh,3);c.restore()}
@@ -968,6 +1226,20 @@ function drawBust(c,type,x,y,s,o={}){
   if(type==='gojo'&&!big){sf(()=>{c.beginPath();c.moveTo(-40,-6);c.lineTo(40,-8);c.lineTo(40,13);c.lineTo(-40,15);c.closePath();c.moveTo(-38,0);c.lineTo(-60,20);c.lineTo(-53,26);c.lineTo(-36,10);c.closePath()},lgr(c,-8,15,'#ffffff','#b8c0e0'),3);
     c.strokeStyle='#aab2d8';c.lineWidth=1.5;c.beginPath();c.moveTo(-36,2);c.lineTo(36,0);c.moveTo(-36,8);c.lineTo(36,6);c.stroke()}
   if(type==='gojo'&&big)sf(()=>{c.beginPath();c.moveTo(-42,-50);c.lineTo(42,-52);c.lineTo(42,-38);c.lineTo(-42,-36);c.closePath()},'#f2f4ff',3);
+  // 新キャラの小物：眼鏡・口元を覆う襟・バイザー・魔女帽・傷・ほくろ・鼻の帯
+  if(B.glasses){const lens=sd=>{c.beginPath();c.rect(sd*15-13,-4,26,17)};c.save();c.strokeStyle=BOUT;c.lineWidth=4.5;lens(-1);c.stroke();lens(1);c.stroke();
+    c.beginPath();c.moveTo(-3,2);c.lineTo(3,2);c.stroke();c.strokeStyle=B.glasses;c.lineWidth=1.8;lens(-1);c.stroke();lens(1);c.stroke();
+    c.globalAlpha=.3;c.fillStyle=B.glasses;c.fillRect(-26,-2,8,4);c.fillRect(4,-2,8,4);c.restore()}
+  if(B.mask){sf(()=>{c.beginPath();c.moveTo(-35,16);c.quadraticCurveTo(0,10,35,16);c.lineTo(31,64);c.lineTo(-31,64);c.closePath()},lgr(c,10,64,B.mask,'#000'),4);
+    c.save();c.shadowColor=B.trim;c.shadowBlur=8;c.strokeStyle=B.trim;c.lineWidth=2;c.beginPath();c.moveTo(0,14);c.lineTo(0,62);c.stroke();c.restore()}
+  if(B.visor){sf(()=>{c.beginPath();c.moveTo(-40,-6);c.lineTo(40,-8);c.lineTo(40,12);c.lineTo(-40,14);c.closePath()},'#1a1e2a',3);
+    c.save();c.globalCompositeOperation='lighter';c.shadowColor=B.visor;c.shadowBlur=14;c.fillStyle=B.visor;c.fillRect(-32,1,64,big?6:4);c.restore()}
+  if(B.hat){sf(()=>{c.beginPath();c.moveTo(-34,-56);c.quadraticCurveTo(-8,-108,30,-136);c.quadraticCurveTo(12,-98,36,-58);c.closePath()},lgr(c,-136,-56,B.hat,'#05020a'),4);
+    sf(()=>{c.beginPath();c.ellipse(0,-52,62,12,-.06,0,7)},B.hat,4);
+    c.save();c.shadowColor=B.trim;c.shadowBlur=8;c.strokeStyle=B.trim;c.lineWidth=4;c.beginPath();c.moveTo(-32,-62);c.quadraticCurveTo(0,-68,33,-64);c.stroke();c.restore()}
+  if(B.scar){c.strokeStyle='#8a4a3a';c.lineWidth=2.2;c.beginPath();c.moveTo(-28,-16);c.lineTo(-16,10);c.stroke()}
+  if(B.mole){c.fillStyle='#3a1a10';c.beginPath();c.arc(22,17,1.7,0,7);c.fill()}
+  if(B.band){c.fillStyle=B.band;c.fillRect(-15,13,30,5)}
   if(type==='yuji')for(const sd of[-1,1]){sf(()=>{c.beginPath();c.moveTo(sd*16,-56);c.lineTo(sd*32,-82);c.lineTo(sd*39,-50);c.closePath()},lgr(c,-82,-50,'#ffb648','#d06a00'),4);
     c.strokeStyle='#2a1406';c.lineWidth=2.4;c.beginPath();c.moveTo(sd*28,-72);c.lineTo(sd*33,-65);c.moveTo(sd*26,-63);c.lineTo(sd*32,-58);c.stroke();
     c.fillStyle='#ffe6c4';c.beginPath();c.moveTo(sd*22,-56);c.lineTo(sd*31,-72);c.lineTo(sd*33,-55);c.closePath();c.fill()}
@@ -1053,6 +1325,21 @@ function drawUnitBody(c,type,att){
         glow(()=>{c.lineWidth=1.4;for(let i=0;i<3;i++){c.beginPath();c.arc(20,-22+i*0,8+i*3,-1.2,1.0);c.stroke()}},10)}
       else{armTo(11,-14);hand(11,-13);sf(()=>{c.beginPath();c.moveTo(11,-11);c.lineTo(13,-8);c.lineTo(10,-10);c.closePath()},'#f2e6e0',.8)}
       break;
+    default:{const pr=B.prop; // 新キャラ：得物ごとの構え
+      if(pr==='sword'){const hx=att?14:9,hy=att?-22:-20;armTo(hx,hy);hand(hx,hy);c.save();c.translate(hx,hy);c.rotate(att?1.2:-.5);
+        sf(()=>{c.beginPath();c.rect(-1,-20,2,20)},'#e8eef8',1);sf(()=>{c.beginPath();c.rect(-3,-1,6,2)},B.trim,1);c.restore();
+        if(att)glow(()=>{c.lineWidth=1.2;c.beginPath();c.arc(14,-22,10,-1.2,.6);c.stroke()},8)}
+      else if(pr==='gun'||pr==='cannon'){const w=pr==='cannon'?11:8;armTo(14,-21);hand(13,-21);sf(()=>{c.beginPath();c.rect(13,-24,w,pr==='cannon'?5:3)},'#3a3a48',1);
+        if(att)glow(()=>{c.beginPath();c.arc(14+w,-22,2.6,0,7);c.fill()},10)}
+      else if(pr==='broom'){armTo(10,-18);hand(10,-18);c.save();c.translate(10,-18);c.rotate(-.5);sf(()=>{c.beginPath();c.rect(-.8,-14,1.6,24)},'#8a5a2a',1);
+        sf(()=>{c.beginPath();c.moveTo(-3,10);c.lineTo(3,10);c.lineTo(4,16);c.lineTo(-4,16);c.closePath()},'#d8b060',1);c.restore()}
+      else if(pr==='bow'){armTo(13,-22);hand(13,-22);glow(()=>{c.lineWidth=1.4;c.beginPath();c.arc(10,-22,8,-1.2,1.2);c.stroke()},6)}
+      else if(pr==='tablet'){armTo(9,-18);hand(9,-17);sf(()=>{c.beginPath();c.rect(4,-25,7,9)},'#e8ecf4',1);if(att)glow(()=>{c.beginPath();c.arc(8,-28,2,0,7);c.fill()},8)}
+      else if(pr==='axe'){armTo(12,-22);hand(12,-22);c.save();c.translate(12,-22);c.rotate(att?1:-.3);sf(()=>{c.beginPath();c.rect(-.8,-14,1.6,18)},'#5a3a2a',1);
+        sf(()=>{c.beginPath();c.moveTo(0,-14);c.quadraticCurveTo(7,-12,6,-6);c.lineTo(0,-8);c.closePath()},'#d8d8e8',1);c.restore()}
+      else if(att){armTo(16,-22);glow(()=>{c.beginPath();c.arc(17,-22,4,0,7);c.fill()},12);hand(17,-22,3)}
+      else{armTo(10,-14);hand(10,-13,2.8)}
+      break}
   }
   drawBust(c,type,0,-38,.27,{head:true,att});
 }
@@ -1080,8 +1367,8 @@ function drawUnit(c,type,x,y,o={}){
 const hexA=(h,a)=>`rgba(${parseInt(h.slice(1,3),16)},${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)},${a})`;
 // 種類ごとの瘴気の色
 // 種類ごとの発光色（輪郭・オーラ・足元リング）
-const GLOW={grunt:'#a6ff4d',fast:'#ff4d7a',tank:'#ffc21a',armor:'#4de8ff',boss:'#ff2a2a'};
-const MIASMA={grunt:['#9b4dff','#2a0a4a'],fast:['#ff2a6a','#3a0012'],tank:['#ff3a1a','#2a0400'],armor:['#4db8ff','#061a33'],boss:['#ff1a2a','#1a0004']};
+const GLOW={grunt:'#a6ff4d',fast:'#ff4d7a',tank:'#ffc21a',armor:'#4de8ff',healer:'#5fffb0',ghost:'#e0e8ff',splitter:'#ff9a3d',mini:'#ffc04a',golem:'#ffd890',boss:'#ff2a2a'};
+const MIASMA={grunt:['#9b4dff','#2a0a4a'],fast:['#ff2a6a','#3a0012'],tank:['#ff3a1a','#2a0400'],armor:['#4db8ff','#061a33'],healer:['#5fffb0','#063320'],ghost:['#c8d8ff','#202838'],splitter:['#ff9a3d','#3a1400'],mini:['#ffb04a','#3a1a00'],golem:['#c8b088','#2a2010'],boss:['#ff1a2a','#1a0004']};
 function drawEnemy(e){
   const frozen=domainOn(),t=G.time,r=e.r,fl=e.flash>0,[mc,md]=MIASMA[e.t],GL=GLOW[e.t];
   const ph=t*(frozen?0:1)+e.wob;
@@ -1134,6 +1421,35 @@ function drawEnemy(e){
     for(const sd of[-1,1]){ctx.beginPath();ctx.moveTo(sd*r*.15,-r*.2);ctx.lineTo(sd*r*.6,-r*.4);ctx.lineTo(sd*r*.55,-r*.12);ctx.closePath();ctx.fill()}ctx.restore();
     ctx.strokeStyle='#5a0a0a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-r*.4,r*.35);for(let i=0;i<5;i++)ctx.lineTo(-r*.4+i*r*.2,r*(i%2?.5:.35));ctx.stroke();
     break}
+  case'healer':{ // 癒しの呪霊：脈打つ緑の十字を抱えた丸い体
+    const pl=.5+.5*Math.sin(ph*6);ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(95,255,176,${.25+.25*pl})`;ctx.beginPath();ctx.arc(0,0,r*1.5,0,7);ctx.fill();ctx.restore();
+    blob(r,10,.06,'#2aa070','#063320');
+    ctx.save();ctx.shadowColor='#5fffb0';ctx.shadowBlur=10;ctx.fillStyle='#d8ffe8';ctx.fillRect(-r*.18,-r*.6,r*.36,r*1.2);ctx.fillRect(-r*.6,-r*.18,r*1.2,r*.36);ctx.restore();
+    eye(0,-r*.05,r*.22,r*.2,'#ff2a6a',true);
+    break}
+  case'ghost':{ // 半透明の亡霊：ゆらめく裾と虚ろな目（単体攻撃をすり抜ける）
+    ctx.save();ctx.globalAlpha=.55+.2*Math.sin(ph*3);
+    ctx.beginPath();ctx.moveTo(-r,r*.2);ctx.quadraticCurveTo(-r,-r*1.3,0,-r*1.2);ctx.quadraticCurveTo(r,-r*1.3,r,r*.2);
+    for(let i=0;i<=4;i++){const x=r-i*r*.5;ctx.lineTo(x,r*(.7+.35*Math.sin(ph*8+i*1.7)))}ctx.closePath();
+    const gg=ctx.createLinearGradient(0,-r,0,r);gg.addColorStop(0,fl?'#fff':'#e8f0ff');gg.addColorStop(1,'rgba(120,140,200,.2)');ctx.fillStyle=gg;ctx.fill();
+    ctx.shadowColor='#c8d8ff';ctx.shadowBlur=12;ctx.strokeStyle='#e0e8ff';ctx.lineWidth=1.6;ctx.stroke();ctx.restore();
+    ctx.fillStyle='#10142a';ctx.beginPath();ctx.ellipse(-r*.32,-r*.35,r*.16,r*.24,0,0,7);ctx.ellipse(r*.32,-r*.35,r*.16,r*.24,0,0,7);ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,r*.05,r*.14,r*.2,0,0,7);ctx.fill();
+    break}
+  case'splitter':case'mini':{ // ひび割れた卵の呪霊（倒すと小さな呪霊がこぼれる）
+    const s=e.t==='mini';blob(r,9,.05,s?'#ffb04a':'#d06a1a',s?'#5a2a00':'#3a1400');
+    if(!s){ctx.strokeStyle='#2a0a00';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(-r*.6,-r*.3);ctx.lineTo(-r*.2,0);ctx.lineTo(-r*.4,r*.3);ctx.moveTo(r*.5,-r*.5);ctx.lineTo(r*.15,-r*.1);ctx.lineTo(r*.45,r*.25);ctx.stroke();
+      ctx.save();ctx.shadowColor='#ffcc4a';ctx.shadowBlur=8;ctx.strokeStyle='#ffe08a';ctx.lineWidth=1;ctx.stroke();ctx.restore()}
+    eye(-r*.25,-r*.2,r*.2,r*.18,'#ff2a2a',false);eye(r*.25,-r*.2,r*.2,r*.18,'#ff2a2a',false);
+    break}
+  case'golem':{ // 岩鬼：角ばった石の体に刻まれた呪紋（超装甲）
+    ctx.fillStyle=fl?'#fff':'#6a5a48';ctx.beginPath();ctx.moveTo(-r,-r*.5);ctx.lineTo(-r*.6,-r*1.05);ctx.lineTo(r*.6,-r*1.05);ctx.lineTo(r,-r*.5);ctx.lineTo(r*1.05,r*.6);ctx.lineTo(r*.5,r*1.05);ctx.lineTo(-r*.5,r*1.05);ctx.lineTo(-r*1.05,r*.6);ctx.closePath();
+    const sg=ctx.createLinearGradient(0,-r,0,r);sg.addColorStop(0,fl?'#fff':'#a89878');sg.addColorStop(1,fl?'#ddd':'#3a3024');ctx.fillStyle=sg;ctx.fill();
+    ctx.save();ctx.shadowColor='#ffd890';ctx.shadowBlur=8;ctx.strokeStyle='#ffd890';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+    ctx.strokeStyle='#2a2014';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-r*.7,r*.2);ctx.lineTo(-r*.2,r*.5);ctx.moveTo(r*.3,-r*.7);ctx.lineTo(r*.6,-r*.2);ctx.stroke();
+    ctx.save();ctx.shadowColor='#ffb000';ctx.shadowBlur=10;ctx.fillStyle='#ffd24a';ctx.fillRect(-r*.5,-r*.35,r*.3,r*.14);ctx.fillRect(r*.2,-r*.35,r*.3,r*.14);
+    ctx.strokeStyle='#ffd24a';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,r*.35,r*.25,0,6.28);ctx.stroke();ctx.restore();
+    break}
   case'boss':{ // 特級呪霊：背後の呪印、角の冠、多眼、裂けた口
     ctx.save();ctx.rotate(t*.6);ctx.strokeStyle=hexA('#ff1a2a',.7);ctx.lineWidth=1.5;ctx.shadowColor='#ff1a2a';ctx.shadowBlur=10;
     ctx.beginPath();ctx.arc(0,0,r*1.75,0,7);ctx.stroke();ctx.beginPath();ctx.arc(0,0,r*1.55,0,7);ctx.stroke();
@@ -1156,6 +1472,9 @@ function drawEnemy(e){
   if(frozen){ctx.save();ctx.strokeStyle='rgba(200,245,255,.85)';ctx.shadowColor='#4de3ff';ctx.shadowBlur=10;ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
     ctx.beginPath();ctx.arc(0,0,r+6,0,7);ctx.stroke();ctx.restore();
     ctx.fillStyle='rgba(200,240,255,.95)';ctx.font=`700 13px ${FONT}`;ctx.textAlign='center';ctx.fillText('…',0,-r-8)}
+  // スタン中：頭上を回る星 ／ 出血中：赤い雫
+  else if(e.stunT>0){ctx.save();ctx.fillStyle='#ffe66d';ctx.shadowColor='#ffe66d';ctx.shadowBlur=6;for(let i=0;i<3;i++){const a=t*6+i*2.09;ctx.beginPath();ctx.arc(Math.cos(a)*r*.8,-r-6+Math.sin(a)*3,2.2,0,7);ctx.fill()}ctx.restore()}
+  if(e.dotT>0){ctx.fillStyle='#ff2a3a';ctx.beginPath();ctx.arc(r*.6,-r*.2+((t*40)%14),1.8,0,7);ctx.fill()}
   ctx.restore();
   // 体力ゲージ
   const boss=e.t==='boss',bw=boss?84:r*2.2,f=Math.max(0,e.hp/e.maxHp),by=e.y-r-(boss?34:13);
@@ -1163,7 +1482,7 @@ function drawEnemy(e){
   const hg=ctx.createLinearGradient(e.x-bw/2,0,e.x+bw/2,0);hg.addColorStop(0,'#8a0018');hg.addColorStop(1,f>.5?'#ff3a4a':f>.25?'#ffb000':'#ff1a2a');
   ctx.fillStyle=hg;ctx.fillRect(e.x-bw/2,by,bw*f,boss?4:2);
   if(e.arm<1){ctx.fillStyle='#d4af37';ctx.fillRect(e.x-bw/2-5,by-1,3,boss?6:4)}
-  if(boss){ctx.font=`700 10px ${FONT}`;ctx.textAlign='center';ctx.fillStyle='#ff3a4a';ctx.fillText('特級呪霊',e.x,by-4)}
+  if(boss){ctx.font=`700 10px ${FONT}`;ctx.textAlign='center';ctx.fillStyle='#ff3a4a';ctx.fillText(e.ab.length?'特級：'+e.ab.map(a=>BOSS_TXT[a].slice(0,2)).join('・'):'特級呪霊',e.x,by-4)}
 }
 
 // ===== 背景（呪界） =====
@@ -1368,6 +1687,16 @@ function drawCutHand(c,type,x,y,s){
       c.fillStyle='#0a0004';c.beginPath();c.moveTo(tx-4,ty+2);c.lineTo(tx+(i-1.5)*3,ty-12);c.lineTo(tx+4,ty+2);c.closePath();c.fill()}
     c.strokeStyle='#14091f';c.lineWidth=2;c.beginPath();c.moveTo(0,-14);c.lineTo(20,-18);c.stroke();
     break}
+  default:{ // 新キャラ共通：構えた手に、キャラ色の呪力と得物
+    const col=DEFS[type].col,pr=B.prop;
+    if(pr==='sword'){c.save();c.translate(10,-30);c.rotate(-.5);c.shadowColor=col;c.shadowBlur=16;sf(()=>{c.beginPath();c.moveTo(-4,0);c.lineTo(-3,-120);c.lineTo(0,-134);c.lineTo(3,-120);c.lineTo(4,0);c.closePath()},lgr(c,-130,0,'#ffffff','#9aa8c0'),2.5);
+      sf(()=>{c.beginPath();c.rect(-14,-4,28,7)},col,2.5);c.restore()}
+    else if(pr==='gun'||pr==='cannon'){glow(40,-46,50,col);sf(()=>{c.beginPath();c.rect(-4,-48,pr==='cannon'?78:58,pr==='cannon'?22:14)},lgr(c,-48,-30,'#5a5a6a','#1a1a24'),3)}
+    else glow(14,-70,62,col);
+    sf(()=>{c.beginPath();c.moveTo(-8,-4);c.lineTo(-8,-32);c.quadraticCurveTo(12,-40,32,-30);c.lineTo(34,-6);c.quadraticCurveTo(12,6,-8,-4);c.closePath()},skin);
+    if(pr!=='gun'&&pr!=='cannon'&&pr!=='sword'){fing(0,-32,-4,-66);fing(11,-34,12,-70);fing(22,-31,26,-64);fing(30,-24,40,-36,8);
+      c.save();c.globalCompositeOperation='lighter';c.fillStyle='#fff';c.beginPath();c.arc(14,-82,7+1.5*Math.sin(t*12),0,7);c.fill();c.restore()}
+    break}
   }
   c.restore();
 }
@@ -1560,7 +1889,7 @@ function drawFx(f){
     ctx.globalAlpha=1;break}
   case 'cut':{ // 三日月状の鋭い斬撃
     const p=1-k,L=f.len*(.6+p*.5);ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.a);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=k;
-    ctx.shadowColor='#ff1a2a';ctx.shadowBlur=12;ctx.fillStyle='#ff2a3a';ctx.beginPath();ctx.moveTo(-L,0);ctx.quadraticCurveTo(0,-L*.32,L,0);ctx.quadraticCurveTo(0,-L*.12,-L,0);ctx.fill();
+    ctx.shadowColor=f.col||'#ff1a2a';ctx.shadowBlur=12;ctx.fillStyle=f.col||'#ff2a3a';ctx.beginPath();ctx.moveTo(-L,0);ctx.quadraticCurveTo(0,-L*.32,L,0);ctx.quadraticCurveTo(0,-L*.12,-L,0);ctx.fill();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(-L*.8,-1);ctx.quadraticCurveTo(0,-L*.24,L*.8,-1);ctx.quadraticCurveTo(0,-L*.16,-L*.8,-1);ctx.fill();ctx.restore();break}
   case 'spark':{ // ヒットスパーク：発光する十字＋放射の欠片
     const p=1-k,s=(f.big?20:11)*(.7+p*.6);ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.a);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=k;
@@ -1588,9 +1917,13 @@ function draw(){
   if(G.kitchen>0)drawKitchen();
   drawPathFlow(); // 領域展開中も進行方向が見えるよう、暗転の上に描く
 
-  for(const t of G.towers)if(t.type==='gojo'){const R=DEFS.gojo.range[t.lv-1];
-    ctx.fillStyle=`rgba(90,184,255,${t.active?.14+Math.sin(G.time*6)*.05:.07})`;ctx.beginPath();ctx.arc(t.x,t.y,R,0,7);ctx.fill();
-    ctx.strokeStyle='rgba(154,216,255,.5)';ctx.setLineDash([6,6]);ctx.lineDashOffset=-G.time*20;ctx.lineWidth=2;ctx.stroke();ctx.setLineDash([])}
+  for(const t of G.towers){const D=DEFS[t.type],R=D.range[t.lv-1];
+    if(D.atk==='field'){
+      ctx.fillStyle=`rgba(90,184,255,${t.active?.14+Math.sin(G.time*6)*.05:.07})`;ctx.beginPath();ctx.arc(t.x,t.y,R,0,7);ctx.fill();
+      ctx.strokeStyle='rgba(154,216,255,.5)';ctx.setLineDash([6,6]);ctx.lineDashOffset=-G.time*20;ctx.lineWidth=2;ctx.stroke();ctx.setLineDash([])}
+    else if(D.atk==='aura'){ // 支援の範囲：味方を包む淡い輪
+      ctx.fillStyle=hexA(D.col,.06);ctx.beginPath();ctx.arc(t.x,t.y,R,0,7);ctx.fill();
+      ctx.strokeStyle=hexA(D.col,.45);ctx.setLineDash([2,6]);ctx.lineDashOffset=G.time*14;ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([])}}
   if(G.sel){const t=G.sel,R=DEFS[t.type].range[t.lv-1];ctx.strokeStyle='#f3d98b';ctx.lineWidth=1.5;ctx.setLineDash([3,5]);ctx.lineDashOffset=-G.time*12;ctx.beginPath();ctx.arc(t.x,t.y,R,0,7);ctx.stroke();ctx.setLineDash([]);
     ctx.strokeStyle='#d4af37';ctx.lineWidth=1.5;ctx.strokeRect(t.c*CS+1.5,t.r*CS+1.5,CS-3,CS-3)}
   if(G.placing&&G.hover){
@@ -1620,16 +1953,24 @@ function draw(){
   for(const o of ents){
     if(o.e)drawEnemy(o.e);
     else{const t=o.t;
-      drawUnit(ctx,t.type,t.x,t.y+17,{sc:.95,att:t.type==='gojo'?t.active:t.anim>0,face:t.face||1,aura:true,seed:t.c*1.7+t.r});
+      if(t.jackT>0){ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(95,255,208,${.25+.15*Math.sin(G.time*14)})`;ctx.beginPath();ctx.arc(t.x,t.y,24,0,7);ctx.fill();ctx.restore()}
+      drawUnit(ctx,t.type,t.x,t.y+17,{sc:.95,att:DEFS[t.type].atk==='field'?t.active:t.anim>0,face:t.face||1,aura:true,seed:t.c*1.7+t.r});
+      // 呪縛弾で封じられている
+      if(t.stunT>0){ctx.save();ctx.fillStyle='rgba(40,0,60,.45)';ctx.beginPath();ctx.arc(t.x,t.y,20,0,7);ctx.fill();ctx.strokeStyle='#c04dff';ctx.lineWidth=2;ctx.shadowColor='#c04dff';ctx.shadowBlur=8;
+        ctx.beginPath();ctx.moveTo(t.x-16,t.y-14);ctx.lineTo(t.x+16,t.y+14);ctx.moveTo(t.x+16,t.y-14);ctx.lineTo(t.x-16,t.y+14);ctx.stroke();
+        ctx.font=`16px ${FONT3}`;ctx.fillStyle='#f0d8ff';ctx.fillText('封',t.x,t.y+6);ctx.restore()}
       ctx.fillStyle='#d4af37';ctx.font=`700 9px ${FONT}`;ctx.textAlign='center';ctx.fillText('◆'.repeat(t.lv),t.x,t.y+26);
       if(t.spCd<=0){ctx.fillStyle=`rgba(255,42,74,${.6+Math.sin(G.time*8)*.4})`;ctx.font=`700 12px ${FONT}`;ctx.fillText('必殺OK!',t.x,t.y-52)}
     }
   }
   // 呪いの釘：発光する軌跡つき
-  for(const s of G.shots){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.a||0);ctx.globalCompositeOperation='lighter';
-    const tg=ctx.createLinearGradient(-34,0,0,0);tg.addColorStop(0,'rgba(255,138,61,0)');tg.addColorStop(1,'rgba(255,170,90,.85)');ctx.fillStyle=tg;ctx.fillRect(-34,-1.5,34,3);
-    ctx.globalCompositeOperation='source-over';ctx.shadowColor='#ff8a3d';ctx.shadowBlur=8;ctx.fillStyle='#f4f0ff';ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-6,-1.6);ctx.lineTo(-6,1.6);ctx.closePath();ctx.fill();
+  for(const s of G.shots){if(s.delay>0)continue;const sc=s.col||'#ff8a3d';ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.a||0);ctx.globalCompositeOperation='lighter';
+    const tg=ctx.createLinearGradient(-34,0,0,0);tg.addColorStop(0,hexA(sc,0));tg.addColorStop(1,hexA(sc,.85));ctx.fillStyle=tg;ctx.fillRect(-34,-1.5,34,3);
+    ctx.globalCompositeOperation='source-over';ctx.shadowColor=sc;ctx.shadowBlur=8;ctx.fillStyle='#f4f0ff';ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-6,-1.6);ctx.lineTo(-6,1.6);ctx.closePath();ctx.fill();
     ctx.fillStyle='#d8c8a8';ctx.fillRect(-9,-3.5,3,7);ctx.restore()}
+  // ビーム（傀儡の砲撃・血の矢・呪縛弾）
+  for(const b of G.beams){const k=b.life/b.max;ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.a);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=k;
+    ctx.shadowColor=b.col;ctx.shadowBlur=16;ctx.fillStyle=hexA(b.col,.55);ctx.fillRect(0,-b.w/2,b.len,b.w);ctx.fillStyle='#fff';ctx.fillRect(0,-b.w/6,b.len,b.w/3);ctx.restore()}
   // 藁人形の爆弾：明滅する呪印つき
   for(const b of G.bombs){const k=(Math.sin(G.time*30)+1)/2;ctx.save();
     ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(255,${90+k*120|0},40,${.5+k*.4})`;ctx.beginPath();ctx.arc(b.x,b.y,9+k*9,0,7);ctx.fill();ctx.globalCompositeOperation='source-over';
@@ -1725,20 +2066,23 @@ function syncSp(){
     b.lastChild.textContent=rd?'必殺！':`${Math.ceil(Math.min(...ts.map(t=>t.spCd)))}s`}
 }
 const cards={};
-for(const k of Object.keys(DEFS)){
-  const d=DEFS[k],el=document.createElement('div');el.className='card';
-  const ic=document.createElement('canvas');ic.width=96;ic.height=96;
-  const ic2=ic.getContext('2d'),bgr=ic2.createRadialGradient(48,40,4,48,48,70);
-  bgr.addColorStop(0,d.col);bgr.addColorStop(1,'#0b0617');ic2.fillStyle=bgr;ic2.fillRect(0,0,96,96);
-  drawBust(ic2,k,48,48,.56);
-  el.appendChild(ic);
-  const info=document.createElement('div');info.innerHTML=`<div class="nm">${d.name}</div><div class="cs">${d.cost}G</div><span class="tg" style="background:${d.col}">${d.tag}</span>`;el.appendChild(info);
-  el.onclick=()=>{if(G.state!=='ready'&&G.state!=='wave')return;closePop();G.placing=G.placing===k?null:k;syncUI(true)};
-  const sb=document.createElement('button');sb.className='spb none';sb.innerHTML='<i></i><span>必殺</span>';sb.onclick=ev=>{ev.stopPropagation();fireType(k)};el.appendChild(sb);spbs[k]=sb;
-  $('panel').appendChild(el);cards[k]=el;
+// キャラの顔アイコン（デッキ画面・下部パネル共通）
+function charIcon(k,px=96){const d=DEFS[k],ic=document.createElement('canvas');ic.width=ic.height=px;
+  const c=ic.getContext('2d'),s=px/96,g=c.createRadialGradient(48*s,40*s,4*s,48*s,48*s,70*s);
+  g.addColorStop(0,d.col);g.addColorStop(1,'#0b0617');c.fillStyle=g;c.fillRect(0,0,px,px);drawBust(c,k,48*s,48*s,.56*s);return ic}
+// 下部パネル：出撃デッキの5体だけを並べる
+function buildPanel(){
+  const box=$('panel');box.innerHTML='';for(const k in cards)delete cards[k];for(const k in spbs)delete spbs[k];
+  for(const k of G.deck){const d=DEFS[k],el=document.createElement('div');el.className='card';
+    el.appendChild(charIcon(k));
+    const info=document.createElement('div');info.innerHTML=`<div class="nm">${d.name}</div><div class="cs">${d.cost}G</div><span class="tg" style="background:${d.col}">${d.tag}</span>`;el.appendChild(info);
+    el.onclick=()=>{if(G.state!=='ready'&&G.state!=='wave')return;closePop();G.placing=G.placing===k?null:k;syncUI(true)};
+    const sb=document.createElement('button');sb.className='spb none';sb.innerHTML='<i></i><span>必殺</span>';sb.onclick=ev=>{ev.stopPropagation();fireType(k)};el.appendChild(sb);spbs[k]=sb;
+    box.appendChild(el);cards[k]=el}
+  box.style.gridTemplateColumns=`repeat(${Math.max(1,G.deck.length)},1fr)`;
 }
 // 押した瞬間にキュッと沈む（:activeはスマホで反応しにくいので自前で付け外し）
-{const PS='.btn,.card,.homebtn,.spdseg button,.spb,.stg,.fb-link,.site-foot a,.tgl';let pr=[];
+{const PS='.btn,.card,.homebtn,.spdseg button,.spb,.stg,.fb-link,.site-foot a,.tgl,.atab,.dkc,.dks';let pr=[];
  const off=()=>{pr.forEach(e=>e.classList.remove('press'));pr=[]};
  document.addEventListener('pointerdown',e=>{off();const t=e.target.closest&&e.target.closest(PS);if(!t||t.disabled)return;
    pr=[t];t.classList.add('press')},{passive:true});
@@ -1746,7 +2090,7 @@ for(const k of Object.keys(DEFS)){
 $('next').onclick=()=>{
   if(G.state!=='ready'||G.wave>=5)return;
   G.wave++;G.queue=makeWave(G.stage,G.wave);G.waveTotal=G.queue.length;G.state='wave';G.spawnT=.6;
-  const fin=G.stage===5&&G.wave===5;
+  const fin=G.stage===LAST&&G.wave===5;
   G.banner={text:fin?'FINAL WAVE !!':`STAGE ${G.stage} - WAVE ${G.wave} START`,t:1.6,col:fin||G.wave===5?'#ff4d6d':'#fff'};
   syncUI(true);
 };
@@ -1777,10 +2121,35 @@ $('homeBtn').onclick=()=>{
 };
 $('homeNo').onclick=()=>{G.paused=false;$('homeOv').style.display='none'};
 $('homeYes').onclick=()=>{$('homeOv').style.display='none';track('home_return',{stage:G.stage,wave:G.wave});showTitle()};
+// ===== 進行・キャラ解放 =====
+const PROG_KEY='jkd_progress',DECK_KEY='jkd_deck',DEBUG=location.hash==='#debug';
+function loadProg(){try{const p=JSON.parse(localStorage.getItem(PROG_KEY));if(p&&p.cl)return p}catch(e){}return{un:1,cl:[]}}
+const isUnlocked=(k,p=loadProg())=>DEBUG||DEFS[k].unlock===0||p.cl.includes(DEFS[k].unlock);
+// クリアを記録し、今回はじめて解放されたキャラを返す
+function markClear(st){track('stage_clear',{stage:st});const p=loadProg(),first=!p.cl.includes(st);
+  p.un=Math.max(p.un,Math.min(LAST,st+1));if(first)p.cl.push(st);try{localStorage.setItem(PROG_KEY,JSON.stringify(p))}catch(e){}
+  return first?CHAR_IDS.filter(k=>DEFS[k].unlock===st):[]}
+// ===== デッキ（出撃する5体） =====
+function loadDeck(){let d=[];try{d=JSON.parse(localStorage.getItem(DECK_KEY))||[]}catch(e){}
+  const p=loadProg();d=d.filter(k=>DEFS[k]&&isUnlocked(k,p));
+  for(const k of CHAR_IDS){if(d.length>=5)break;if(!d.includes(k)&&isUnlocked(k,p))d.push(k)}return d.slice(0,5)}
+function saveDeck(d){try{localStorage.setItem(DECK_KEY,JSON.stringify(d))}catch(e){}}
+// ステージの特徴に効くキャラ（おすすめ編成の判断材料）
+const COUNTER={S:['megumi','panda','todo','yuta','sukuna','mechamaru'],A:['maki','choso','kamo'],K:['maki','choso','kamo'],
+  H:['nobara','mai','kamo','choso'],G:['megumi','panda','todo','yuta','sukuna','ijichi','mechamaru'],F:['inumaki','miwa','gojo','panda','megumi'],P:['megumi','panda','todo','yuta','sukuna','mechamaru']};
+const BASE_PW={yuji:3,megumi:2.5,nobara:3,ijichi:2.6,panda:2.4,nishimiya:2.4,maki:3,inumaki:2.2,mai:3,todo:3.4,miwa:2.4,mechamaru:3.2,kamo:3,shoko:1.2,hakari:3.2,mei:2.6,choso:3.6,yuta:4.5,gojo:5,sukuna:5.5};
+function recommendDeck(st,pool){
+  const S=STAGES[st-1],p=loadProg(),deck=[];pool=pool||CHAR_IDS.filter(k=>isUnlocked(k,p));
+  const score=k=>{let s=BASE_PW[k]||2;for(const c of S.tr)if((COUNTER[c]||[]).includes(k))s+=1.6;
+    if(S.boss.length&&(DEFS[k].sk==='nuke'||DEFS[k].sk==='beamNuke'||DEFS[k].sk==='domain'||DEFS[k].sk==='stunAll'))s+=1;
+    const tags=deck.map(d=>DEFS[d].tag),sup=deck.filter(d=>DEFS[d].tag==='サポ').length;
+    if(tags.includes(DEFS[k].tag))s-=DEFS[k].tag==='最強'?.8:1.8;
+    if(DEFS[k].tag==='サポ'&&sup>=1)s-=2.5;
+    if(k==='yuji'&&deck.length<2)s+=1.5; // 序盤を支える安いアタッカー
+    return s};
+  while(deck.length<5&&deck.length<pool.length){let best=null,bs=-1e9;for(const k of pool)if(!deck.includes(k)){const s=score(k);if(s>bs){bs=s;best=k}}deck.push(best)}
+  return deck}
 // ===== ステージ選択 =====
-const PROG_KEY='jkd_progress';
-function loadProg(){try{return JSON.parse(localStorage.getItem(PROG_KEY))||{un:1,cl:[]}}catch(e){return{un:1,cl:[]}}}
-function markClear(st){track('stage_clear',{stage:st});const p=loadProg();p.un=Math.max(p.un,Math.min(5,st+1));if(!p.cl.includes(st))p.cl.push(st);try{localStorage.setItem(PROG_KEY,JSON.stringify(p))}catch(e){}}
 function drawPreview(c,S){
   const k=96/W,pts=S.path.map(([a,b])=>[(a*CS+CS/2)*k,(b*CS+CS/2)*k]);
   c.fillStyle=S.th.base2;c.fillRect(0,0,96,139);
@@ -1789,16 +2158,68 @@ function drawPreview(c,S){
   c.shadowColor=S.th.edge;c.shadowBlur=6;ln(CS*k+2,S.th.edge);c.shadowBlur=0;ln(CS*k-1,S.th.floor);
   const[ex,ey]=pts[pts.length-1];c.fillStyle='#ff3d6d';c.shadowColor='#ff3d6d';c.shadowBlur=8;c.fillRect(ex-4,ey-4,8,8);c.shadowBlur=0;
 }
+let curArea=null;
 function showTitle(){
-  closePop();if(G){G.state='title';G.placing=null;G.cutin=null}$('over').style.display='none';
-  const p=loadProg(),box=$('stages');box.innerHTML='';
-  STAGES.forEach((S,i)=>{const n=i+1,lock=n>p.un&&location.hash!=='#debug';
-    const el=document.createElement('div');el.className='stg'+(lock?' lock':'');
+  closePop();if(G){G.state='title';G.placing=null;G.cutin=null}$('over').style.display='none';$('deck').style.display='none';
+  const p=loadProg();if(curArea===null)curArea=Math.min(2,Math.floor((Math.min(p.un,LAST)-1)/10));
+  // エリアの切り替え
+  const tabs=$('areaTabs');tabs.innerHTML='';
+  AREAS.forEach((a,i)=>{const b=document.createElement('button');b.className='atab'+(i===curArea?' on':'')+(!DEBUG&&p.un<i*10+1?' lock':'');
+    b.innerHTML=`<small>AREA ${i+1}</small>${a}`;b.onclick=()=>{curArea=i;showTitle()};tabs.appendChild(b)});
+  const box=$('stages');box.innerHTML='';
+  STAGES.slice(curArea*10,curArea*10+10).forEach(S=>{const n=S.no,lock=n>p.un&&!DEBUG;
+    const el=document.createElement('div');el.className='stg'+(lock?' lock':'')+(n%10===0?' areaboss':'');
     const pc=document.createElement('canvas');pc.width=96;pc.height=139;drawPreview(pc.getContext('2d'),S);el.appendChild(pc);
-    el.insertAdjacentHTML('beforeend',`<div class="info"><div class="no">STAGE ${n}</div><div class="nm">${S.name}</div><div class="df">危険度 ${'★'.repeat(n)}${'☆'.repeat(5-n)}</div></div>${p.cl.includes(n)?'<span class="badge">CLEAR</span>':''}`);
-    if(!lock)el.onclick=()=>{$('title').style.display='none';newGame(n);track('game_start',{stage:n})};
+    const un=CHAR_IDS.filter(k=>DEFS[k].unlock===n);
+    el.insertAdjacentHTML('beforeend',`<div class="info"><div class="no">STAGE ${n}${n%10===0?' <b>BOSS</b>':''}</div><div class="nm">${S.name}</div>
+      <div class="tr">${[...S.tr].map(c=>`<i>${TRAIT_TXT[c]}</i>`).join('')}</div>${un.length&&!p.cl.includes(n)?`<div class="rw">🔓 ${DEFS[un[0]].name}</div>`:''}</div>${p.cl.includes(n)?'<span class="badge">CLEAR</span>':''}`);
+    if(!lock)el.onclick=()=>openDeck(n);
     box.appendChild(el)});
   $('title').style.display='flex';syncUI(true);
+}
+// ===== デッキ編成（出撃前） =====
+let dk={st:1,deck:[],carry:0,info:null};
+function openDeck(st,carry=0){
+  const p=loadProg();dk={st,deck:loadDeck(),carry,info:null};
+  const S=STAGES[st-1];$('title').style.display='none';$('over').style.display='none';
+  $('dkSt').innerHTML=`<small>AREA ${S.area+1}　${AREAS[S.area]}</small>STAGE ${st}「${S.name}」`;
+  $('dkThreat').innerHTML=(S.tr?[...S.tr].map(c=>`<span class="th" title="${TRAIT_HINT[c]}">${TRAIT_TXT[c]}<em>→${TRAIT_HINT[c]}</em></span>`).join(''):'<span class="th">基本の呪霊のみ</span>')+
+    (S.boss.length?`<span class="th boss">ボス：${S.boss.map(a=>BOSS_TXT[a]).join('／')}</span>`:'');
+  const grid=$('dkGrid');grid.innerHTML='';
+  for(const k of CHAR_IDS){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='dkc'+(lock?' lock':'');el.dataset.k=k;
+    if(!lock)el.appendChild(charIcon(k,72));else{const c=document.createElement('div');c.className='lk';c.textContent='🔒';el.appendChild(c)}
+    el.insertAdjacentHTML('beforeend',lock?`<div class="nm">？？？</div><div class="cs">STAGE ${D.unlock}<br>クリアで解放</div>`:
+      `<div class="nm">${D.name}</div><div class="cs">${D.cost}G <span style="background:${D.col}">${D.tag}</span></div><b class="no"></b>`);
+    el.onclick=()=>{if(lock){dk.info=null;$('dkInfo').innerHTML=`STAGE ${D.unlock} をクリアすると解放されます`;return}
+      const i=dk.deck.indexOf(k);if(i>=0)dk.deck.splice(i,1);else if(dk.deck.length<5)dk.deck.push(k);else{dk.info=k;syncDeck(`デッキは5体まで。外したいキャラを上の枠からタップ`);return}
+      dk.info=k;syncDeck()};
+    grid.appendChild(el)}
+  $('deck').style.display='flex';syncDeck();
+}
+function syncDeck(msg){
+  const sl=$('dkSlots');sl.innerHTML='';
+  for(let i=0;i<5;i++){const k=dk.deck[i],b=document.createElement('div');b.className='dks'+(k?'':' empty');
+    if(k){b.appendChild(charIcon(k,56));b.insertAdjacentHTML('beforeend',`<span>${DEFS[k].tag}</span>`);b.onclick=()=>{dk.deck.splice(i,1);dk.info=null;syncDeck()}}
+    else b.textContent=i+1;sl.appendChild(b)}
+  for(const el of $('dkGrid').children){const i=dk.deck.indexOf(el.dataset.k);el.classList.toggle('on',i>=0);const no=el.querySelector('.no');if(no)no.textContent=i>=0?i+1:''}
+  const k=dk.info,D=k&&DEFS[k];
+  $('dkInfo').innerHTML=msg||(D?`<b style="color:${D.col}">${D.name}</b>（${D.tag}・${ATK_TXT[D.atk]}）${D.cost}G<br>${D.role}／${descOf(k,1)}<br>必殺『${D.sp}』CT${D.ct}秒`:
+    'キャラをタップして出撃デッキ（最大5体）に入れよう。役割がバラけるほど強い');
+  $('dkGo').disabled=!dk.deck.length;
+}
+$('dkRec').onclick=()=>{dk.deck=recommendDeck(dk.st);dk.info=null;syncDeck('ステージの特徴に合わせたおすすめ編成にしました')};
+$('dkBack').onclick=()=>showTitle();
+$('dkGo').onclick=()=>{if(!dk.deck.length)return;saveDeck(dk.deck);$('deck').style.display='none';
+  newGame(dk.st,[...dk.deck]);if(dk.carry)G.money=G.stageMoney=Math.max(dk.carry,G.money);syncUI(true);track('game_start',{stage:dk.st,deck:dk.deck.join(',')})};
+function stageClear(bonus){
+  G.state='stageclear';closePop();G.placing=null;
+  const S=STAGES[G.stage-1],newly=markClear(G.stage);
+  const refund=G.towers.reduce((a,t)=>a+t.spent,0);G.money+=refund;
+  const un=newly.map(k=>`<span class="unl">🔓 新キャラ解放！『${DEFS[k].name}』（${DEFS[k].tag}）</span>`).join('');
+  const nxt=G.stage+1;
+  showOver('STAGE CLEAR!','#ffd23f',`STAGE ${G.stage}「${S.name}」突破！<br>WAVEボーナス +${bonus}G ／ 配置キャラは全額返金 +${refund}G${un?'<br>'+un:''}`,
+    '次のステージへ ▶',()=>openDeck(nxt,G.money),'ステージ選択',showTitle,
+    shareText(`STAGE ${G.stage}「${S.name}」を突破！`+(newly.length?`新キャラ『${DEFS[newly[0]].name}』を解放`:''),G.life));
 }
 for(const b of $('spd').children)b.onclick=()=>{G.speed=+b.dataset.s;syncSpd()};
 function syncSpd(){for(const b of $('spd').children)b.classList.toggle('on',+b.dataset.s===G.speed)}
@@ -1840,9 +2261,10 @@ function refreshPop(){
   const pi=$('pImg').getContext('2d'),pg=pi.createRadialGradient(88,60,4,88,70,120);
   pg.addColorStop(0,D.col);pg.addColorStop(1,'#0b0617');pi.fillStyle=pg;pi.fillRect(0,0,176,140);drawBust(pi,t.type,88,80,.8);
   const L=t.lv-1,N=Math.min(2,L+1),bar=(lab,f)=>`<span>${lab}</span><div class="bar"><s style="width:${Math.min(100,f(N)*100)}%"></s><u style="width:${Math.min(100,f(L)*100)}%"></u></div>`;
-  $('pBars').innerHTML=bar('威力',l=>D.dmg[l]/320)+(D.rate?bar('速さ',l=>D.rate[l]/3.6):bar('減速',l=>D.slow[l]))+bar('射程',l=>D.range[l]/330);
+  $('pBars').innerHTML=(D.pw?bar('効果',l=>D.pw[l]/.5):D.regen?bar('回復',l=>20/D.regen[l]):bar('威力',l=>D.dmg[l]/320))+(D.rate?bar('速さ',l=>D.rate[l]/3.6):D.slow?bar('減速',l=>D.slow[l]):'')+bar('射程',l=>D.range[l]/330);
   $('pRole').textContent=D.role;
-  $('pStat').innerHTML=D.desc(t.lv)+(t.lv<3?`<br>→ LV${t.lv+1}: ${D.desc(t.lv+1)}`:'<br>★ MAX LEVEL ★')+`<br>必殺:『${D.sp}』CT${D.ct}秒`;
+  $('pStat').innerHTML=descOf(t.type,t.lv)+(t.lv<3?`<br>→ LV${t.lv+1}: ${descOf(t.type,t.lv+1)}`:'<br>★ MAX LEVEL ★')+`<br>必殺:『${D.sp}』CT${D.ct}秒`+
+    (t.mD>1||t.mR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.mD.toFixed(2)} 速度×${t.mR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'');
   const up=$('pUp');
   if(t.lv>=3){up.textContent='LV MAX';up.disabled=true}
   else{const c=D.up[t.lv-1];up.textContent=`LV UP（強化） ${c}G`;up.disabled=G.money<c}
@@ -1874,8 +2296,8 @@ function syncUI(force){
 function endGame(win){
   if(G.state==='win'||G.state==='lose')return;
   G.state=win?'win':'lose';closePop();G.placing=null;G.winT=0;
-  if(win){markClear(5);showOver('🎉 ALL CLEAR!!','#ffd23f',`『呪界ディフェンス』完全制覇！<br>全5ステージ・25WAVE突破、呪いの王の厨房を制圧した！<br>残り封印 ${G.life}/10`,'ステージ選択へ',showTitle,null,null,
-    shareText(`全5ステージ・25WAVEを完全制覇！呪いの王を討ち取った👑`,G.life))}
+  if(win){markClear(LAST);showOver('🎉 ALL CLEAR!!','#ffd23f',`『呪界ディフェンス』完全制覇！<br>全${LAST}ステージ・${LAST*5}WAVE突破、呪いの王の厨房を制圧した！<br>残り封印 ${G.life}/10`,'ステージ選択へ',showTitle,null,null,
+    shareText(`全${LAST}ステージ・${LAST*5}WAVEを完全制覇！呪いの王を討ち取った👑`,G.life))}
   else{track('game_over',{stage:G.stage,wave:G.wave});}
   if(!win)showOver('GAME OVER','#ff4d6d',`STAGE ${G.stage} - WAVE ${G.wave} で拠点が陥落…`,
     'このステージから再挑戦',()=>{G.money=G.stageMoney;startStage()},'ステージ選択',showTitle);
@@ -1909,7 +2331,8 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 newGame(1);fit();showTitle();
-if(location.hash==='#debug')window.__td={get G(){return G},special,startStage,setupStage,update,makeWave,DEFS,ETYPES,HPM,BOSS_HP,BOSS_ARM,SPV,drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,AUTO,get grid(){return grid},get PATH(){return PATH},next:()=>$('next').onclick()};
+if(location.hash==='#debug')window.__td={get G(){return G},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,HP_A,BOSS_A,MONEY_A,AREA_ARM,
+  drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,AUTO,get grid(){return grid},get PATH(){return PATH},get pathLen(){return pathLen},next:()=>$('next').onclick()};
 requestAnimationFrame(loop);
 })();
 </script>
