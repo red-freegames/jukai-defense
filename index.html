@@ -335,6 +335,24 @@ html,body{font-weight:500;background:#0a0a0c}
 #title .sub{letter-spacing:5px}
 #hud .title{display:block;line-height:1;text-align:center}
 #hud .title small{display:block;font-family:'Dela Gothic One',var(--f-jp);font-size:7.5px;letter-spacing:1px;margin:3px 0 0;color:var(--gold2);text-shadow:0 0 6px rgba(212,175,55,.7)}
+/* 必殺技AUTO・自動進化のトグル（速度切替の隣） */
+#ctrl{gap:6px}
+#ctrl .spdseg button{min-width:41px;padding-left:0;padding-right:0}
+#ctrl #next,#ctrl #cancelPlace{font-size:14px;letter-spacing:1px;padding-left:6px;padding-right:6px;min-width:0}
+.tgl{flex:none;width:52px;min-height:50px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;border-radius:12px;cursor:pointer;
+  color:#7d738c;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 14px rgba(0,0,0,.45);
+  font-family:var(--f-jp);font-weight:800;font-size:9.5px;line-height:1;transition:transform .14s cubic-bezier(.3,1.6,.5,1),box-shadow .2s,color .2s}
+.tgl::before{content:"";position:absolute;inset:0;padding:1px;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 50%,rgba(255,255,255,.2));pointer-events:none;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tgl b{font-family:var(--f-num);font-size:11px;letter-spacing:.5px}
+.tgl b.jp{font-family:var(--f-jp);font-size:12px;letter-spacing:1px}
+.tgl i{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:#2c2734}
+.tgl.on{color:#eafcff;background:linear-gradient(180deg,rgba(77,227,255,.3),rgba(16,50,110,.45)),var(--glass);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 16px rgba(77,227,255,.45);text-shadow:0 0 8px #4de3ff}
+.tgl.on::before{background:linear-gradient(135deg,#bff4ff,rgba(77,227,255,.25) 50%,rgba(243,217,139,.7))}
+.tgl.up.on{color:#fff6dc;background:linear-gradient(180deg,rgba(243,217,139,.32),rgba(110,70,10,.45)),var(--glass);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 16px rgba(212,175,55,.5);text-shadow:0 0 8px #d4af37}
+.tgl.up.on::before{background:linear-gradient(135deg,#fff1c2,rgba(212,175,55,.3) 50%,rgba(255,42,74,.6))}
+.tgl.on i{background:#4dffb0;box-shadow:0 0 8px #4dffb0}
+.tgl.press{transform:scale(.88)}
 /* Xシェア */
 #over .xshare{display:none;align-items:center;justify-content:center;min-height:52px;padding:13px 26px;font-size:15px;color:#fff;text-shadow:none;
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02)),rgba(8,8,10,.85)}
@@ -376,6 +394,8 @@ html,body{font-weight:500;background:#0a0a0c}
     <div id="panel"></div>
     <div id="ctrl">
       <div class="spdseg" id="spd" title="ゲーム速度"><button data-s="1" class="on">x1</button><button data-s="2">x2</button><button data-s="4">x4</button></div>
+      <button class="tgl" id="autoSp" aria-pressed="false" title="必殺技を賢く自動発動"><i></i><span>必殺技</span><b>AUTO</b></button>
+      <button class="tgl up" id="autoUp" aria-pressed="false" title="呪力があれば自動で強化"><i></i><span>自動</span><b class="jp">進化</b></button>
       <button class="btn" id="next">WAVE開始 ▶</button>
       <button class="btn red" id="cancelPlace">× 配置キャンセル</button>
     </div>
@@ -564,7 +584,7 @@ const strongest=a=>a.reduce((x,y)=>y.hp>x.hp?y:x);
 // ===== 必殺技 =====
 // 必殺技の威力（LV倍率込み）
 const SPV={yuji:[80,160,300],megumiPush:[160,220,280],megumiDmg:[60,130,260],nobara:[200,400,800],gojoDps:[90,180,350],sukunaDps:[220,450,850]};
-function special(t){
+function special(t,auto){
   if(t.spCd>0||G.state!=='wave'&&G.state!=='ready')return;
   const L=t.lv,al=alive();
   if(!al.length){text(t.x,t.y-30,'敵がいない！','#aaa',14);return}
@@ -583,13 +603,76 @@ function special(t){
     case 'gojo':G.domain=DOM_TOTAL;G.domainLv=SPV.gojoDps[L-1];G.domX=t.x;G.domY=t.y;shake(1,12);G.fx.push({k:'nova',x:t.x,y:t.y,col:'#4de3ff',R:800,life:1,max:1});break;
     case 'sukuna':G.kitchen=4.4;G.kitchenLv=SPV.sukunaDps[L-1];shake(1.2,14);break;
   }
-  cutin(t.type,t.x,t.y);t.spCd=DEFS[t.type].ct;closePop();
+  cutin(t.type,t.x,t.y);t.spCd=DEFS[t.type].ct;
+  // AUTO発動では開いている強化パネルを閉じない
+  if(auto)text(t.x,t.y-44,'AUTO','#7fe8ff',12);else closePop();
 }
+
+// ===== 必殺技AUTO／自動進化 =====
+const AUTO={sp:false,up:false};
+try{const s=JSON.parse(localStorage.getItem('jkd_auto')||'{}');AUTO.sp=!!s.sp;AUTO.up=!!s.up}catch(e){}
+function saveAuto(){try{localStorage.setItem('jkd_auto',JSON.stringify(AUTO))}catch(e){}}
+let autoT=0,autoGap=0;
+function autoTick(dt){
+  autoT-=dt;autoGap-=dt;if(autoT>0)return;autoT=.25;
+  if(AUTO.up&&!G.placing)autoUpgrade();
+  if(AUTO.sp&&G.state==='wave'&&!G.cutin&&autoGap<=0)autoSpecial();
+}
+// キャラごとの「美味しいタイミング」
+function wantSp(t,al,gojoReady){
+  const R=DEFS[t.type].range[t.lv-1],prog=e=>e.d/pathLen,boss=al.find(e=>e.t==='boss'),
+    lead=Math.max(...al.map(prog)),dom=domainOn(),inN=k=>al.filter(e=>inR(t,e,R*k)).length;
+  // 拠点の目前まで来ているなら誰でも撃つ
+  const danger=lead>.88;
+  // ボスWAVEでボスがまだ出ていない間は、五条と宿儺の切り札を温存する
+  const bossComing=!boss&&G.queue.some(q=>q.t==='boss');
+  // 五条がもうすぐ撃てるなら、宿儺は停止に合わせて待つ
+  const gojoSoon=gojoReady||G.towers.some(o=>o.type==='gojo'&&o.spCd<8);
+  switch(t.type){
+    case 'yuji':  // 強敵・ボスが自分の近くに来た時（五条の停止中ならダメージ増で最優先）
+      if(boss&&gojoReady&&!dom)return false;
+      return al.some(e=>(e.t==='boss'||e.t==='tank'||e.t==='armor')&&inR(t,e,R*1.6))||(dom&&!!boss)||inN(1.2)>=5||danger;
+    case 'megumi':  // 射程内に群れている時、またはルート終盤まで押し込まれた時に押し戻す
+      return inN(1.1)>=4||al.length>=9||lead>.75||(boss&&prog(boss)>.55);
+    case 'nobara':  // 射程内に複数捉えた時
+      return inN(1.5)>=3||(boss&&inR(t,boss,R*1.5))||danger;
+    case 'gojo':  // 領域：ボスがルートに乗った時、または大群・終盤の危機
+      if(dom)return false;
+      if(bossComing)return lead>.75;
+      return (boss&&prog(boss)>.15)||al.length>=10||(lead>.7&&al.length>=4);
+    case 'sukuna':  // 停止中の追撃が最も効く。ボス戦では五条を待つ
+      if(G.kitchen>0)return false;
+      if(dom)return true;
+      if(bossComing)return lead>.8;
+      if(boss)return !gojoSoon||prog(boss)>.7;
+      return al.length>=8||lead>.75;
+  }
+  return false;
+}
+function autoSpecial(){
+  const al=alive();if(!al.length)return;
+  const ord={gojo:0,sukuna:1,yuji:2,nobara:3,megumi:4};
+  const ready=G.towers.filter(t=>t.spCd<=0).sort((a,b)=>ord[a.type]-ord[b.type]||b.lv-a.lv);
+  const gojoReady=ready.some(t=>t.type==='gojo');
+  // 1回に1体だけ。カットインが重ならないよう少し間を空ける
+  for(const t of ready)if(wantSp(t,al,gojoReady)){special(t,true);autoGap=1;return}
+}
+// 自動進化：コストの高いキャラから、同じなら配置順に。置き直し猶予中のキャラは除く
+function upgrade(t){const c=DEFS[t.type].up[t.lv-1];if(t.lv>=3||G.money<c)return false;
+  G.money-=c;t.spent+=c;t.lv++;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
+  text(t.x,t.y-30,'LV UP!!','#ffd23f',20);if(G.sel===t)refreshPop();return true}
+function autoUpgrade(){
+  if(G.state!=='ready'&&G.state!=='wave')return;
+  const c=G.towers.map((t,i)=>({t,i})).filter(o=>o.t.lv<3&&o.t!==G.undoT).sort((a,b)=>DEFS[b.t.type].cost-DEFS[a.t.type].cost||a.i-b.i);
+  for(const o of c)if(upgrade(o.t)){syncUI(true);return}
+}
+function syncAuto(){for(const[id,k]of[['autoSp','sp'],['autoUp','up']]){const b=$(id);b.classList.toggle('on',AUTO[k]);b.setAttribute('aria-pressed',AUTO[k])}}
 
 // ===== 更新 =====
 const inR=(t,e,r)=>(e.x-t.x)**2+(e.y-t.y)**2<=(r+e.r)**2;
 function update(dt){
   G.time+=dt;
+  autoTick(dt);
   if(G.winT>0){G.winT-=dt;if(G.winT<=0){endGame(true);return}}
   if(G.state==='wave'){
     G.incomeT+=dt;if(G.incomeT>=1){G.incomeT-=1;G.money+=2}
@@ -1655,7 +1738,7 @@ for(const k of Object.keys(DEFS)){
   $('panel').appendChild(el);cards[k]=el;
 }
 // 押した瞬間にキュッと沈む（:activeはスマホで反応しにくいので自前で付け外し）
-{const PS='.btn,.card,.homebtn,.spdseg button,.spb,.stg,.fb-link,.site-foot a';let pr=[];
+{const PS='.btn,.card,.homebtn,.spdseg button,.spb,.stg,.fb-link,.site-foot a,.tgl';let pr=[];
  const off=()=>{pr.forEach(e=>e.classList.remove('press'));pr=[]};
  document.addEventListener('pointerdown',e=>{off();const t=e.target.closest&&e.target.closest(PS);if(!t||t.disabled)return;
    pr=[t];t.classList.add('press')},{passive:true});
@@ -1720,9 +1803,10 @@ function showTitle(){
 for(const b of $('spd').children)b.onclick=()=>{G.speed=+b.dataset.s;syncSpd()};
 function syncSpd(){for(const b of $('spd').children)b.classList.toggle('on',+b.dataset.s===G.speed)}
 $('pClose').onclick=closePop;
-$('pUp').onclick=()=>{const t=G.sel;if(!t||t.lv>=3)return;const c=DEFS[t.type].up[t.lv-1];if(G.money<c)return;
-  G.money-=c;t.spent+=c;t.lv++;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
-  text(t.x,t.y-30,'LV UP!!','#ffd23f',20);refreshPop();syncUI(true)};
+$('pUp').onclick=()=>{const t=G.sel;if(t&&upgrade(t)){refreshPop();syncUI(true)}};
+$('autoSp').onclick=()=>{AUTO.sp=!AUTO.sp;saveAuto();syncAuto();track('auto_toggle',{kind:'special',on:AUTO.sp})};
+$('autoUp').onclick=()=>{AUTO.up=!AUTO.up;saveAuto();syncAuto();track('auto_toggle',{kind:'upgrade',on:AUTO.up})};
+syncAuto();
 $('pSp').onclick=()=>{if(G.sel)special(G.sel)};
 // 撤去（売却）：誤タップ防止のため、1回目で確認表示、2.5秒以内の2回目で確定
 let sellArm=0;
@@ -1825,7 +1909,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 newGame(1);fit();showTitle();
-if(location.hash==='#debug')window.__td={get G(){return G},special,startStage,setupStage,update,makeWave,DEFS,ETYPES,HPM,BOSS_HP,BOSS_ARM,SPV,drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,get grid(){return grid},get PATH(){return PATH},next:()=>$('next').onclick()};
+if(location.hash==='#debug')window.__td={get G(){return G},special,startStage,setupStage,update,makeWave,DEFS,ETYPES,HPM,BOSS_HP,BOSS_ARM,SPV,drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,AUTO,get grid(){return grid},get PATH(){return PATH},next:()=>$('next').onclick()};
 requestAnimationFrame(loop);
 })();
 </script>
