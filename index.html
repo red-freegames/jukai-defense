@@ -580,13 +580,15 @@ let G;
 function newGame(n=1,deck){
   G={stage:n,money:stageMoney(n),life:10,wave:0,state:'ready',towers:[],enemies:[],queue:[],spawnT:0,deck:deck||loadDeck(),
      fx:[],parts:[],texts:[],rushes:[],shots:[],bombs:[],domain:0,domainLv:1,domX:W/2,domY:H/2,kitchen:0,kitchenLv:1,buffAll:0,buffMul:1,hasteAll:0,hasteMul:1,
-     cutin:null,shake:0,shakeMag:0,time:0,incomeT:0,speed:G?G.speed:1,sel:null,placing:null,banner:null,hover:null,warn:0,winT:0,stageMoney:400};
+     cutin:null,minis:[],shake:0,shakeMag:0,time:0,incomeT:0,speed:G?G.speed:1,sel:null,placing:null,banner:null,hover:null,warn:0,winT:0,stageMoney:400};
   if(location.hash==='#debug')G.money=G.stageMoney=99999;
   buildPanel();startStage();
 }
 function startStage(){
   G.wave=0;G.life=10;G.state='ready';G.towers=[];G.enemies=[];G.queue=[];G.rushes=[];G.shots=[];G.bombs=[];G.beams=[];
-  G.domain=0;G.kitchen=0;G.buffAll=0;G.hasteAll=0;G.warn=0;G.placing=null;G.stageMoney=G.money;
+  G.domain=0;G.kitchen=0;G.buffAll=0;G.hasteAll=0;G.warn=0;G.placing=null;G.stageMoney=G.money;G.cutin=null;G.minis=[];
+  // 必殺技AUTO・自動進化はステージごとにOFFから始める（ONにできるのはそのステージの中だけ）
+  AUTO.sp=AUTO.up=false;autoT=autoGap=0;syncAuto();
   setupStage();closePop();$('over').style.display='none';
   G.banner={text:`STAGE ${G.stage}「${STAGES[G.stage-1].name}」`,t:2.2,col:'#ffd23f'};
   syncUI(true);
@@ -680,17 +682,20 @@ function special(t,auto){
       for(const e of al)if(Math.hypot(e.x-c.x,e.y-c.y)<R+e.r){hurt(e,v,true,D.col,true);stunE(e,1.5)}
       G.fx.push({k:'nova',x:c.x,y:c.y,col:D.col,R:R*1.5,life:.6,max:.6},{k:'boom',x:c.x,y:c.y,life:.5,max:.5});burst(c.x,c.y,D.col,50,320);shake(1,15);break}
   }
-  cutin(t.type,t.x,t.y);t.spCd=D.ct;
+  // 手動は全画面カットイン。AUTOは画面左下の小テロップだけにして、ゲームのテンポを止めない
+  if(auto){G.minis=G.minis.filter(m=>m.t>0).slice(-2);G.minis.push({type:t.type,txt:D.sp,rc:D.rc,t:1.4});G.fx.push({k:'nova',x:t.x,y:t.y,col:D.col,life:.5,max:.5})}
+  else cutin(t.type,t.x,t.y);
+  t.spCd=D.ct;
   // AUTO発動では開いている強化パネルを閉じない
-  if(auto)text(t.x,t.y-44,'AUTO','#7fe8ff',12);else closePop();
+  if(!auto)closePop();
 }
 // 点(px,py)と、(x,y)から角度aに伸びる長さlenの線分との距離
 function segDist(px,py,x,y,a,len){const dx=Math.cos(a),dy=Math.sin(a),u=Math.max(0,Math.min(len,(px-x)*dx+(py-y)*dy));return Math.hypot(px-(x+dx*u),py-(y+dy*u))}
 
 // ===== 必殺技AUTO／自動進化 =====
 const AUTO={sp:false,up:false};
-try{const s=JSON.parse(localStorage.getItem('jkd_auto')||'{}');AUTO.sp=!!s.sp;AUTO.up=!!s.up}catch(e){}
-function saveAuto(){try{localStorage.setItem('jkd_auto',JSON.stringify(AUTO))}catch(e){}}
+try{localStorage.removeItem('jkd_auto')}catch(e){} // 以前の保存値は使わない（ステージ開始時は常にOFF）
+function saveAuto(){}
 let autoT=0,autoGap=0;
 function autoTick(dt){
   autoT-=dt;autoGap-=dt;if(autoT>0)return;autoT=.25;
@@ -925,6 +930,7 @@ function updateFx(dt,rdt){
     // カットイン明け：呪力の解放（画面を駆け抜ける衝撃波＋閃光）
     G.fx.push({k:'nova',x:c.x,y:c.y,col:c.col,life:.7,max:.7},{k:'flash',col:c.col,a:.3,life:.3,max:.3});shake(.4,10)}}
   if(G.banner){G.banner.t-=rdt;if(G.banner.t<=0)G.banner=null}
+  for(const m of G.minis)m.t-=rdt;
 }
 
 // ===== 描画: キャラ =====
@@ -1660,6 +1666,16 @@ function drawCutHand(c,type,x,y,s){
 const easeBack=p=>{const c1=2.2,q=p-1;return 1+(c1+1)*q*q*q+c1*q*q};
 const easeOut=p=>1-(1-p)*(1-p)*(1-p);
 const SEAL={yuji:'撃',megumi:'影',nobara:'釘',gojo:'無',sukuna:'王'};
+// AUTO必殺の小テロップ：左下からスッと出て1.4秒で消える（盤面は暗くしない）
+function drawMinis(){if(!G.minis.length)return;G.minis=G.minis.filter(m=>m.t>0);
+  G.minis.forEach((m,i)=>{const age=1.4-m.t,inK=easeOut(Math.min(1,age/.18)),y=H-50-(G.minis.length-1-i)*42;
+    ctx.save();ctx.globalAlpha=Math.min(1,m.t/.25);ctx.translate(8-220*(1-inK),y);
+    ctx.font=`900 13px ${FONT2}`;const w=Math.max(ctx.measureText(m.txt).width,64)+56;
+    ctx.beginPath();ctx.roundRect?ctx.roundRect(0,0,w,36,18):ctx.rect(0,0,w,36);ctx.fillStyle='rgba(12,10,18,.9)';ctx.fill();ctx.strokeStyle=hexA(m.rc,.75);ctx.lineWidth=1.2;ctx.stroke();
+    ctx.save();ctx.beginPath();ctx.arc(18,18,15,0,7);ctx.fillStyle=mix(m.rc,'#0d0b14',.7);ctx.fill();ctx.clip();drawBust(ctx,m.type,18,23,.25,{head:true});ctx.restore();
+    ctx.strokeStyle=m.rc;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(18,18,15,0,7);ctx.stroke();
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle=m.rc;ctx.font=`italic 800 10px ${FONT}`;ctx.fillText('AUTO SKILL',40,15);
+    ctx.fillStyle='#fff';ctx.font=`900 13px ${FONT2}`;ctx.fillText(m.txt,40,30);ctx.restore()})}
 function drawCutin(){
   const c=G.cutin;if(!c)return;
   if(!c.seed)c.seed=1+Math.random()*1e6|0;
@@ -1732,6 +1748,8 @@ function drawCutin(){
     x+=w}
   // 技名の下線がスッと伸びる
   {const p=easeOut(Math.max(0,Math.min(1,(e-tMain-chars.length*.035)/.25)));ctx.globalAlpha=fade;ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(tx,baseY+24,(x-tx)*p,1.5)}
+  // タップでスキップできることを右下に小さく
+  if(e<M-outT){ctx.globalAlpha=fade*(.55+.25*Math.sin(e*6));ctx.textAlign='right';ctx.font=`italic 800 12px ${FONT}`;ctx.fillStyle='#fff';ctx.fillText('TAP TO SKIP ▶▶',W-14,H-16)}
   ctx.restore();
 }
 
@@ -1893,6 +1911,7 @@ function draw(){
     let bf=34;const fnt=s=>`italic 800 ${s}px ${FONT}`;ctx.font=fnt(bf);while(ctx.measureText(b.text).width>W-56&&bf>16){bf-=2;ctx.font=fnt(bf)}
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha*=Math.min(1,Math.max(0,age*5-.4));ctx.fillStyle='#fff';ctx.fillText(b.text,(1-k)*-30,1);ctx.restore()}
   if(G.domain>0)drawDomainTimer();
+  drawMinis();
   drawCutin();
   // CRT風の走査線と周辺減光
   ctx.fillStyle=VIG;ctx.fillRect(0,0,W,H);
@@ -1926,6 +1945,8 @@ let undoTimer=0;
 function showUndo(t){G.undoT=t;$('undo').style.display='block';clearTimeout(undoTimer);undoTimer=setTimeout(hideUndo,3000)}
 function hideUndo(){if(G)G.undoT=null;$('undo').style.display='none'}
 cv.addEventListener('pointerdown',ev=>{
+  // カットイン中のタップはスキップ（退場アニメへ飛ばす。スローモーションもここで解ける）
+  if(G.cutin){const c=G.cutin;if(c.el<c.max-.28)c.el=c.max-.28;return}
   if(G.state!=='ready'&&G.state!=='wave')return;
   const h=toCell(ev);G.hover=h;
   if(G.placing){
