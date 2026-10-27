@@ -445,6 +445,54 @@ html,body{font-weight:500;background:#0a0a0c}
 .di-stats span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
 .di-stats span i{font-style:normal;margin-right:3px}
 .di-sp{margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:700;color:#ffb4c4}
+/* ===== 役割の色（近接=赤 範囲=紫 遠距離=青 サポート=緑 妨害=金） ===== */
+.rb{display:inline-block;font-family:var(--f-jp);font-size:10.5px;font-weight:800;line-height:1.5;padding:0 6px;border-radius:5px;color:#0a0a0c;background:var(--rc);box-shadow:0 0 8px color-mix(in srgb,var(--rc) 55%,transparent);text-shadow:none;white-space:nowrap}
+.dkc{box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1.5px color-mix(in srgb,var(--rc,#fff) 55%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--rc,#000) 16%,transparent),rgba(14,12,18,.85) 55%)}
+.dkc::after{content:"";position:absolute;left:10px;right:10px;top:0;height:3px;border-radius:0 0 3px 3px;background:var(--rc,#666);box-shadow:0 0 8px var(--rc,#666)}
+.dkc.on{box-shadow:0 0 0 2.5px #fff,0 0 18px color-mix(in srgb,var(--rc,#fff) 70%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--rc,#000) 32%,transparent),rgba(20,8,14,.85) 60%)}
+.dkc.lock{background:rgba(14,12,18,.88);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.dkc.lock::after{opacity:.45}
+.dkc.lock .rb{margin-top:3px;opacity:.75}
+.dkc .no{color:#fff;text-shadow:0 0 6px var(--rc,#ff2a4a),0 1px 2px #000}
+.dks{box-shadow:0 0 0 1.5px var(--rc,rgba(243,217,139,.55)),0 0 12px color-mix(in srgb,var(--rc,#d4af37) 45%,transparent)}
+.dks span{background:var(--rc,rgba(0,0,0,.6));color:#0a0a0c}
+#panel .card::before{background:linear-gradient(135deg,var(--rc,#d4af37),rgba(255,255,255,.08) 50%,var(--rc,#d4af37))}
+#panel .card.sel::before{background:var(--edge-red)}
+#panel .card .tg{color:#0a0a0c;font-weight:800}
+/* 並び替えボタン */
+.sortbar{display:flex;gap:5px;align-items:center}
+.sortbar::before{content:"並び替え";font-size:11px;font-weight:800;color:var(--dim);margin-right:2px;white-space:nowrap}
+.sortb{flex:1;min-height:34px;border:none;border-radius:9px;cursor:pointer;font-family:var(--f-jp);font-weight:800;font-size:12px;color:#cfc6dc;
+  background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);transition:transform .14s cubic-bezier(.3,1.6,.5,1)}
+.sortb.on{color:#0a0a0c;background:linear-gradient(180deg,#fff1c2,#d4af37);box-shadow:0 0 12px rgba(212,175,55,.5)}
+.sortb.press{transform:scale(.92)}
+/* ===== キャラクター図鑑 ===== */
+#codex{position:absolute;inset:0;z-index:11;display:none;flex-direction:column;gap:8px;padding:12px 10px calc(10px + env(safe-area-inset-bottom));font-family:var(--f-jp);
+  background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,.14),transparent 55%),rgba(10,10,12,.97)}
+.cx-top{display:flex;align-items:baseline;justify-content:space-between}
+.cx-title{font-family:var(--f-brush);font-size:22px;color:#fff;text-shadow:0 0 12px rgba(255,42,74,.6)}
+.cx-count{font-size:12px;font-weight:800;color:#d8d0e4}.cx-count b{font-family:var(--f-num);font-size:18px;color:#ffea00}
+.cx-legend{display:flex;gap:5px;flex-wrap:wrap}
+.cx-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
+.cx{position:relative;display:flex;gap:10px;padding:10px;border-radius:14px;background:linear-gradient(100deg,color-mix(in srgb,var(--rc) 18%,transparent),rgba(16,14,20,.78) 45%);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 0 0 1.5px color-mix(in srgb,var(--rc) 50%,transparent)}
+.cx::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--rc);box-shadow:0 0 10px var(--rc)}
+.cx-ic{position:relative;flex:none;width:72px;height:72px}
+.cx-ic canvas{width:72px;height:72px;border-radius:50%;box-shadow:0 0 0 2px var(--rc),0 0 14px color-mix(in srgb,var(--rc) 50%,transparent)}
+.cx-ic i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:24px;border-radius:50%;background:rgba(0,0,0,.45)}
+.cx.lock .cx-ic canvas{filter:grayscale(.85) brightness(.55)}
+.cx-b{flex:1;min-width:0}
+.cx-nm{font-size:16px;font-weight:800;line-height:1.25;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.cx-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.cx-st{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:800;padding:1px 8px;border-radius:6px}
+.cx-st.ok{color:#9fffc0;background:rgba(95,232,122,.12);border:1px solid rgba(95,232,122,.4)}
+.cx-st.ng{color:#ffe08a;background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.45)}
+.cx-role{margin-top:5px;font-size:12.5px;color:#eee6f6;line-height:1.4}
+.cx .di-stats{margin-top:5px}
+.cx-lv{margin-top:4px;font-size:11.5px;color:#cfc6dc;line-height:1.4}
+#codex .dk-foot .btn{flex:1}
+#title .codexb{background:linear-gradient(180deg,rgba(212,175,55,.22),rgba(60,40,8,.4)),var(--glass)}
 #over .unl{display:inline-block;margin-top:6px;padding:4px 10px;border-radius:8px;color:#0a0a0c;font-weight:800;background:linear-gradient(90deg,#9fffd0,#f3d98b);box-shadow:0 0 14px rgba(95,255,176,.5)}
 </style>
 </head>
@@ -492,6 +540,7 @@ html,body{font-weight:500;background:#0a0a0c}
     <div id="areaTabs"></div>
     <div id="stages"></div>
     <div class="tip">クリアすると次のステージと新しい術師が解放されます（全30ステージ・20キャラ）</div>
+    <button class="btn more codexb" id="codexBtn">📖 キャラクター図鑑</button>
     <a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a>
     <a class="fb-link" id="fbTitle" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a>
     <footer class="site-foot">
@@ -508,8 +557,17 @@ html,body{font-weight:500;background:#0a0a0c}
     <div class="dk-label">出撃デッキ <small>（タップで外す）</small></div>
     <div class="dk-slots" id="dkSlots"></div>
     <div class="dk-info" id="dkInfo"></div>
+    <div class="sortbar" id="dkSort"></div>
     <div class="dk-grid" id="dkGrid"></div>
     <div class="dk-foot"><button class="btn blue" id="dkBack">戻る</button><button class="btn blue" id="dkRec">おすすめ編成</button><button class="btn red" id="dkGo">出撃 ▶</button></div>
+  </div>
+  <!-- キャラクター図鑑：全20体のステータスと解放状況 -->
+  <div id="codex">
+    <div class="cx-top"><div class="cx-title">キャラクター図鑑</div><div class="cx-count" id="cxCount"></div></div>
+    <div class="cx-legend" id="cxLegend"></div>
+    <div class="sortbar" id="cxSort"></div>
+    <div class="cx-list" id="cxList"></div>
+    <div class="dk-foot"><button class="btn blue" id="cxBack">← 戻る</button></div>
   </div>
   <div id="homeOv"><div class="hcard"><h2>タイトルに戻りますか？</h2><p>このステージの進行状況はリセットされます</p>
     <div class="row"><button class="btn blue" id="homeNo">続ける</button><button class="btn red" id="homeYes">🏠 戻る</button></div></div></div>
@@ -648,7 +706,22 @@ const DEFS={
     sp:'厨房の調理場',sk:'kitchen',spv:[220,450,850],cut:'領域展開『厨房の調理場』！！',col:'#ff3b3b',unlock:29}
 };
 const CHAR_IDS=Object.keys(DEFS);
-const ATK_TXT={melee:'近接',splash:'範囲',snipe:'射撃',pierce:'装甲無視',beam:'直線貫通',cleave:'全周',stun:'スタン',dot:'出血',field:'減速場',aura:'強化',regen:'回復',income:'資金'};
+// 役割は5系統。カード枠・役割バッジはこの色で統一する（★は最強格）
+const ROLES={melee:{label:'近接',col:'#ff5a3d'},aoe:{label:'範囲',col:'#c74dff'},ranged:{label:'遠距離',col:'#3ab4ff'},support:{label:'サポート',col:'#5fe87a'},control:{label:'妨害',col:'#ffb020'}};
+const ROLE_ORDER=['melee','aoe','ranged','support','control'];
+const CLS={yuji:'melee',maki:'melee',hakari:'melee',megumi:'aoe',todo:'aoe',yuta:'aoe',sukuna:'aoe',nobara:'ranged',mai:'ranged',kamo:'ranged',mechamaru:'ranged',choso:'ranged',
+  ijichi:'support',nishimiya:'support',shoko:'support',mei:'support',panda:'control',inumaki:'control',miwa:'control',gojo:'control'};
+const TOP={yuta:1,gojo:1,sukuna:1};
+for(const k of CHAR_IDS){DEFS[k].cls=CLS[k];DEFS[k].tag=ROLES[CLS[k]].label;DEFS[k].rc=ROLES[CLS[k]].col}
+const roleBadge=k=>`<span class="rb" style="--rc:${DEFS[k].rc}">${DEFS[k].tag}${TOP[k]?'★':''}</span>`;
+// 並び替え：解放順・コスト順・ロール別
+const SORTS=[['unlock','解放順'],['cost','コスト順'],['role','ロール別']];
+let sortMode='unlock';try{sortMode=localStorage.getItem('jkd_sort')||'unlock'}catch(e){}
+function sortedIds(m=sortMode){const ix=k=>CHAR_IDS.indexOf(k);return[...CHAR_IDS].sort(m==='cost'?(a,b)=>DEFS[a].cost-DEFS[b].cost||ix(a)-ix(b):
+  m==='role'?(a,b)=>ROLE_ORDER.indexOf(DEFS[a].cls)-ROLE_ORDER.indexOf(DEFS[b].cls)||DEFS[a].cost-DEFS[b].cost:(a,b)=>DEFS[a].unlock-DEFS[b].unlock||ix(a)-ix(b))}
+function sortBar(box,onChange){box.innerHTML='';for(const[m,l]of SORTS){const b=document.createElement('button');b.className='sortb'+(m===sortMode?' on':'');b.textContent=l;
+  b.onclick=()=>{sortMode=m;try{localStorage.setItem('jkd_sort',m)}catch(e){}for(const o of box.children)o.classList.toggle('on',o===b);onChange()};box.appendChild(b)}}
+const ATK_TXT={melee:'単体',splash:'着弾範囲',snipe:'射撃',pierce:'装甲無視',beam:'直線貫通',cleave:'全周',stun:'スタン',dot:'出血',field:'減速場',aura:'強化',regen:'回復',income:'資金'};
 // 強化パネルとデッキ画面の説明文
 function descOf(k,L){const D=DEFS[k],i=L-1;
   if(D.atk==='aura')return `周囲の味方の${D.aura==='dmg'?'攻撃力':'攻撃速度'} +${Math.round(D.pw[i]*100)}%${D.aura==='dmg'?'／幽霊を見破る':''}`;
@@ -2102,14 +2175,15 @@ function buildPanel(){
   const box=$('panel');box.innerHTML='';for(const k in cards)delete cards[k];for(const k in spbs)delete spbs[k];
   for(const k of G.deck){const d=DEFS[k],el=document.createElement('div');el.className='card';
     el.appendChild(charIcon(k));
-    const info=document.createElement('div');info.innerHTML=`<div class="nm">${d.name}</div><div class="cs">${d.cost}G</div><span class="tg" style="background:${d.col}">${d.tag}</span>`;el.appendChild(info);
+    el.style.setProperty('--rc',d.rc);
+    const info=document.createElement('div');info.innerHTML=`<div class="nm">${d.name}</div><div class="cs">${d.cost}G</div><span class="tg" style="background:${d.rc}">${d.tag}</span>`;el.appendChild(info);
     el.onclick=()=>{if(G.state!=='ready'&&G.state!=='wave')return;closePop();G.placing=G.placing===k?null:k;syncUI(true)};
     const sb=document.createElement('button');sb.className='spb none';sb.innerHTML='<i></i><span>必殺</span>';sb.onclick=ev=>{ev.stopPropagation();fireType(k)};el.appendChild(sb);spbs[k]=sb;
     box.appendChild(el);cards[k]=el}
   box.style.gridTemplateColumns=`repeat(${Math.max(1,G.deck.length)},1fr)`;
 }
 // 押した瞬間にキュッと沈む（:activeはスマホで反応しにくいので自前で付け外し）
-{const PS='.btn,.card,.homebtn,.spdseg button,.spb,.stg,.fb-link,.site-foot a,.tgl,.atab,.dkc,.dks';let pr=[];
+{const PS='.btn,.card,.homebtn,.spdseg button,.spb,.stg,.fb-link,.site-foot a,.tgl,.atab,.dkc,.dks,.sortb';let pr=[];
  const off=()=>{pr.forEach(e=>e.classList.remove('press'));pr=[]};
  document.addEventListener('pointerdown',e=>{off();const t=e.target.closest&&e.target.closest(PS);if(!t||t.disabled)return;
    pr=[t];t.classList.add('press')},{passive:true});
@@ -2169,9 +2243,9 @@ function recommendDeck(st,pool){
   const S=STAGES[st-1],p=loadProg(),deck=[];pool=pool||CHAR_IDS.filter(k=>isUnlocked(k,p));
   const score=k=>{let s=BASE_PW[k]||2;for(const c of S.tr)if((COUNTER[c]||[]).includes(k))s+=1.6;
     if(S.boss.length&&(DEFS[k].sk==='nuke'||DEFS[k].sk==='beamNuke'||DEFS[k].sk==='domain'||DEFS[k].sk==='stunAll'))s+=1;
-    const tags=deck.map(d=>DEFS[d].tag),sup=deck.filter(d=>DEFS[d].tag==='サポ').length;
-    if(tags.includes(DEFS[k].tag))s-=DEFS[k].tag==='最強'?.8:1.8;
-    if(DEFS[k].tag==='サポ'&&sup>=1)s-=2.5;
+    const cls=deck.map(d=>DEFS[d].cls),sup=cls.filter(c=>c==='support').length;
+    if(cls.includes(DEFS[k].cls))s-=TOP[k]?.8:1.4;
+    if(DEFS[k].cls==='support'&&sup>=1)s-=2.5;
     if(k==='yuji'&&deck.length<2)s+=1.5; // 序盤を支える安いアタッカー
     return s};
   while(deck.length<5&&deck.length<pool.length){let best=null,bs=-1e9;for(const k of pool)if(!deck.includes(k)){const s=score(k);if(s>bs){bs=s;best=k}}deck.push(best)}
@@ -2187,7 +2261,7 @@ function drawPreview(c,S){
 }
 let curArea=null;
 function showTitle(){
-  closePop();if(G){G.state='title';G.placing=null;G.cutin=null}$('over').style.display='none';$('deck').style.display='none';
+  closePop();if(G){G.state='title';G.placing=null;G.cutin=null}$('over').style.display='none';$('deck').style.display='none';$('codex').style.display='none';
   const p=loadProg();if(curArea===null)curArea=Math.min(2,Math.floor((Math.min(p.un,LAST)-1)/10));
   // エリアの切り替え
   const tabs=$('areaTabs');tabs.innerHTML='';
@@ -2213,10 +2287,12 @@ function openDeck(st,carry=0){
   $('dkThreat').innerHTML=(S.tr?[...S.tr].map(c=>`<span class="th" title="${TRAIT_HINT[c]}">${TRAIT_TXT[c]}<em>→${TRAIT_HINT[c]}</em></span>`).join(''):'<span class="th">基本の呪霊のみ</span>')+
     (S.boss.length?`<span class="th boss">ボス：${S.boss.map(a=>BOSS_TXT[a]).join('／')}</span>`:'');
   const grid=$('dkGrid');grid.innerHTML='';
-  for(const k of CHAR_IDS){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='dkc'+(lock?' lock':'');el.dataset.k=k;
+  sortBar($('dkSort'),()=>{for(const k of sortedIds())grid.appendChild(grid.querySelector(`[data-k="${k}"]`));grid.scrollTop=0});
+  for(const k of sortedIds()){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='dkc'+(lock?' lock':'');el.dataset.k=k;
     if(!lock)el.appendChild(charIcon(k,72));else{const c=document.createElement('div');c.className='lk';c.textContent='🔒';el.appendChild(c)}
-    el.insertAdjacentHTML('beforeend',lock?`<div class="nm">？？？</div><div class="cs"><b>STAGE ${D.unlock}</b><br>クリアで解放</div>`:
-      `<div class="nm">${nameBreak(D.name)}</div><div class="cs">${D.cost}G <span style="background:${D.col}">${D.tag}</span></div><b class="no"></b>`);
+    el.insertAdjacentHTML('beforeend',lock?`<div class="nm">？？？</div>${roleBadge(k)}<div class="cs"><b>STAGE ${D.unlock}</b><br>クリアで解放</div>`:
+      `<div class="nm">${nameBreak(D.name)}</div><div class="cs">${D.cost}G ${roleBadge(k)}</div><b class="no"></b>`);
+    el.style.setProperty('--rc',D.rc);
     el.onclick=()=>{if(lock){dk.info=null;$('dkInfo').innerHTML=`STAGE ${D.unlock} をクリアすると解放されます`;return}
       const i=dk.deck.indexOf(k);if(i>=0)dk.deck.splice(i,1);else if(dk.deck.length<5)dk.deck.push(k);else{dk.info=k;syncDeck(`デッキは5体まで。外したいキャラを上の枠からタップ`);return}
       dk.info=k;syncDeck()};
@@ -2226,34 +2302,56 @@ function openDeck(st,carry=0){
 // 長い名前は「の」の後ろで2行に分け、1文字だけ次の行に落ちないようにする
 function nameBreak(n){if(n.length<8)return n;const i=n.indexOf('の');return i>=2&&n.length-i-1>=3?n.slice(0,i+1)+'<br>'+n.slice(i+1):n}
 // デッキ画面の詳細欄：LV1の数値をアイコン付きで並べる
-function statList(k){const D=DEFS[k],r=[];
-  if(D.atk==='aura')r.push(['📈',`${D.aura==='dmg'?'攻撃力':'攻撃速度'} +${Math.round(D.pw[0]*100)}%`]);
-  else if(D.atk==='regen')r.push(['💚',`${D.regen[0]}秒ごとに封印+1`]);
-  else{if(D.dmg)r.push(['⚔️',`威力 ${D.dmg[0]}${D.atk==='field'?'/秒':''}${D.atk==='splash'||D.atk==='cleave'?'（範囲）':''}`]);
-    if(D.rate)r.push(['⚡',D.atk==='stun'?`${(1/D.rate[0]).toFixed(1)}秒ごと`:`${D.rate[0]}回/秒`])}
-  r.push(['🎯',`射程 ${D.range[0]}`]);
-  if(D.push)r.push(['💨',`押し戻し ${D.push[0]}`]);
-  if(D.slow)r.push(['🧊',`減速 ${Math.round(D.slow[0]*100)}%`]);
-  if(D.stun)r.push(['💫',`スタン ${D.stun[0]}秒`]);
-  if(D.dot)r.push(['🩸',`出血 ${D.dot[0]}/秒`]);
-  if(D.inc)r.push(['💰',`呪力 +${D.inc[0]}/秒`]);
+function statList(k,L=1){const D=DEFS[k],r=[],i=L-1;
+  if(D.atk==='aura')r.push(['📈',`${D.aura==='dmg'?'攻撃力':'攻撃速度'} +${Math.round(D.pw[i]*100)}%`]);
+  else if(D.atk==='regen')r.push(['💚',`${D.regen[i]}秒ごとに封印+1`]);
+  else{if(D.dmg)r.push(['⚔️',`威力 ${D.dmg[i]}${D.atk==='field'?'/秒':''}${D.atk==='splash'||D.atk==='cleave'?'（範囲）':''}`]);
+    if(D.rate)r.push(['⚡',D.atk==='stun'?`${(1/D.rate[i]).toFixed(1)}秒ごと`:`${D.rate[i]}回/秒`])}
+  r.push(['🎯',`射程 ${D.range[i]}`]);
+  if(D.push)r.push(['💨',`押し戻し ${D.push[i]}`]);
+  if(D.slow)r.push(['🧊',`減速 ${Math.round(D.slow[i]*100)}%`]);
+  if(D.stun)r.push(['💫',`スタン ${D.stun[i]}秒`]);
+  if(D.dot)r.push(['🩸',`出血 ${D.dot[i]}/秒`]);
+  if(D.inc)r.push(['💰',`呪力 +${D.inc[i]}/秒`]);
   if(D.atk==='pierce'||D.pierce)r.push(['🛡️','装甲を無視']);
   if(D.aura==='dmg')r.push(['👁️','幽霊を見破る']);
   return r}
 function syncDeck(msg){
   const sl=$('dkSlots');sl.innerHTML='';
   for(let i=0;i<5;i++){const k=dk.deck[i],b=document.createElement('div');b.className='dks'+(k?'':' empty');
-    if(k){b.appendChild(charIcon(k,56));b.insertAdjacentHTML('beforeend',`<span>${DEFS[k].tag}</span>`);b.onclick=()=>{dk.deck.splice(i,1);dk.info=null;syncDeck()}}
+    if(k){b.style.setProperty('--rc',DEFS[k].rc);b.appendChild(charIcon(k,56));b.insertAdjacentHTML('beforeend',`<span>${DEFS[k].tag}</span>`);b.onclick=()=>{dk.deck.splice(i,1);dk.info=null;syncDeck()}}
     else b.textContent=i+1;sl.appendChild(b)}
   for(const el of $('dkGrid').children){const i=dk.deck.indexOf(el.dataset.k);el.classList.toggle('on',i>=0);const no=el.querySelector('.no');if(no)no.textContent=i>=0?i+1:''}
   const k=dk.info,D=k&&DEFS[k];
   $('dkInfo').innerHTML=msg?`<div class="msg">${msg}</div>`:D?`<div class="di-head"><span class="di-name" style="color:${D.col}">${D.name}</span>
-      <span class="di-chip">${D.tag}</span><span class="di-chip">${ATK_TXT[D.atk]}</span><span class="di-chip cost">${D.cost}G</span></div>
+      ${roleBadge(k)}<span class="di-chip">${ATK_TXT[D.atk]}</span><span class="di-chip cost">${D.cost}G</span></div>
     <div class="di-role">${D.role}</div><div class="di-stats">${statList(k).map(([i,t])=>`<span><i>${i}</i>${t}</span>`).join('')}</div>
     <div class="di-sp">✦ 必殺『${D.sp}』 CT${D.ct}秒</div>`:
     '<div class="msg">キャラをタップして出撃デッキ（最大5体）に入れよう。役割がバラけるほど強い</div>';
   $('dkGo').disabled=!dk.deck.length;
 }
+// ===== キャラクター図鑑（タイトルから） =====
+function openCodex(){
+  const p=loadProg(),n=CHAR_IDS.filter(k=>isUnlocked(k,p)).length;
+  $('cxCount').innerHTML=`解放 <b>${n}</b> / ${CHAR_IDS.length}`;
+  $('cxLegend').innerHTML=ROLE_ORDER.map(r=>`<span class="rb" style="--rc:${ROLES[r].col}">${ROLES[r].label}</span>`).join('');
+  const list=$('cxList'),build=()=>{list.innerHTML='';
+    for(const k of sortedIds()){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='cx'+(lock?' lock':'');el.style.setProperty('--rc',D.rc);
+      const ic=document.createElement('div');ic.className='cx-ic';ic.appendChild(charIcon(k,80));if(lock)ic.insertAdjacentHTML('beforeend','<i>🔒</i>');el.appendChild(ic);
+      el.insertAdjacentHTML('beforeend',`<div class="cx-b">
+        <div class="cx-h"><span class="cx-nm" style="color:${lock?'#ddd':D.col}">${D.name}</span></div>
+        <div class="cx-chips">${roleBadge(k)}<span class="di-chip">${ATK_TXT[D.atk]}</span><span class="di-chip cost">${D.cost}G</span></div>
+        <div class="cx-st ${lock?'ng':'ok'}">${lock?`🔒 STAGE ${D.unlock} クリアで解放`:'✅ 解放済み'}</div>
+        <div class="cx-role">${D.role}</div>
+        <div class="di-stats">${statList(k,1).map(([i,t])=>`<span><i>${i}</i>${t}</span>`).join('')}</div>
+        <div class="cx-lv">LV3：${descOf(k,3)}</div>
+        <div class="di-sp">✦ 必殺『${D.sp}』 CT${D.ct}秒</div></div>`);
+      list.appendChild(el)}};
+  sortBar($('cxSort'),()=>{build();list.scrollTop=0});build();
+  $('title').style.display='none';$('codex').style.display='flex';track('codex_open',{unlocked:n});
+}
+$('codexBtn').onclick=openCodex;
+$('cxBack').onclick=()=>{$('codex').style.display='none';showTitle()};
 $('dkRec').onclick=()=>{dk.deck=recommendDeck(dk.st);dk.info=null;syncDeck('ステージの特徴に合わせたおすすめ編成にしました')};
 $('dkBack').onclick=()=>showTitle();
 $('dkGo').onclick=()=>{if(!dk.deck.length)return;saveDeck(dk.deck);$('deck').style.display='none';
