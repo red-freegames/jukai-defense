@@ -418,6 +418,33 @@ html,body{font-weight:500;background:#0a0a0c}
 .dk-foot{display:flex;gap:6px}
 .dk-foot .btn{min-height:50px;font-size:14px;padding:10px 6px}
 .dk-foot #dkGo{flex:1.4}.dk-foot #dkBack,.dk-foot #dkRec{flex:1}
+/* ===== デッキ画面の読みやすさ（3列・大きな太字・高コントラスト） ===== */
+#deck{font-family:var(--f-jp)}
+.dk-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+.dkc{padding:7px 4px 8px}
+.dkc canvas,.dkc .lk{width:58px;height:58px}
+.dkc .nm{font-size:12.5px;font-weight:800;line-height:1.2;color:#fff;min-height:30px;margin-top:5px;padding:0 2px;text-shadow:0 1px 3px rgba(0,0,0,.9);
+  display:flex;align-items:center;justify-content:center;-webkit-line-clamp:unset;overflow:visible}
+.dkc .cs{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px;font-family:var(--f-num);font-weight:700;font-size:13px;color:#ffea00;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.dkc .cs span{font-size:10.5px;font-weight:800;padding:1px 5px;border-radius:5px;text-shadow:none}
+.dkc .no{font-size:15px;top:4px;left:6px}
+.dkc.lock{opacity:1;background:rgba(14,12,18,.85)}
+.dkc.lock .lk{font-size:22px;opacity:.85}
+.dkc.lock .nm{color:#ccc;font-size:14px;letter-spacing:3px}
+.dkc.lock .cs{display:block;font-family:var(--f-jp);font-size:11px;font-weight:700;color:#bbb;line-height:1.35;text-shadow:none}
+.dkc.lock .cs b{color:#ffd86b}
+/* 選んだキャラの詳細 */
+.dk-info{min-height:0;padding:9px 11px;font-size:12.5px;color:#eee}
+.dk-info .msg{color:#d8d0e4;line-height:1.5}
+.di-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.di-name{font-size:1.1rem;font-weight:800;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.di-chip{font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.di-chip.cost{font-family:var(--f-num);color:#ffea00;border-color:rgba(255,234,0,.4)}
+.di-role{margin-top:4px;color:#e6dff0;line-height:1.4}
+.di-stats{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;margin-top:6px}
+.di-stats span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.di-stats span i{font-style:normal;margin-right:3px}
+.di-sp{margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:700;color:#ffb4c4}
 #over .unl{display:inline-block;margin-top:6px;padding:4px 10px;border-radius:8px;color:#0a0a0c;font-weight:800;background:linear-gradient(90deg,#9fffd0,#f3d98b);box-shadow:0 0 14px rgba(95,255,176,.5)}
 </style>
 </head>
@@ -2188,14 +2215,31 @@ function openDeck(st,carry=0){
   const grid=$('dkGrid');grid.innerHTML='';
   for(const k of CHAR_IDS){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='dkc'+(lock?' lock':'');el.dataset.k=k;
     if(!lock)el.appendChild(charIcon(k,72));else{const c=document.createElement('div');c.className='lk';c.textContent='🔒';el.appendChild(c)}
-    el.insertAdjacentHTML('beforeend',lock?`<div class="nm">？？？</div><div class="cs">STAGE ${D.unlock}<br>クリアで解放</div>`:
-      `<div class="nm">${D.name}</div><div class="cs">${D.cost}G <span style="background:${D.col}">${D.tag}</span></div><b class="no"></b>`);
+    el.insertAdjacentHTML('beforeend',lock?`<div class="nm">？？？</div><div class="cs"><b>STAGE ${D.unlock}</b><br>クリアで解放</div>`:
+      `<div class="nm">${nameBreak(D.name)}</div><div class="cs">${D.cost}G <span style="background:${D.col}">${D.tag}</span></div><b class="no"></b>`);
     el.onclick=()=>{if(lock){dk.info=null;$('dkInfo').innerHTML=`STAGE ${D.unlock} をクリアすると解放されます`;return}
       const i=dk.deck.indexOf(k);if(i>=0)dk.deck.splice(i,1);else if(dk.deck.length<5)dk.deck.push(k);else{dk.info=k;syncDeck(`デッキは5体まで。外したいキャラを上の枠からタップ`);return}
       dk.info=k;syncDeck()};
     grid.appendChild(el)}
   $('deck').style.display='flex';syncDeck();
 }
+// 長い名前は「の」の後ろで2行に分け、1文字だけ次の行に落ちないようにする
+function nameBreak(n){if(n.length<8)return n;const i=n.indexOf('の');return i>=2&&n.length-i-1>=3?n.slice(0,i+1)+'<br>'+n.slice(i+1):n}
+// デッキ画面の詳細欄：LV1の数値をアイコン付きで並べる
+function statList(k){const D=DEFS[k],r=[];
+  if(D.atk==='aura')r.push(['📈',`${D.aura==='dmg'?'攻撃力':'攻撃速度'} +${Math.round(D.pw[0]*100)}%`]);
+  else if(D.atk==='regen')r.push(['💚',`${D.regen[0]}秒ごとに封印+1`]);
+  else{if(D.dmg)r.push(['⚔️',`威力 ${D.dmg[0]}${D.atk==='field'?'/秒':''}${D.atk==='splash'||D.atk==='cleave'?'（範囲）':''}`]);
+    if(D.rate)r.push(['⚡',D.atk==='stun'?`${(1/D.rate[0]).toFixed(1)}秒ごと`:`${D.rate[0]}回/秒`])}
+  r.push(['🎯',`射程 ${D.range[0]}`]);
+  if(D.push)r.push(['💨',`押し戻し ${D.push[0]}`]);
+  if(D.slow)r.push(['🧊',`減速 ${Math.round(D.slow[0]*100)}%`]);
+  if(D.stun)r.push(['💫',`スタン ${D.stun[0]}秒`]);
+  if(D.dot)r.push(['🩸',`出血 ${D.dot[0]}/秒`]);
+  if(D.inc)r.push(['💰',`呪力 +${D.inc[0]}/秒`]);
+  if(D.atk==='pierce'||D.pierce)r.push(['🛡️','装甲を無視']);
+  if(D.aura==='dmg')r.push(['👁️','幽霊を見破る']);
+  return r}
 function syncDeck(msg){
   const sl=$('dkSlots');sl.innerHTML='';
   for(let i=0;i<5;i++){const k=dk.deck[i],b=document.createElement('div');b.className='dks'+(k?'':' empty');
@@ -2203,8 +2247,11 @@ function syncDeck(msg){
     else b.textContent=i+1;sl.appendChild(b)}
   for(const el of $('dkGrid').children){const i=dk.deck.indexOf(el.dataset.k);el.classList.toggle('on',i>=0);const no=el.querySelector('.no');if(no)no.textContent=i>=0?i+1:''}
   const k=dk.info,D=k&&DEFS[k];
-  $('dkInfo').innerHTML=msg||(D?`<b style="color:${D.col}">${D.name}</b>（${D.tag}・${ATK_TXT[D.atk]}）${D.cost}G<br>${D.role}／${descOf(k,1)}<br>必殺『${D.sp}』CT${D.ct}秒`:
-    'キャラをタップして出撃デッキ（最大5体）に入れよう。役割がバラけるほど強い');
+  $('dkInfo').innerHTML=msg?`<div class="msg">${msg}</div>`:D?`<div class="di-head"><span class="di-name" style="color:${D.col}">${D.name}</span>
+      <span class="di-chip">${D.tag}</span><span class="di-chip">${ATK_TXT[D.atk]}</span><span class="di-chip cost">${D.cost}G</span></div>
+    <div class="di-role">${D.role}</div><div class="di-stats">${statList(k).map(([i,t])=>`<span><i>${i}</i>${t}</span>`).join('')}</div>
+    <div class="di-sp">✦ 必殺『${D.sp}』 CT${D.ct}秒</div>`:
+    '<div class="msg">キャラをタップして出撃デッキ（最大5体）に入れよう。役割がバラけるほど強い</div>';
   $('dkGo').disabled=!dk.deck.length;
 }
 $('dkRec').onclick=()=>{dk.deck=recommendDeck(dk.st);dk.info=null;syncDeck('ステージの特徴に合わせたおすすめ編成にしました')};
