@@ -331,7 +331,7 @@ canvas#cv{display:block;touch-action:none;background:#000}
     <div id="ctrl">
       <div class="spdseg" id="spd" title="ゲーム速度"><button data-s="1" class="on">x1</button><button data-s="2">x2</button><button data-s="4">x4</button></div>
       <button class="tgl" id="autoSp" aria-pressed="false" title="必殺技を賢く自動発動"><i></i><span>必殺技</span><b>AUTO</b></button>
-      <button class="tgl up" id="autoUp" aria-pressed="false" title="呪力があれば自動で強化（手数料込みで強化費1.3倍）"><i></i><span>自動</span><b class="jp">進化</b></button>
+      <button class="tgl up" id="autoUp" aria-pressed="false" title="呪力があれば自動で強化（手数料込みで強化費1.5倍）"><i></i><span>自動</span><b class="jp">進化</b></button>
       <button class="btn" id="next">WAVE開始 ▶</button>
       <button class="btn red" id="cancelPlace">× 配置キャンセル</button>
     </div>
@@ -416,24 +416,30 @@ const THEMES=[
   {base:'#07140d',base2:'#163a24',acc:'#5fff9a',acc2:'#d4ff5f',path:'#010402',fog:'rgba(80,255,150,.16)',rune:'#2a9a5a',edge:'#b8ff6b',floor:'#0f2418'},
   {base:'#14110a',base2:'#3a3018',acc:'#ffcf4a',acc2:'#ff7a2a',path:'#050402',fog:'rgba(255,200,80,.15)',rune:'#b08a2a',edge:'#ffe08a',floor:'#241e10'}
 ];
-// 敵の特徴：S群れ A装甲 F高速 H回復 G幽霊 P分裂 K岩鬼（超装甲）／ボス能力：ran呪縛弾 sum召喚 reg再生 tou堅牢 swi俊足
+// 敵の特徴：S群れ A装甲 F高速 H回復 G幽霊 P分裂 K岩鬼（超装甲）
+//   特殊能力持ち（1種ずつ初登場→組み合わせ）：D突進(4〜) R狙撃(6〜) M呪力喰い(8〜) J重戦車(10〜) X呪詛(11〜)
+// ボス能力：ran呪縛弾 sum召喚 reg再生 tou堅牢 swi俊足
 const AREAS=['呪術高専編','呪いの街編','呪界決戦編'];
 const STAGES=[
-  ['高専グラウンド（夜）',0,0,0,'',''],['夕暮れの商店街',1,0,1,'F',''],['旧校舎の渡り廊下',2,0,0,'SA',''],['霧の竹林',4,0,5,'FH',''],['廃病院の中庭',3,0,2,'SAH','sum'],
-  ['鳥居の参道',5,0,6,'AF','reg'],['雨の高架下',8,0,2,'SG','swi'],['真夜中の駅地下',2,1,2,'AHG','tou'],['吹雪の離島',3,1,3,'FPG','sum'],['呪胎の産声',6,0,4,'SAHP','ran tou'],
-  ['電脳横丁',0,1,2,'FG','ran'],['神社の大階段',1,1,6,'AK','tou'],['地下水路',5,1,2,'HPS','reg'],['廃遊園地',4,1,1,'GFS','sum'],['交差点の大混乱',7,0,0,'SFP','swi sum'],
-  ['骨董屋の蔵',8,1,6,'AKH','ran'],['墓地の丘',2,0,5,'GHS','reg'],['赤い月の港',6,1,4,'FPK','sum ran'],['呪霊の巣窟',3,0,0,'SGHP','sum reg'],['帳の降りた街',9,1,4,'SAKHG','ran tou sum'],
-  ['灰の荒野',1,0,6,'AKF','tou swi'],['逆さ城',5,0,0,'GHP','ran reg'],['血の湖',7,1,4,'SPF','sum'],['無限回廊',6,0,2,'GKH','tou ran'],['千の鳥居',8,0,6,'SAG','reg sum'],
-  ['天元の結界',0,0,3,'KHP','ran tou reg'],['黄泉比良坂',2,1,5,'SGFH','swi sum ran'],['呪物保管庫',4,0,1,'AKPG','tou reg sum'],['五百年の封印',3,1,4,'SAKHGP','ran swi reg'],['呪いの王の厨房',9,0,4,'SAFKHGP','ran sum reg tou']
+  ['高専グラウンド（夜）',0,0,0,'',''],['夕暮れの商店街',1,0,1,'F',''],['旧校舎の渡り廊下',2,0,0,'SA',''],['霧の竹林',4,0,5,'FHD',''],['廃病院の中庭',3,0,2,'SAH','sum'],
+  ['鳥居の参道',5,0,6,'AFR','reg'],['雨の高架下',8,0,2,'SGD','swi'],['真夜中の駅地下',2,1,2,'AHGM','tou'],['吹雪の離島',3,1,3,'FPGR','sum'],['呪胎の産声',6,0,4,'SAHPJ','ran tou'],
+  ['電脳横丁',0,1,2,'FGX','ran'],['神社の大階段',1,1,6,'AKR','tou'],['地下水路',5,1,2,'HPSM','reg'],['廃遊園地',4,1,1,'GFSD','sum'],['交差点の大混乱',7,0,0,'SFPJ','swi sum'],
+  ['骨董屋の蔵',8,1,6,'AKHX','ran'],['墓地の丘',2,0,5,'GHSR','reg'],['赤い月の港',6,1,4,'FPKDM','sum ran'],['呪霊の巣窟',3,0,0,'SGHPX','sum reg'],['帳の降りた街',9,1,4,'SAKHGJR','ran tou sum'],
+  ['灰の荒野',1,0,6,'AKFDJ','tou swi'],['逆さ城',5,0,0,'GHPXR','ran reg'],['血の湖',7,1,4,'SPFMD','sum'],['無限回廊',6,0,2,'GKHXJ','tou ran'],['千の鳥居',8,0,6,'SAGRM','reg sum'],
+  ['天元の結界',0,0,3,'KHPXD','ran tou reg'],['黄泉比良坂',2,1,5,'SGFHRJ','swi sum ran'],['呪物保管庫',4,0,1,'AKPGMX','tou reg sum'],['五百年の封印',3,1,4,'SAKHGPDRJ','ran swi reg'],['呪いの王の厨房',9,0,4,'SAFKHGPDRMXJ','ran sum reg tou']
 ].map(([name,r,mir,th,tr,boss],i)=>({name,no:i+1,area:Math.floor(i/10),path:ROUTES[r].map(([c,y])=>[mir?COLS-1-c:c,y]),th:THEMES[th],tr,boss:boss?boss.split(' '):[]}));
 const LAST=STAGES.length;
 // アンカー間を対数補間して、ステージごとの数値を滑らかに伸ばす
 const lerpLog=(A,s)=>{for(let i=1;i<A.length;i++)if(s<=A[i][0]){const[s0,v0]=A[i-1],[s1,v1]=A[i],k=(s-s0)/(s1-s0);return Math.exp(Math.log(v0)+(Math.log(v1)-Math.log(v0))*k)}return A[A.length-1][1]};
-const HP_A=[[1,3.6],[3,5.6],[10,9.5],[20,19],[30,29]];          // 雑魚の耐久倍率
+const HP_A=[[1,3.6],[3,5.6],[10,9.5],[20,20],[30,30]];          // 雑魚の耐久倍率
 const BOSS_A=[[1,6000],[3,12000],[10,34000],[20,58000],[30,98000]];
-const MONEY_A=[[1,450],[3,800],[10,1900],[20,4200],[30,7600]]; // ステージ選択から始めた時の所持金（序盤に1〜2体しか置けない額）
+const MONEY_A=[[1,1000],[3,1200],[5,1400],[10,2000],[20,4200],[30,7600]]; // ステージ選択から始めた時の所持金（序盤は最初から3〜4体並べられる額）
+// 配置・強化費の倍率。序盤は安くサクサク置け、中盤から定価になって配置数や強化の時期に頭を使う
+const COST_A=[[1,.55],[5,.7],[10,.85],[16,1],[30,1]];
 const AREA_SPD=[1.05,1.1,1.16],AREA_ARM=[.9,.7,.55];
 const hpMul=s=>lerpLog(HP_A,s),bossHp=s=>Math.round(lerpLog(BOSS_A,s)/100)*100,stageMoney=s=>Math.round(lerpLog(MONEY_A,s)/50)*50;
+const costK=s=>lerpLog(COST_A,s),r10c=v=>Math.round(v/10)*10;
+const costOf=(k,s=G?G.stage:1)=>r10c(DEFS[k].cost*costK(s)),upOf=(k,lv,s=G?G.stage:1)=>r10c(DEFS[k].up[lv-1]*costK(s));
 let PATH=[],segs=[],pathLen=0,grid=[];
 
 function posAt(d){
@@ -567,13 +573,22 @@ const ETYPES={
   splitter:{hp:110,spd:42,r:14,rew:12,col:'#ff9a3d',split:3},
   mini:{hp:24,spd:92,r:7,rew:3,col:'#ffb04a'},
   golem:{hp:560,spd:26,r:17,rew:45,col:'#9a8a70',arm:.15,lk:2},
+  // 特殊能力持ち：shoot狙撃（キャラを封じる）／dash突進（減速を無視して駆け抜ける）／hex呪詛（キャラの攻撃速度ダウン）
+  //   leech呪力喰い（生きている間呪力を奪う）／heavy重戦車（範囲攻撃半減・押し戻し無効・スタン短縮）
+  sniper:{hp:90,spd:40,r:12,rew:12,col:'#ff5a5a',shoot:1},
+  dasher:{hp:60,spd:58,r:11,rew:9,col:'#ffe14a',dash:1},
+  hexer:{hp:100,spd:44,r:12,rew:13,col:'#b04dff',hex:1},
+  leech:{hp:80,spd:50,r:11,rew:10,col:'#d4af37',leech:1},
+  jugger:{hp:520,spd:24,r:18,rew:30,col:'#5a6a7a',heavy:1,lk:2},
   boss:{hp:1,spd:22,r:28,rew:0,col:'#2b0f3a',lk:10}
 };
 // lk：拠点に届いた時に削られる封印の数（重い敵ほど痛い）。副将（一級呪霊）は5
-const TRAIT_TXT={S:'群れ',A:'装甲',F:'高速',H:'回復役',G:'幽霊',P:'分裂',K:'岩鬼'};
+const TRAIT_TXT={S:'群れ',A:'装甲',F:'高速',H:'回復役',G:'幽霊',P:'分裂',K:'岩鬼',D:'突進',R:'狙撃',M:'呪力喰い',X:'呪詛',J:'重戦車'};
 const BOSS_TXT={ran:'呪縛弾（キャラを封じる）',sum:'雑魚を召喚',reg:'自己再生',tou:'超堅牢',swi:'俊足'};
 // 何が来るか（デッキ編成のヒント）
-const TRAIT_HINT={S:'範囲攻撃',A:'装甲無視・必殺',F:'減速・スタン',H:'射撃で先に倒す',G:'単体攻撃は当たらない。範囲攻撃か眼鏡補佐の見破り',P:'範囲攻撃',K:'装甲無視'};
+const TRAIT_HINT={S:'範囲攻撃',A:'装甲無視・必殺',F:'減速・スタン',H:'射撃で先に倒す',G:'単体攻撃は当たらない。範囲攻撃か眼鏡補佐の見破り',P:'範囲攻撃',K:'装甲無視',
+  D:'減速を無視して突っ込む。スタンと近接で迎え撃つ',R:'後方からキャラを封じる。射程の長い狙撃で先に倒す',M:'生きている間呪力を奪う。最優先で撃破',
+  X:'キャラの攻撃速度を下げる。射程外から狙撃',J:'範囲攻撃半減・押し戻し無効。装甲無視の単体攻撃'};
 function makeWave(st,wv){
   const S=STAGES[st-1],tr=S.tr,q=[],has=c=>tr.includes(c),base=Math.floor(6+2.6*wv+st*.45);
   const n={grunt:base,
@@ -583,17 +598,22 @@ function makeWave(st,wv){
     healer:has('H')?1+Math.floor((wv+st*.15)/2.5):0,
     ghost:has('G')?Math.floor((wv+2+st*.25)/1.1):0,
     splitter:has('P')?Math.floor((wv+1+st*.2)/1.8):0,
-    golem:has('K')?Math.floor((wv*1.2+st*.1)/1.6):0};
+    golem:has('K')?Math.floor((wv*1.2+st*.1)/1.6):0,
+    dasher:has('D')?2+Math.floor((wv*1.2+st*.15)/1.5):0,
+    sniper:has('R')?1+Math.floor((wv+st*.12)/2.2):0,
+    leech:has('M')?1+Math.floor((wv+st*.1)/2.2):0,
+    hexer:has('X')?1+Math.floor((wv+st*.1)/2.5):0,
+    jugger:has('J')&&wv>=2?Math.floor((wv+st*.08)/2.2):0};
   // 特徴のある種類を多めにして、ステージごとに必要な役割をはっきりさせる
   if(has('G'))n.grunt=Math.floor(n.grunt*.7);
-  const gap={grunt:Math.max(.32,.9-.02*st-.03*wv),fast:.45,tank:1.2,armor:1.3,healer:1.4,ghost:.6,splitter:1.1,golem:1.8};
-  const pat=['grunt','fast','healer','grunt','tank','ghost','armor','splitter','grunt','golem'];let i=0,left=()=>Object.values(n).reduce((a,b)=>a+b,0);
+  const gap={grunt:Math.max(.32,.9-.02*st-.03*wv),fast:.45,tank:1.2,armor:1.3,healer:1.4,ghost:.6,splitter:1.1,golem:1.8,dasher:.5,sniper:1.2,leech:.9,hexer:1.3,jugger:2.2};
+  const pat=['grunt','fast','healer','grunt','tank','dasher','ghost','armor','sniper','splitter','grunt','leech','golem','hexer','dasher','jugger'];let i=0,left=()=>Object.values(n).reduce((a,b)=>a+b,0);
   while(left()>0){const t=pat[i++%pat.length];if(n[t]>0){n[t]--;q.push({t,gap:gap[t]})}}
   // 群れ：途中で一気に押し寄せる（範囲攻撃・範囲必殺の使いどころ）
   if((st>=3&&wv>=2)||(has('S')&&wv>=1)){const sw=[],m=Math.floor((has('S')?11:5)+st*.6+wv*2);for(let k=0;k<m;k++)sw.push({t:k%3?'fast':'grunt',gap:.13});
     sw[0].swarm=true;sw[sw.length-1].gap=1.5;q.splice(Math.floor(q.length*.5),0,...sw)}
   // 後半WAVEの総攻撃：最後に強敵が間を空けずに雪崩れ込む
-  const hv=['tank',...(has('A')||st>=10?['armor']:[]),...(has('K')||st>=15?['golem']:[]),...(has('P')?['splitter']:[])];
+  const hv=['tank',...(has('A')||st>=10?['armor']:[]),...(has('K')||st>=15?['golem']:[]),...(has('P')?['splitter']:[]),...(has('J')?['jugger']:[])];
   if(wv>=4){const k=Math.floor(1+st*.12+(wv-4)*2);
     for(let j=0;j<k;j++)q.push({t:hv[j%hv.length],gap:.55});
     for(let j=0;j<6+Math.floor(st*.5);j++)q.push({t:j%2?'fast':'grunt',gap:.16})}
@@ -620,7 +640,7 @@ function newGame(n=1,deck){
 }
 function startStage(){
   G.wave=0;G.life=10;G.state='ready';G.towers=[];G.enemies=[];G.queue=[];G.rushes=[];G.shots=[];G.bombs=[];G.beams=[];
-  G.domain=0;G.kitchen=0;G.buffAll=0;G.hasteAll=0;G.warn=0;G.placing=null;G.stageMoney=G.money;G.cutin=null;G.minis=[];
+  G.domain=0;G.kitchen=0;G.buffAll=0;G.hasteAll=0;G.warn=0;G.placing=null;G.stageMoney=G.money;G.cutin=null;G.minis=[];G.seen={};
   // 必殺技AUTO・自動進化はステージごとにOFFから始める（ONにできるのはそのステージの中だけ）
   AUTO.sp=AUTO.up=false;autoT=autoGap=0;syncAuto();
   setupStage();closePop();$('over').style.display='none';
@@ -658,6 +678,8 @@ function hurt(e,dmg,show,col,sp){
 function hitOne(t,e,dmg,col,pierce){
   if(e.evade&&!t.sight&&Math.random()<e.evade){if(Math.random()<.3)text(e.x,e.y-e.r-6,'すり抜け','#c8d8ff',11);return false}
   hurt(e,dmg,true,col,pierce);return true}
+const ENEMY_NEW={sniper:'狙撃呪霊：後ろからキャラを封じてくる！',dasher:'突進鬼：減速を振り切って突っ込んでくる！',hexer:'呪詛師：キャラの攻撃速度を下げてくる！',
+  leech:'呪力喰い：生きている間、呪力を奪われる！',jugger:'重戦車：範囲攻撃と押し戻しが効きにくい！'};
 // o.sub：副将（ボスの45%の体力・能力なし）／o.free：召喚・分裂（倒しても呪力なし）
 function spawn(t,swarm,at=0,o={}){
   const S=STAGES[G.stage-1],d=ETYPES[t],m=hpMul(G.stage)*[0,.92,1.06,1.24,1.44,1.6][Math.max(1,G.wave)],sub=!!o.sub;
@@ -669,7 +691,10 @@ function spawn(t,swarm,at=0,o={}){
   if(ab.includes('swi'))spd*=1.3;
   const p=posAt(at);
   G.enemies.push({t,sub,d:at,x:p.x,y:p.y,hp,maxHp:hp,spd,r:sub?22:d.r,rew,lk:sub?5:d.lk||1,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6,
-    heal:d.heal||0,evade:d.evade||0,split:d.split||0,ab,abT:3,stunT:0,dotT:0,dot:0});
+    heal:d.heal||0,evade:d.evade||0,split:d.split||0,ab,abT:3,stunT:0,dotT:0,dot:0,
+    shoot:d.shoot,dash:d.dash,hex:d.hex,leech:d.leech,heavy:d.heavy,eT:1.5+Math.random()*1.5,dcd:.8+Math.random(),dashT:0});
+  // 特殊能力持ちは、そのステージで初めて出た時に何をしてくるかを知らせる
+  if(ENEMY_NEW[t]&&!G.seen[t]){G.seen[t]=1;G.banner={text:ENEMY_NEW[t],t:2.2,col:ETYPES[t].col}}
   if(swarm){G.banner={text:'呪霊の群れが押し寄せてくる！',t:1.6,col:'#ff3d9a'};shake(.4,5)}
   if(sub){G.warn=2;G.banner={text:'⚠️ 一級呪霊が後を追ってくる！ ⚠️',t:2.2,col:'#ff8a3d'};shake(.5,6)}
   else if(t==='boss'){G.warn=3;G.banner={text:ab.length?`⚠️ 特級呪霊：${ab.map(a=>BOSS_TXT[a].replace(/（.*）/,'')).join('・')} ⚠️`:'⚠️ 特級・ヤバい化け物 出現 ⚠️',t:2.6,col:'#ff4d6d'};shake(.8,7)}
@@ -678,7 +703,9 @@ const alive=()=>G.enemies.filter(e=>!e.dead);
 const strongest=a=>a.reduce((x,y)=>y.hp>x.hp?y:x);
 // 敵の群れの中心（範囲必殺の狙い）
 const crowdAt=(al,R)=>{let best=al[0],bn=0;for(const e of al){let n=0;for(const o of al)if((o.x-e.x)**2+(o.y-e.y)**2<R*R)n++;if(n>bn){bn=n;best=e}}return best};
-function stunE(e,s){e.stunT=Math.max(e.stunT,e.t==='boss'?s*.4:s)}
+function stunE(e,s){e.stunT=Math.max(e.stunT,e.t==='boss'?s*.4:e.heavy?s*.25:s)}
+// 重戦車は範囲攻撃（着弾範囲・直線・全周・スタン）を半分しか受けない
+const aoeK=e=>e.heavy?.5:1;
 
 // ===== 必殺技（sk＝必殺の型） =====
 function special(t,auto){
@@ -689,7 +716,7 @@ function special(t,auto){
     case 'rush':G.rushes.push({t,tg:strongest(al),hits:8,timer:.4,dmg:v});shake(.4,7);break;
     case 'push':
       // 必殺の押し戻しも同じ敵には5秒に1回まで（連続発動でのハメ防止）
-      for(const e of al){const push=e.spkT>G.time?0:(e.t==='boss'?.15:1)*v*G.spdK;if(push)e.spkT=G.time+5;e.d=Math.max(0,e.d-push);const p=posAt(e.d);
+      for(const e of al){const push=e.spkT>G.time?0:(e.t==='boss'||e.heavy?.15:1)*v*G.spdK;if(push)e.spkT=G.time+5;e.d=Math.max(0,e.d-push);const p=posAt(e.d);
         G.fx.push({k:'dog',x0:e.x,y0:e.y,x1:p.x,y1:p.y,life:.45,max:.45});e.x=p.x;e.y=p.y;hurt(e,D.spv2[L-1],true,'#b388ff',true);
         G.fx.push({k:'puddle',x:p.x,y:p.y,life:1.2,max:1.2})}
       G.fx.push({k:'shadowwave',life:.9,max:.9});shake(.5,8);break;
@@ -739,7 +766,7 @@ function autoTick(dt){
   if(AUTO.up&&!G.placing)autoUpgrade();
   if(AUTO.sp&&G.state==='wave'&&!G.cutin&&autoGap<=0)autoSpecial();
 }
-const STRONG={boss:1,tank:1,armor:1,golem:1};
+const STRONG={boss:1,tank:1,armor:1,golem:1,jugger:1};
 // 必殺の型ごとの「美味しいタイミング」
 function wantSp(t,al,gojoReady){
   const D=DEFS[t.type],R=D.range[t.lv-1],prog=e=>e.d/pathLen,boss=al.find(e=>e.t==='boss'),
@@ -785,9 +812,9 @@ function autoSpecial(){
   for(const t of ready)if(wantSp(t,al,gojoReady)){special(t,true);autoGap=1;return}
 }
 // 自動進化：コストの高いキャラから、同じなら配置順に。置き直し猶予中のキャラは除く
-// 自動進化は手数料つき（強化費の1.3倍）。任せきりにすると呪力が枯れる
-const AUTO_FEE=1.3,CARRY_MAX=.2;
-const upCost=(t,auto)=>Math.round(DEFS[t.type].up[t.lv-1]*(auto?AUTO_FEE:1)/10)*10;
+// 自動進化は手数料つき（強化費の1.5倍）。任せきりにすると呪力が枯れる
+const AUTO_FEE=1.5,CARRY_MAX=.2;
+const upCost=(t,auto)=>r10c(upOf(t.type,t.lv)*(auto?AUTO_FEE:1));
 function upgrade(t,auto){const c=upCost(t,auto);if(t.lv>=3||G.money<c)return false;
   G.money-=c;t.spent+=c;t.lv++;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
   text(t.x,t.y-30,'LV UP!!','#ffd23f',20);if(G.sel===t)refreshPop();return true}
@@ -822,14 +849,14 @@ function update(dt){
   for(const t of G.towers){
     const D=DEFS[t.type],L=t.lv-1,R=D.range[L];
     t.cd=Math.max(0,t.cd-dt);t.spCd=Math.max(0,t.spCd-dt);t.anim=Math.max(0,t.anim-dt);
-    if(t.jackT>0)t.jackT-=dt;
-    // 呪縛弾で封じられている間は何もしない
+    if(t.jackT>0)t.jackT-=dt;if(t.hexT>0)t.hexT-=dt;
+    // 呪縛弾・狙撃で封じられている間は何もしない
     if(t.stunT>0){t.stunT-=dt;t.active=false;continue}
     const dmg=D.dmg?D.dmg[L]*t.mD:0,rate=D.rate?D.rate[L]*t.mR:0;
     if(D.atk==='regen'){if(G.state==='wave'){t.regT=(t.regT||0)+dt;if(t.regT>=D.regen[L]){t.regT=0;if(G.life<10){G.life++;text(t.x,t.y-34,'封印 +1','#7fe0ff',14);G.fx.push({k:'ring',x:t.x,y:t.y,r:6,to:40,life:.5,max:.5,col:D.col})}}}continue}
     if(D.atk==='aura')continue;
     if(D.atk==='field'){let any=false;
-      for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg*dt,false);e.slow=Math.max(e.slow,D.slow[L]*(e.t==='boss'?.5:1));any=true;if(Math.random()<dt*2.5)G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.15,max:.15});
+      for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg*dt,false);e.slow=Math.max(e.slow,D.slow[L]*(e.t==='boss'||e.heavy?.5:1));any=true;if(Math.random()<dt*2.5)G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.15,max:.15});
         if(Math.random()<dt*5)G.parts.push({x:e.x,y:e.y,vx:0,vy:-30,life:.4,col:'#9ad8ff',sz:3})}
       t.active=any;continue}
     if(t.cd>0)continue;
@@ -847,20 +874,20 @@ function update(dt){
       case 'splash':{t.anim=.25;const A=D.aoe;
         G.fx.push({k:'claw',x:front.x,y:front.y,life:.25,max:.25,col:D.col});
         if(t.type==='megumi')G.fx.push({k:'dog',x0:t.x,y0:t.y,x1:front.x,y1:front.y,life:.25,max:.25});
-        for(const e of G.enemies)if(!e.dead&&Math.hypot(e.x-front.x,e.y-front.y)<A+e.r){hurt(e,dmg,e===front);
-          // 押し戻しは一度当たると0.8秒は効かない（複数配置でのハメ防止）。重い敵は半減
-          if(D.push&&e.t!=='boss'&&!(e.kbT>G.time)){e.kbT=G.time+.8;e.d=Math.max(0,e.d-D.push[L]*G.spdK*(e.t==='tank'||e.t==='armor'||e.t==='golem'?.5:1));const p=posAt(e.d);e.x=p.x;e.y=p.y}}
+        for(const e of G.enemies)if(!e.dead&&Math.hypot(e.x-front.x,e.y-front.y)<A+e.r){hurt(e,dmg*aoeK(e),e===front);
+          // 押し戻しは一度当たると0.8秒は効かない（複数配置でのハメ防止）。重い敵は半減、重戦車には効かない
+          if(D.push&&e.t!=='boss'&&!e.heavy&&!(e.kbT>G.time)){e.kbT=G.time+.8;e.d=Math.max(0,e.d-D.push[L]*G.spdK*(e.t==='tank'||e.t==='armor'||e.t==='golem'?.5:1));const p=posAt(e.d);e.x=p.x;e.y=p.y}}
         G.fx.push({k:'ring',x:front.x,y:front.y,r:8,to:A,life:.25,max:.25,col:D.col});break}
       case 'snipe':case 'dot':t.anim=.2;G.shots.push({x:t.x+6*t.face,y:t.y-8,tg:front,dmg,col:D.col,tw:t,dot:D.dot?D.dot[L]*t.mD:0});break;
       case 'beam':{t.anim=.25;const a=Math.atan2(front.y-t.y,front.x-t.x);
         G.beams.push({x:t.x,y:t.y-10,a,len:R,w:10,life:.25,max:.25,col:D.col});
-        for(const e of G.enemies)if(!e.dead&&segDist(e.x,e.y,t.x,t.y,a,R)<10+e.r)hurt(e,dmg,e===front,D.col,!!D.pierce);break}
+        for(const e of G.enemies)if(!e.dead&&segDist(e.x,e.y,t.x,t.y,a,R)<10+e.r)hurt(e,dmg*aoeK(e),e===front,D.col,!!D.pierce);break}
       case 'cleave':{t.anim=.2;let n=0;
-        for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg,true,null);
+        for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg*aoeK(e),true,null);
           if(n++<6)G.fx.push({k:'cut',x:e.x,y:e.y,a:Math.random()*3.14,len:e.r*2+24,life:.18,max:.18})}
         G.fx.push({k:'claw',x:front.x,y:front.y,life:.3,max:.3,col:D.col});
         if(t.type==='sukuna'&&Math.random()<.1)text(t.x,t.y-50,['ケヒッ','ケヒヒ…','嗤'][Math.random()*3|0],'#ff2a3a',12);break}
-      case 'stun':{t.anim=.35;for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg,false);stunE(e,D.stun[L])}
+      case 'stun':{t.anim=.35;for(const e of G.enemies)if(!e.dead&&inR(t,e,R)){hurt(e,dmg*aoeK(e),false);stunE(e,D.stun[L])}
         G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:R,life:.4,max:.4,col:D.col});text(t.x,t.y-44,'「止まれ」','#d8c8ff',12);break}
       case 'income':{t.anim=.2;let hit=0;const tg=[...G.enemies].filter(e=>!e.dead&&inR(t,e,R)).sort((a,b)=>b.d-a.d).slice(0,D.chain);
         for(const e of tg){hurt(e,dmg,hit++===0,D.col);G.fx.push({k:'zap',x0:t.x,y0:t.y-20,x1:e.x,y1:e.y,life:.18,max:.18})}break}
@@ -915,10 +942,11 @@ function update(dt){
       for(const o of G.enemies)if(!o.dead&&o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<75){o.hp=Math.min(o.maxHp,o.hp+o.maxHp*e.heal*(o.t==='boss'?.12:1))}
       G.fx.push({k:'ring',x:e.x,y:e.y,r:6,to:75,life:.5,max:.5,col:'#5fffb0'})}}
     if(e.t==='boss'&&!frozen)bossAbility(e,dt);
-    if(e.slowT>0){e.slowT-=dt;e.slow=Math.max(e.slow,(e.slowV||.4)*(e.t==='boss'?.5:1))}
+    if(!frozen&&!(e.stunT>0))enemyAbility(e,dt);
+    if(e.slowT>0){e.slowT-=dt;e.slow=Math.max(e.slow,(e.slowV||.4)*(e.t==='boss'||e.heavy?.5:1))}
     const held=frozen||e.stunT>0;if(e.stunT>0)e.stunT-=dt;
-    // 無量空腹中・スタン中は完全停止
-    e.d+=held?0:e.spd*(1-Math.min(.85,e.slow))*dt;
+    // 無量空腹中・スタン中は完全停止。突進中は減速を振り切る
+    e.d+=held?0:e.dashT>0?e.spd*DASH_SPD*dt:e.spd*(1-Math.min(.85,e.slow))*dt;
     e.slow=0;
     const p=posAt(e.d);e.x=p.x;e.y=p.y;
     if(e.d>=pathLen){
@@ -945,7 +973,7 @@ function towerMods(){
   for(const s of G.towers){const D=DEFS[s.type];if(D.atk!=='aura'||s.stunT>0)continue;const R=D.range[s.lv-1],p=D.pw[s.lv-1];
     for(const t of G.towers){if(t===s||(t.x-s.x)**2+(t.y-s.y)**2>R*R)continue;
       if(D.aura==='dmg'){t.mD=Math.min(1.8,t.mD+p);t.sight=true}else t.mR=Math.min(1.8,t.mR+p)}}
-  for(const t of G.towers){if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}}
+  for(const t of G.towers){if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}if(t.hexT>0)t.mR*=HEX_RATE}
 }
 const incomeBonus=()=>G.towers.reduce((a,t)=>a+(DEFS[t.type].atk==='income'&&!(t.stunT>0)?DEFS[t.type].inc[t.lv-1]:0),0);
 // ボスの特殊能力
@@ -956,6 +984,26 @@ function bossAbility(e,dt){
     const tg=G.towers.filter(t=>!(t.stunT>0)&&Math.hypot(t.x-e.x,t.y-e.y)<190).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
     if(tg){tg.stunT=3;G.beams.push({x:e.x,y:e.y,a:Math.atan2(tg.y-e.y,tg.x-e.x),len:Math.hypot(tg.x-e.x,tg.y-e.y),w:6,life:.4,max:.4,col:'#c04dff'});text(tg.x,tg.y-40,'封印された！','#d48aff',13)}}
   if(e.ab.includes('sum')){for(let i=0;i<3;i++)spawn('grunt',false,Math.max(0,e.d-14-i*10),{free:1});G.fx.push({k:'ring',x:e.x,y:e.y,r:10,to:60,life:.5,max:.5,col:'#ff2a3a'})}
+}
+// 特殊能力持ちの雑魚（スタン中・領域の停止中は使えない）
+const DASH_SPD=3.2,HEX_RATE=.55,SNIPE_R=150,HEX_R=130;
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function enemyAbility(e,dt){
+  if(e.dash){if(e.dashT>0)e.dashT-=dt;e.dcd-=dt;
+    if(e.dcd<=0){e.dcd=2.6;e.dashT=.7;G.fx.push({k:'ring',x:e.x,y:e.y,r:4,to:26,life:.3,max:.3,col:'#ffe14a'})}}
+  if(!e.shoot&&!e.hex&&!e.leech)return;
+  e.eT-=dt;if(e.eT>0)return;
+  if(e.shoot){ // 狙撃：射程内で一番近いキャラを1.2秒封じる
+    const tg=G.towers.filter(t=>!(t.stunT>0)&&dist(t,e)<SNIPE_R).sort((a,b)=>dist(a,e)-dist(b,e))[0];
+    if(!tg){e.eT=.5;return}e.eT=4.5;tg.stunT=1.2;
+    G.beams.push({x:e.x,y:e.y,a:Math.atan2(tg.y-e.y,tg.x-e.x),len:dist(tg,e),w:3,life:.3,max:.3,col:'#ff5a5a'});text(tg.x,tg.y-40,'狙撃された！','#ff8a8a',12)}
+  else if(e.hex){ // 呪詛：射程内で一番高価なキャラの攻撃速度を4秒間下げる
+    const tg=G.towers.filter(t=>!(t.hexT>0)&&dist(t,e)<HEX_R&&DEFS[t.type].rate).sort((a,b)=>b.spent-a.spent)[0];
+    if(!tg){e.eT=.5;return}e.eT=3.5;tg.hexT=4;
+    G.beams.push({x:e.x,y:e.y,a:Math.atan2(tg.y-e.y,tg.x-e.x),len:dist(tg,e),w:5,life:.4,max:.4,col:'#b04dff'});text(tg.x,tg.y-40,'呪詛：鈍化','#d48aff',12)}
+  else{ // 呪力喰い：生きている間、2秒ごとに呪力を奪う
+    e.eT=2;const s=Math.min(Math.floor(G.money),Math.round(3+G.stage*.4));
+    if(s>0){G.money-=s;text(e.x,e.y-e.r-8,'-'+s+'G','#d4af37',12);G.fx.push({k:'ring',x:e.x,y:e.y,r:4,to:20,life:.3,max:.3,col:'#d4af37'})}}
 }
 function updateFx(dt,rdt){
   for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.92;p.vy*=.92;p.life-=dt}
@@ -1368,8 +1416,8 @@ function drawUnit(c,type,x,y,o={}){
 const hexA=(h,a)=>`rgba(${parseInt(h.slice(1,3),16)},${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)},${a})`;
 // 種類ごとの瘴気の色
 // 種類ごとの発光色（輪郭・オーラ・足元リング）
-const GLOW={grunt:'#a6ff4d',fast:'#ff4d7a',tank:'#ffc21a',armor:'#4de8ff',healer:'#5fffb0',ghost:'#e0e8ff',splitter:'#ff9a3d',mini:'#ffc04a',golem:'#ffd890',boss:'#ff2a2a'};
-const MIASMA={grunt:['#9b4dff','#2a0a4a'],fast:['#ff2a6a','#3a0012'],tank:['#ff3a1a','#2a0400'],armor:['#4db8ff','#061a33'],healer:['#5fffb0','#063320'],ghost:['#c8d8ff','#202838'],splitter:['#ff9a3d','#3a1400'],mini:['#ffb04a','#3a1a00'],golem:['#c8b088','#2a2010'],boss:['#ff1a2a','#1a0004']};
+const GLOW={grunt:'#a6ff4d',fast:'#ff4d7a',tank:'#ffc21a',armor:'#4de8ff',healer:'#5fffb0',ghost:'#e0e8ff',splitter:'#ff9a3d',mini:'#ffc04a',golem:'#ffd890',boss:'#ff2a2a',sniper:'#ff5a5a',dasher:'#ffe14a',hexer:'#d48aff',leech:'#ffd65a',jugger:'#9fd0ff'};
+const MIASMA={sniper:['#ff3a3a','#2a0404'],dasher:['#ffd84a','#3a2a00'],hexer:['#b04dff','#1a0430'],leech:['#d4af37','#2a2000'],jugger:['#8aa8c8','#10161e'],grunt:['#9b4dff','#2a0a4a'],fast:['#ff2a6a','#3a0012'],tank:['#ff3a1a','#2a0400'],armor:['#4db8ff','#061a33'],healer:['#5fffb0','#063320'],ghost:['#c8d8ff','#202838'],splitter:['#ff9a3d','#3a1400'],mini:['#ffb04a','#3a1a00'],golem:['#c8b088','#2a2010'],boss:['#ff1a2a','#1a0004']};
 function drawEnemy(e){
   const frozen=domainOn(),t=G.time,r=e.r,fl=e.flash>0,[mc,md]=MIASMA[e.t],GL=GLOW[e.t];
   const ph=t*(frozen?0:1)+e.wob;
@@ -1450,6 +1498,41 @@ function drawEnemy(e){
     ctx.strokeStyle='#2a2014';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-r*.7,r*.2);ctx.lineTo(-r*.2,r*.5);ctx.moveTo(r*.3,-r*.7);ctx.lineTo(r*.6,-r*.2);ctx.stroke();
     ctx.save();ctx.shadowColor='#ffb000';ctx.shadowBlur=10;ctx.fillStyle='#ffd24a';ctx.fillRect(-r*.5,-r*.35,r*.3,r*.14);ctx.fillRect(r*.2,-r*.35,r*.3,r*.14);
     ctx.strokeStyle='#ffd24a';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,r*.35,r*.25,0,6.28);ctx.stroke();ctx.restore();
+    break}
+  case'sniper':{ // 狙撃呪霊：照準の一つ目と、前に突き出た骨の砲身
+    ctx.save();ctx.fillStyle=fl?'#fff':'#3a0a0a';ctx.strokeStyle=GL;ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(r*.3,-r*.35);ctx.lineTo(r*1.9,-r*.2);ctx.lineTo(r*1.9,r*.2);ctx.lineTo(r*.3,r*.25);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+    blob(r,9,.06,'#c03030','#2a0404');
+    eye(0,-r*.05,r*.5,r*.5,'#ffe066',false);
+    ctx.strokeStyle='#ff3a3a';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-r*.7,-r*.05);ctx.lineTo(r*.7,-r*.05);ctx.moveTo(0,-r*.75);ctx.lineTo(0,r*.65);ctx.stroke();
+    break}
+  case'dasher':{ // 突進鬼：矢じり形の体。突進中は残像の尾を引く
+    if(e.dashT>0){ctx.save();ctx.globalCompositeOperation='lighter';for(let i=1;i<=3;i++){ctx.fillStyle=`rgba(255,225,74,${.3/i})`;ctx.beginPath();ctx.arc(0,-i*r*.9,r*(1-i*.15),0,7);ctx.fill()}ctx.restore()}
+    ctx.beginPath();ctx.moveTo(0,r*1.3);ctx.lineTo(r*1.05,-r*.6);ctx.lineTo(r*.35,-r*.3);ctx.lineTo(0,-r*1.1);ctx.lineTo(-r*.35,-r*.3);ctx.lineTo(-r*1.05,-r*.6);ctx.closePath();
+    {const g=ctx.createLinearGradient(0,-r,0,r);g.addColorStop(0,fl?'#fff':'#ffe14a');g.addColorStop(1,fl?'#ddd':'#7a4a00');ctx.fillStyle=g;ctx.fill();ctx.save();ctx.shadowColor=GL;ctx.shadowBlur=10;ctx.stroke();ctx.restore()}
+    eye(-r*.3,r*.1,r*.2,r*.14,'#ff2a2a',true);eye(r*.3,r*.1,r*.2,r*.14,'#ff2a2a',true);
+    break}
+  case'hexer':{ // 呪詛師の呪霊：頭巾をかぶった影と、揺れる呪符
+    ctx.beginPath();ctx.moveTo(0,-r*1.35);ctx.quadraticCurveTo(r*1.1,-r*.2,r*1.05,r*1.05);ctx.lineTo(-r*1.05,r*1.05);ctx.quadraticCurveTo(-r*1.1,-r*.2,0,-r*1.35);ctx.closePath();
+    {const g=ctx.createLinearGradient(0,-r,0,r);g.addColorStop(0,fl?'#fff':'#5a1a8a');g.addColorStop(1,fl?'#ddd':'#12021f');ctx.fillStyle=g;ctx.fill();ctx.save();ctx.shadowColor=GL;ctx.shadowBlur=10;ctx.stroke();ctx.restore()}
+    ctx.fillStyle='#0a0010';ctx.beginPath();ctx.ellipse(0,-r*.2,r*.55,r*.45,0,0,7);ctx.fill();
+    ctx.save();ctx.shadowColor='#d48aff';ctx.shadowBlur=8;ctx.fillStyle='#e8c8ff';ctx.beginPath();ctx.arc(-r*.2,-r*.22,r*.1,0,7);ctx.arc(r*.2,-r*.22,r*.1,0,7);ctx.fill();ctx.restore();
+    for(const sd of[-1,1]){ctx.save();ctx.translate(sd*r*1.25,-r*.1+Math.sin(ph*4+sd)*3);ctx.rotate(sd*.2);ctx.fillStyle='#f4e8c8';ctx.fillRect(-r*.18,-r*.45,r*.36,r*.9);
+      ctx.strokeStyle='#a01020';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-r*.1,-r*.3);ctx.lineTo(r*.1,-r*.1);ctx.lineTo(-r*.1,r*.1);ctx.lineTo(r*.1,r*.3);ctx.stroke();ctx.restore()}
+    break}
+  case'leech':{ // 呪力喰い：金色の口を開けた蛭。小判を飲み込む
+    blob(r,10,.08,'#c8a030','#2a1c00');
+    ctx.fillStyle='#1a0800';ctx.beginPath();ctx.ellipse(0,r*.15,r*.55,r*.42+Math.sin(ph*6)*r*.08,0,0,7);ctx.fill();
+    ctx.fillStyle='#fff3c0';for(let i=0;i<8;i++){const a=i/8*6.283;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.55,r*.15+Math.sin(a)*r*.42);ctx.lineTo(Math.cos(a)*r*.32,r*.15+Math.sin(a)*r*.25);ctx.lineTo(Math.cos(a+.25)*r*.55,r*.15+Math.sin(a+.25)*r*.42);ctx.fill()}
+    ctx.save();ctx.shadowColor='#ffd65a';ctx.shadowBlur=8;ctx.fillStyle='#ffd65a';ctx.beginPath();ctx.ellipse(0,-r*.9,r*.4,r*.28,0,0,7);ctx.fill();ctx.fillStyle='#8a6a10';ctx.fillRect(-r*.08,-r*1.05,r*.16,r*.3);ctx.restore();
+    break}
+  case'jugger':{ // 重戦車：鋼の大盾を構えた巨体。鋲と青い呪紋
+    ctx.fillStyle=fl?'#fff':'#2a323c';ctx.beginPath();ctx.ellipse(0,-r*.95,r*.55,r*.4,0,0,7);ctx.fill();ctx.stroke();
+    ctx.save();ctx.shadowColor='#9fd0ff';ctx.shadowBlur=8;ctx.fillStyle='#9fd0ff';ctx.fillRect(-r*.35,-r*1.0,r*.7,r*.12);ctx.restore();
+    ctx.beginPath();ctx.moveTo(-r*1.05,-r*.6);ctx.lineTo(r*1.05,-r*.6);ctx.lineTo(r*.95,r*.6);ctx.lineTo(0,r*1.15);ctx.lineTo(-r*.95,r*.6);ctx.closePath();
+    {const g=ctx.createLinearGradient(0,-r,0,r);g.addColorStop(0,fl?'#fff':'#9aa8b8');g.addColorStop(1,fl?'#ddd':'#2a323c');ctx.fillStyle=g;ctx.fill();ctx.save();ctx.lineWidth=2.6;ctx.shadowColor=GL;ctx.shadowBlur=10;ctx.stroke();ctx.restore()}
+    ctx.fillStyle='#1a2028';for(const[x,y]of[[-.75,-.4],[.75,-.4],[-.7,.4],[.7,.4],[0,.85]]){ctx.beginPath();ctx.arc(x*r,y*r,r*.08,0,7);ctx.fill()}
+    ctx.save();ctx.shadowColor='#4db8ff';ctx.shadowBlur=8;ctx.strokeStyle='#7fd4ff';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(0,0,r*.38,0,7);ctx.moveTo(0,-r*.38);ctx.lineTo(0,r*.38);ctx.moveTo(-r*.38,0);ctx.lineTo(r*.38,0);ctx.stroke();ctx.restore();
     break}
   case'boss':{ // 特級呪霊：背後の呪印、角の冠、多眼、裂けた口
     ctx.save();ctx.rotate(t*.6);ctx.strokeStyle=hexA('#ff1a2a',.7);ctx.lineWidth=1.5;ctx.shadowColor='#ff1a2a';ctx.shadowBlur=10;
@@ -1907,6 +1990,9 @@ function draw(){
       if(t.stunT>0){ctx.save();ctx.fillStyle='rgba(40,0,60,.45)';ctx.beginPath();ctx.arc(t.x,t.y,20,0,7);ctx.fill();ctx.strokeStyle='#c04dff';ctx.lineWidth=2;ctx.shadowColor='#c04dff';ctx.shadowBlur=8;
         ctx.beginPath();ctx.moveTo(t.x-16,t.y-14);ctx.lineTo(t.x+16,t.y+14);ctx.moveTo(t.x+16,t.y-14);ctx.lineTo(t.x-16,t.y+14);ctx.stroke();
         ctx.font=`16px ${FONT3}`;ctx.fillStyle='#f0d8ff';ctx.fillText('封',t.x,t.y+6);ctx.restore()}
+      // 呪詛で鈍化：足元を回る紫の呪印
+      else if(t.hexT>0){ctx.save();ctx.strokeStyle='#b04dff';ctx.shadowColor='#b04dff';ctx.shadowBlur=8;ctx.lineWidth=1.8;ctx.setLineDash([5,4]);ctx.lineDashOffset=-G.time*20;
+        ctx.beginPath();ctx.ellipse(t.x,t.y+14,18,7,0,0,7);ctx.stroke();ctx.setLineDash([]);ctx.font=`700 10px ${FONT}`;ctx.fillStyle='#e0b8ff';ctx.fillText('鈍',t.x+16,t.y-14);ctx.restore()}
       // LV：タイル左上の小さな点（LV3は金）
       for(let i=0;i<t.lv;i++){ctx.fillStyle=t.lv===3?'#ffd65a':'#fff';ctx.fillRect(t.c*CS+5+i*4.5,t.r*CS+5,3,3)}
       // 必殺OK：頭上のピル型バッジ
@@ -1990,12 +2076,12 @@ cv.addEventListener('pointerdown',ev=>{
   if(G.state!=='ready'&&G.state!=='wave')return;
   const h=toCell(ev);G.hover=h;
   if(G.placing){
-    const D=DEFS[G.placing];
-    if(G.money<D.cost){text(h.x,h.y,'マネー不足！','#ff4d6d');return}
+    const D=DEFS[G.placing],cost=costOf(G.placing);
+    if(G.money<cost){text(h.x,h.y,'マネー不足！','#ff4d6d');return}
     const s=snapCell(h);
     if(!s){text(h.x,h.y,towerHit(h.x,h.y)?'もう誰かいる！':'そこには置けない！','#ff4d6d');return}
-    G.money-=D.cost;const x=s.c*CS+CS/2,y=s.r*CS+CS/2;
-    const t={type:G.placing,c:s.c,r:s.r,x,y,lv:1,cd:0,spCd:D.ct*.3,anim:0,face:1,spent:D.cost};G.towers.push(t);
+    G.money-=cost;const x=s.c*CS+CS/2,y=s.r*CS+CS/2;
+    const t={type:G.placing,c:s.c,r:s.r,x,y,lv:1,cd:0,spCd:D.ct*.3,anim:0,face:1,spent:cost};G.towers.push(t);
     burst(x,y,'#fff',14);G.fx.push({k:'ring',x,y,r:5,to:36,life:.3,max:.3,col:'#fff'});
     showUndo(t);
     if(!ev.shiftKey)G.placing=null;
@@ -2053,7 +2139,7 @@ function buildPanel(){
   for(const k of G.deck){const d=DEFS[k],el=document.createElement('div');el.className='card';
     el.appendChild(charIcon(k));
     el.style.setProperty('--rc',d.rc);
-    const info=document.createElement('div');info.innerHTML=`<div class="nm">${d.name}</div><div class="cs">${d.cost}G</div><span class="tg" style="background:${d.rc}">${d.tag}</span>`;el.appendChild(info);
+    const info=document.createElement('div');info.innerHTML=`<div class="nm">${d.name}</div><div class="cs">${costOf(k)}G</div><span class="tg" style="background:${d.rc}">${d.tag}</span>`;el.appendChild(info);
     el.onclick=()=>{if(G.state!=='ready'&&G.state!=='wave')return;closePop();G.placing=G.placing===k?null:k;syncUI(true)};
     const sb=document.createElement('button');sb.className='spb none';sb.innerHTML='<i></i><span>必殺</span>';sb.onclick=ev=>{ev.stopPropagation();fireType(k)};el.appendChild(sb);spbs[k]=sb;
     box.appendChild(el);cards[k]=el}
@@ -2114,16 +2200,24 @@ function loadDeck(){let d=[];try{d=JSON.parse(localStorage.getItem(DECK_KEY))||[
 function saveDeck(d){try{localStorage.setItem(DECK_KEY,JSON.stringify(d))}catch(e){}}
 // ステージの特徴に効くキャラ（おすすめ編成の判断材料）
 const COUNTER={S:['megumi','panda','todo','yuta','sukuna','mechamaru'],A:['maki','choso','kamo'],K:['maki','choso','kamo'],
-  H:['nobara','mai','kamo','choso'],G:['megumi','panda','todo','yuta','sukuna','ijichi','mechamaru'],F:['inumaki','miwa','gojo','panda','megumi'],P:['megumi','panda','todo','yuta','sukuna','mechamaru']};
+  H:['nobara','mai','kamo','choso'],G:['megumi','panda','todo','yuta','sukuna','ijichi','mechamaru'],F:['inumaki','miwa','gojo','panda','megumi'],P:['megumi','panda','todo','yuta','sukuna','mechamaru'],
+  D:['inumaki','yuji','miwa','hakari'],R:['nobara','mai','choso','mechamaru'],M:['nobara','mai','kamo','choso'],X:['nobara','mai','kamo'],J:['maki','choso','hakari','kamo']};
 const BASE_PW={yuji:3,megumi:2.5,nobara:3,ijichi:2.6,panda:2.4,nishimiya:2.4,maki:3,inumaki:2.2,mai:3,todo:3.4,miwa:2.4,mechamaru:3.2,kamo:3,shoko:1.2,hakari:3.2,mei:2.6,choso:3.6,yuta:4.5,gojo:5,sukuna:5.5};
 function recommendDeck(st,pool){
   const S=STAGES[st-1],p=loadProg(),deck=[];pool=pool||CHAR_IDS.filter(k=>isUnlocked(k,p));
-  const score=k=>{let s=BASE_PW[k]||2;for(const c of S.tr)if((COUNTER[c]||[]).includes(k))s+=1.6;
+  // 対策の加点は2つまで（装甲・岩鬼・重戦車…と同じキャラに偏らないように）
+  const score=k=>{let s=BASE_PW[k]||2,hit=0;for(const c of S.tr)if((COUNTER[c]||[]).includes(k))hit++;s+=1.6*Math.min(2,hit);
     if(S.boss.length&&(DEFS[k].sk==='nuke'||DEFS[k].sk==='beamNuke'||DEFS[k].sk==='domain'||DEFS[k].sk==='stunAll'))s+=1;
     const cls=deck.map(d=>DEFS[d].cls),sup=cls.filter(c=>c==='support').length;
     if(cls.includes(DEFS[k].cls))s-=TOP[k]?.8:1.4;
     if(DEFS[k].cls==='support'&&sup>=1)s-=2.5;
+    if(TOP[k]&&deck.filter(d=>TOP[d]).length>=2)s-=3; // ★は2体まで（高すぎて序盤が手薄になる）
     if(k==='yuji'&&deck.length<2)s+=1.5; // 序盤を支える安いアタッカー
+    // WAVE1を支える安いキャラが1体もいなければ加点
+    if(!deck.some(d=>DEFS[d].cost<=900)&&DEFS[k].cost<=900&&DEFS[k].cls!=='support')s+=2;
+    // 群れ・幽霊・高速・突進が来るなら、序盤から置ける範囲攻撃か妨害役を最低1体
+    const early=d=>(DEFS[d].cls==='aoe'||DEFS[d].cls==='control')&&DEFS[d].cost<=1500;
+    if(/[SGFD]/.test(S.tr)&&!deck.some(early)&&early(k))s+=2;
     return s};
   while(deck.length<5&&deck.length<pool.length){let best=null,bs=-1e9;for(const k of pool)if(!deck.includes(k)){const s=score(k);if(s>bs){bs=s;best=k}}deck.push(best)}
   return deck}
@@ -2169,7 +2263,7 @@ function openDeck(st,carry=0){
   for(const k of sortedIds()){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='dkc'+(lock?' lock':'');el.dataset.k=k;
     el.appendChild(charIcon(k,100,88,{lock}));
     el.insertAdjacentHTML('beforeend',lock?`<div class="nm">？？？</div>${roleBadge(k)}<div class="cs">🔒 <b>STAGE ${D.unlock}</b> クリアで解放</div>`:
-      `<div class="nm">${nameBreak(D.name)}</div><div class="cs">${D.cost}G ${roleBadge(k)}</div><b class="no"></b>`);
+      `<div class="nm">${nameBreak(D.name)}</div><div class="cs">${costOf(k,st)}G ${roleBadge(k)}</div><b class="no"></b>`);
     el.style.setProperty('--rc',D.rc);
     el.onclick=()=>{if(lock){dk.info=null;$('dkInfo').innerHTML=`STAGE ${D.unlock} をクリアすると解放されます`;return}
       const i=dk.deck.indexOf(k);if(i>=0)dk.deck.splice(i,1);else if(dk.deck.length<5)dk.deck.push(k);else{dk.info=k;syncDeck(`デッキは5体まで。外したいキャラを上の枠からタップ`);return}
@@ -2291,10 +2385,11 @@ function refreshPop(){
   $('pBars').innerHTML=(D.pw?bar('効果',l=>D.pw[l]/.5):D.regen?bar('回復',l=>20/D.regen[l]):bar('威力',l=>D.dmg[l]/800))+(D.rate?bar('速さ',l=>D.rate[l]/4.4):D.slow?bar('減速',l=>D.slow[l]):'')+bar('射程',l=>D.range[l]/370);
   $('pRole').textContent=D.role;
   $('pStat').innerHTML=descOf(t.type,t.lv)+(t.lv<3?`<br>→ LV${t.lv+1}: ${descOf(t.type,t.lv+1)}`:'<br>★ MAX LEVEL ★')+`<br>必殺:『${D.sp}』CT${D.ct}秒`+
-    (t.mD>1||t.mR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.mD.toFixed(2)} 速度×${t.mR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'');
+    (t.mD>1||t.mR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.mD.toFixed(2)} 速度×${t.mR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'')+
+    (t.hexT>0?`<br><span style="color:#d48aff">呪詛：攻撃速度ダウン（あと${Math.ceil(t.hexT)}秒）</span>`:'');
   const up=$('pUp');
   if(t.lv>=3){up.textContent='LV MAX';up.disabled=true}
-  else{const c=D.up[t.lv-1];up.textContent=`LV UP（強化） ${c}G`;up.disabled=G.money<c}
+  else{const c=upCost(t);up.textContent=`LV UP（強化） ${c}G`;up.disabled=G.money<c}
   const sp=$('pSp');
   sp.textContent=t.spCd>0?`必殺技『${D.sp}』 CT ${Math.ceil(t.spCd)}s`:`必殺技『${D.sp}』発動！`;
   sp.disabled=t.spCd>0||!G.enemies.length;
@@ -2305,7 +2400,7 @@ function refreshPop(){
 let last={};
 function syncUI(force){
   const m=Math.floor(G.money);
-  if(force||last.m!==m){$('money').innerHTML=`呪力 <b>${m}</b>`;last.m=m;for(const k in cards)cards[k].classList.toggle('poor',m<DEFS[k].cost)}
+  if(force||last.m!==m){$('money').innerHTML=`呪力 <b>${m}</b>`;last.m=m;for(const k in cards)cards[k].classList.toggle('poor',m<costOf(k))}
   if(force||last.l!==G.life){$('life').innerHTML=`封印 <b>${G.life}</b>`;last.l=G.life}
   $('stage').innerHTML=`STAGE <b>${G.stage}</b>`;
   syncSp();
@@ -2359,7 +2454,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 newGame(1);fit();showTitle();
-if(location.hash==="#debug")window.__td={get G(){return G},updateFx,upgrade,posAt,get AUTOv(){return AUTO},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,HP_A,BOSS_A,MONEY_A,AREA_ARM,
+if(location.hash==="#debug")window.__td={get G(){return G},updateFx,upgrade,posAt,get AUTOv(){return AUTO},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,costOf,upOf,COST_A,HP_A,BOSS_A,MONEY_A,AREA_ARM,
   drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,AUTO,get grid(){return grid},get PATH(){return PATH},get pathLen(){return pathLen},next:()=>$('next').onclick()};
 requestAnimationFrame(loop);
 })();
