@@ -471,7 +471,7 @@ const DEFS={
   nobara:{name:'藁人形の呪術師',role:'中コスト・長距離狙撃（単体）',tag:'狙撃',cost:300,up:[300,600],dmg:[60,140,300],rate:[.8,.85,.95],range:[200,240,290],ct:18,
     sp:'藁人形のワラワラ爆破',spR:'カンザシ風',cut:'ワラワラ爆破！！',col:'#ff8a3d',
     desc:L=>`威力 ${DEFS.nobara.dmg[L-1]} / 射程 ${DEFS.nobara.range[L-1]}`},
-  gojo:{name:'無下限の目隠し男',role:'超高コスト・スローサポート',tag:'支援',cost:700,up:[800,1300],dmg:[10,22,45],slow:[.35,.5,.65],range:[120,135,150],ct:40,
+  gojo:{name:'無下限の目隠し男',role:'超高コスト・スロー＆全体7秒停止',tag:'支援',cost:700,up:[800,1300],dmg:[10,22,45],slow:[.35,.5,.65],range:[120,135,150],ct:55,
     sp:'無量空腹',spR:'むりょうくうふく / 領域展開',cut:'領域展開『無量空腹』！！',col:'#2a8bff',
     desc:L=>`威力 ${DEFS.gojo.dmg[L-1]}/秒 / 減速 ${DEFS.gojo.slow[L-1]*100}%`},
   sukuna:{name:'両面呪いの王',role:'最強高コスト・純粋火力（範囲連斬）',tag:'最強',cost:1000,up:[1100,1800],dmg:[55,120,260],rate:[1.4,1.6,1.9],range:[110,125,145],ct:45,
@@ -530,9 +530,13 @@ function shake(t,m){if(G.shake<=0)G.shakeMag=0;G.shake=Math.max(G.shake,t);G.sha
 function cutin(type,x,y){const D=DEFS[type];G.cutin={type,txt:D.cut,sub:`${D.sp}（${D.spR}）`,col:D.col,el:0,max:2,x,y}}
 const gIdx=()=>(G.stage-1)*5+Math.max(1,G.wave);
 
+// 無量空腹：発動0.4秒後から7秒間、ボスも含めて全敵が完全停止し、受けるダメージ+30%
+const DOM_FREEZE=7,DOM_TOTAL=DOM_FREEZE+.4,DOM_AMP=1.3;
+const domainOn=()=>G.domain>0&&G.domain<DOM_FREEZE;
 // sp=true は必殺技（装甲を無視）
 function hurt(e,dmg,show,col,sp){
   if(e.dead)return;
+  if(domainOn())dmg*=DOM_AMP;
   const blocked=!sp&&e.arm<1;if(blocked)dmg*=e.arm;
   e.hp-=dmg;e.flash=.08;
   if(show){text(e.x+(Math.random()*16-8),e.y-e.r-4,Math.round(dmg),blocked?'#8f9bd6':col||'#fff',sp?22:col?18:14);spark(e.x,e.y,blocked?'#8f9bd6':col||'#fff',sp)}
@@ -576,7 +580,7 @@ function special(t){
       const pool=[...al].sort(()=>Math.random()-.5);
       for(let i=0;i<3;i++){const e=pool[i%pool.length];G.bombs.push({tg:e,x:e.x,y:e.y,t:.55+i*.25,dmg:SPV.nobara[L-1]})}
       shake(.3,5);break}
-    case 'gojo':G.domain=5.4;G.domainLv=SPV.gojoDps[L-1];G.domX=t.x;G.domY=t.y;shake(1,12);G.fx.push({k:'nova',x:t.x,y:t.y,col:'#4de3ff',R:800,life:1,max:1});break;
+    case 'gojo':G.domain=DOM_TOTAL;G.domainLv=SPV.gojoDps[L-1];G.domX=t.x;G.domY=t.y;shake(1,12);G.fx.push({k:'nova',x:t.x,y:t.y,col:'#4de3ff',R:800,life:1,max:1});break;
     case 'sukuna':G.kitchen=4.4;G.kitchenLv=SPV.sukunaDps[L-1];shake(1.2,14);break;
   }
   cutin(t.type,t.x,t.y);t.spCd=DEFS[t.type].ct;closePop();
@@ -592,9 +596,9 @@ function update(dt){
     if(G.queue.length){G.spawnT-=dt;if(G.spawnT<=0){const it=G.queue.shift();spawn(it.t,it.swarm);G.spawnT=it.gap}}
   }
   if(G.warn>0)G.warn-=dt;
-  const domainOn=G.domain>0&&G.domain<5;
-  if(G.domain>0){G.domain-=dt;if(domainOn)for(const e of G.enemies){hurt(e,G.domainLv*dt,false,null,true);
-    if(Math.random()<dt*.6)text(e.x,e.y-e.r-10,'ぐぅ〜','#9ad8ff',13)}}
+  const domOn=domainOn();
+  if(G.domain>0){G.domain-=dt;if(domOn)for(const e of G.enemies){hurt(e,G.domainLv*dt,false,null,true);
+    if(Math.random()<dt*.3)text(e.x,e.y-e.r-10,'ぐぅ〜','#9ad8ff',12)}}
   if(G.kitchen>0){G.kitchen-=dt;if(G.kitchen<4){for(const e of G.enemies)hurt(e,G.kitchenLv*dt,false,null,true);
     if(Math.random()<dt*25){const es=alive();if(es.length){const e=es[Math.random()*es.length|0];G.fx.push({k:'cut',x:e.x,y:e.y,a:Math.random()*3.14,len:70,life:.2,max:.2})}}
     if(Math.random()<dt*8)shake(.1,4);
@@ -660,12 +664,12 @@ function update(dt){
   }
   G.bombs=G.bombs.filter(b=>!b.done);
 
-  const frozen=domainOn;
+  const frozen=domOn;
   for(const e of G.enemies){
     if(e.dead)continue;
     e.flash=Math.max(0,e.flash-dt);
-    // ボスは領域でも完全には止まらない（半減速）
-    e.d+=e.spd*(frozen?(e.t==='boss'?.5:0):1-e.slow)*dt;
+    // 無量空腹中はボスも含めて完全停止
+    e.d+=frozen?0:e.spd*(1-e.slow)*dt;
     e.slow=0;
     const p=posAt(e.d);e.x=p.x;e.y=p.y;
     if(e.d>=pathLen){
@@ -996,7 +1000,7 @@ const hexA=(h,a)=>`rgba(${parseInt(h.slice(1,3),16)},${parseInt(h.slice(3,5),16)
 const GLOW={grunt:'#a6ff4d',fast:'#ff4d7a',tank:'#ffc21a',armor:'#4de8ff',boss:'#ff2a2a'};
 const MIASMA={grunt:['#9b4dff','#2a0a4a'],fast:['#ff2a6a','#3a0012'],tank:['#ff3a1a','#2a0400'],armor:['#4db8ff','#061a33'],boss:['#ff1a2a','#1a0004']};
 function drawEnemy(e){
-  const frozen=G.domain>0&&G.domain<5,t=G.time,r=e.r,fl=e.flash>0,[mc,md]=MIASMA[e.t],GL=GLOW[e.t];
+  const frozen=domainOn(),t=G.time,r=e.r,fl=e.flash>0,[mc,md]=MIASMA[e.t],GL=GLOW[e.t];
   const ph=t*(frozen?0:1)+e.wob;
   // 瘴気（足元から立ちのぼる）
   const ag=ctx.createRadialGradient(e.x,e.y,r*.2,e.x,e.y,r*2.5);ag.addColorStop(0,hexA(GL,.5));ag.addColorStop(.45,hexA(GL,.18));ag.addColorStop(1,hexA(GL,0));
@@ -1065,7 +1069,10 @@ function drawEnemy(e){
     if(e.arm<1){ctx.strokeStyle='rgba(255,210,120,.6)';ctx.lineWidth=2;ctx.setLineDash([4,6]);ctx.beginPath();ctx.arc(0,0,r+10,t*2,t*2+5);ctx.stroke();ctx.setLineDash([])}
     break}
   }
-  if(frozen){ctx.fillStyle='rgba(160,220,255,.9)';ctx.font=`700 13px ${FONT}`;ctx.textAlign='center';ctx.fillText('…',0,-r-6)}
+  // 停止中：青白い拘束の輪と「…」
+  if(frozen){ctx.save();ctx.strokeStyle='rgba(200,245,255,.85)';ctx.shadowColor='#4de3ff';ctx.shadowBlur=10;ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.arc(0,0,r+6,0,7);ctx.stroke();ctx.restore();
+    ctx.fillStyle='rgba(200,240,255,.95)';ctx.font=`700 13px ${FONT}`;ctx.textAlign='center';ctx.fillText('…',0,-r-8)}
   ctx.restore();
   // 体力ゲージ
   const boss=e.t==='boss',bw=boss?84:r*2.2,f=Math.max(0,e.hp/e.maxHp),by=e.y-r-(boss?34:13);
@@ -1166,20 +1173,36 @@ function drawBase(){
 
 // ===== 領域展開 =====
 const STARS=Array.from({length:160},()=>({a:Math.random()*6.28,r:Math.random()*650,sp:.2+Math.random(),s:1+Math.random()*3}));
+// 青白い無限の空間：中心から光の筋が流れ出し、輪が無限に奥から押し寄せる
 function drawDomain(){
-  const el=5.4-G.domain,a=Math.max(0,Math.min(1,el/.5,G.domain/.4));
-  ctx.save();ctx.globalAlpha=a*.68;
-  const g=ctx.createRadialGradient(G.domX,G.domY,5,G.domX,G.domY,750);
-  g.addColorStop(0,'#ffffff');g.addColorStop(.04,'#9ad8ff');g.addColorStop(.18,'#4b2a9a');g.addColorStop(.5,'#1a0a3a');g.addColorStop(1,'#030008');
+  const el=DOM_TOTAL-G.domain,a=Math.max(0,Math.min(1,el/.45,G.domain/.4)),X=G.domX,Y=G.domY,T=G.time;
+  ctx.save();ctx.globalAlpha=a*.72;
+  const g=ctx.createRadialGradient(X,Y,4,X,Y,700);
+  g.addColorStop(0,'#ffffff');g.addColorStop(.05,'#c9f3ff');g.addColorStop(.2,'#3d7fd0');g.addColorStop(.48,'#0f1e4a');g.addColorStop(1,'#02040c');
   ctx.fillStyle=g;ctx.fillRect(-20,-20,W+40,H+40);
-  ctx.globalAlpha=a;ctx.strokeStyle='rgba(180,220,255,.18)';ctx.lineWidth=2;
-  for(let i=0;i<28;i++){const an=i/28*6.28+G.time*.3;ctx.beginPath();ctx.moveTo(G.domX,G.domY);ctx.lineTo(G.domX+Math.cos(an)*1200,G.domY+Math.sin(an)*1200);ctx.stroke()}
-  for(let i=0;i<5;i++){const rr=(G.time*120+i*150)%750;ctx.strokeStyle=`rgba(154,216,255,${.5*(1-rr/750)})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(G.domX,G.domY,rr,0,7);ctx.stroke()}
-  for(const s of STARS){const an=s.a+G.time*.15*s.sp,x=G.domX+Math.cos(an)*s.r,y=G.domY+Math.sin(an)*s.r*.7;
-    ctx.fillStyle=`rgba(255,255,255,${.4+.6*Math.abs(Math.sin(G.time*3+s.a*5))})`;ctx.fillRect(x,y,s.s,s.s)}
-  ctx.font=`bold 76px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='rgba(200,180,255,.13)';ctx.fillText('無量空腹',W/2,H/2);
-  ctx.font=`bold 40px ${FONT}`;for(let i=0;i<6;i++){const an=G.time*.5+i*1.05;ctx.fillText(['🍙','🍜','🍣','🍛','🍔','🍰'][i],G.domX+Math.cos(an)*170,G.domY+Math.sin(an)*110)}
-  ctx.font=`bold 11px ${FONT}`;ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillText(`領域展開『無量空腹』… 敵は空腹で動けない ${Math.max(0,Math.min(5,G.domain)).toFixed(1)}s`,W/2,26);
+  ctx.globalAlpha=a;ctx.globalCompositeOperation='lighter';
+  // 奥から押し寄せる輪（指数で広がって遠近感を出す）
+  for(let i=0;i<9;i++){const z=((i/9)+T*.32)%1,rr=6*Math.pow(110,z),al=Math.sin(Math.PI*z)*.45;
+    ctx.strokeStyle=`rgba(190,240,255,${al})`;ctx.lineWidth=1+z*3;ctx.beginPath();ctx.ellipse(X,Y,rr,rr*.78,0,0,7);ctx.stroke()}
+  // 放射状の光の筋
+  ctx.strokeStyle='rgba(160,225,255,.12)';ctx.lineWidth=1.5;
+  for(let i=0;i<32;i++){const an=i/32*6.28+T*.12;ctx.beginPath();ctx.moveTo(X,Y);ctx.lineTo(X+Math.cos(an)*900,Y+Math.sin(an)*900);ctx.stroke()}
+  // 星が光速で流れ出す
+  for(const s of STARS){const d=(s.r+T*140*s.sp)%650,len=4+d*.09,ca=Math.cos(s.a),sa=Math.sin(s.a);
+    ctx.strokeStyle=`rgba(235,250,255,${Math.min(1,d/120)*.85})`;ctx.lineWidth=s.s*.6;ctx.beginPath();ctx.moveTo(X+ca*d,Y+sa*d*.8);ctx.lineTo(X+ca*(d+len),Y+sa*(d+len)*.8);ctx.stroke()}
+  ctx.globalCompositeOperation='source-over';
+  ctx.font=`88px ${FONT3}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='rgba(210,240,255,.1)';ctx.fillText('無量空腹',W/2,H/2);
+  ctx.textBaseline='alphabetic';ctx.restore();
+}
+// 残り時間の表示（敵やキャラより手前に描く）
+function drawDomainTimer(){
+  const el=DOM_TOTAL-G.domain,a=Math.max(0,Math.min(1,el/.45,G.domain/.4)),rem=Math.max(0,Math.min(DOM_FREEZE,G.domain)),bw=W-90,bx=45,by=34;
+  ctx.save();ctx.globalAlpha=a;ctx.fillStyle='rgba(2,10,28,.72)';ctx.fillRect(bx-12,6,bw+24,36);
+  ctx.strokeStyle='rgba(160,230,255,.6)';ctx.lineWidth=1;ctx.strokeRect(bx-12+.5,6.5,bw+23,35);
+  ctx.font=`14px ${FONT3}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#f2fcff';ctx.shadowColor='#4de3ff';ctx.shadowBlur=10;
+  ctx.fillText(`無量空腹　全敵停止 ${rem.toFixed(1)}s`,W/2,20);
+  ctx.shadowBlur=0;ctx.fillStyle='rgba(120,200,255,.18)';ctx.fillRect(bx,by,bw,4);
+  ctx.fillStyle='#bff4ff';ctx.shadowColor='#4de3ff';ctx.shadowBlur=8;ctx.fillRect(bx,by,bw*rem/DOM_FREEZE,4);
   ctx.textBaseline='alphabetic';ctx.restore();
 }
 // 空に浮かぶ巨大な邪悪な顔（吊り上がった4つの目と牙の笑み）
@@ -1277,13 +1300,22 @@ function drawCutin(){
   const c=G.cutin;if(!c)return;
   if(!c.seed)c.seed=1+Math.random()*1e6|0;
   let sd=c.seed;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
-  const e=c.el,M=c.max,inT=.2,outT=.26,col=c.col,CR='#c4122f';
+  // 配色：基本は血の赤黒。五条（無量空腹）だけ青白い無限の空間
+  const BLUE=c.type==='gojo',PL=BLUE?{cr:'#2a8bff',cr2:'#7fe8ff',vg:'20,80,160',flash:'235,250,255',line:'rgba(120,220,255,.9)',mid:'#06142a',under:'60,170,255',under2:'150,235,255',side:'140,230,255',rim:'rgba(110,220,255,.95)',glow:'#4de3ff',grad:['#ffffff','#c8f6ff','#3aa8ff','#0a1e5a'],pulse:'120,220,255',pre:'#eafaff',preLine:'rgba(127,232,255,.9)'}
+    :{cr:'#c4122f',cr2:'#ff2a4a',vg:'150,0,24',flash:'255,236,236',line:'rgba(196,18,47,.9)',mid:'#16050b',under:'170,0,22',under2:'255,30,50',side:'255,40,60',rim:'rgba(255,26,48,.95)',glow:'#ff1a3a',grad:['#ffffff','#ff5a6a','#d0081f','#4a000c'],pulse:'255,40,60',pre:'#ffe9ea',preLine:'rgba(255,42,74,.9)'};
+  const e=c.el,M=c.max,inT=.2,outT=.26,col=c.col,CR=PL.cr;
   // 暗転は一瞬で、退場はやや速めのフェード
   const fade=Math.max(0,Math.min(1,e/.05,(M-e)/outT));
   let off=0;if(e<inT){const k=1-e/inT;off=k*k*k*W}else if(e>M-outT){const k=(e-(M-outT))/outT;off=-k*k*k*W*1.4}
   // 1) 漆黒への暗転と血の滲み
   ctx.fillStyle=`rgba(0,0,0,${.9*fade})`;ctx.fillRect(0,0,W,H);
-  const vg=ctx.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,W*.65);vg.addColorStop(0,'rgba(120,0,20,0)');vg.addColorStop(1,`rgba(150,0,24,${.5*fade})`);ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  const vg=ctx.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,W*.65);vg.addColorStop(0,`rgba(${PL.vg},0)`);vg.addColorStop(1,`rgba(${PL.vg},${.5*fade})`);ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  // 五条：中心から光が流れ出す青白い無限の空間
+  if(BLUE){const X=W/2,Y=H/2-40,g=ctx.createRadialGradient(X,Y,2,X,Y,H*.8);g.addColorStop(0,`rgba(255,255,255,${.95*fade})`);g.addColorStop(.08,`rgba(190,240,255,${.75*fade})`);g.addColorStop(.35,`rgba(30,90,190,${.55*fade})`);g.addColorStop(1,'rgba(2,6,20,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=fade;
+    for(let i=0;i<8;i++){const z=((i/8)+e*.9)%1,rr=5*Math.pow(120,z);ctx.strokeStyle=`rgba(200,245,255,${Math.sin(Math.PI*z)*.5})`;ctx.lineWidth=1+z*3;ctx.beginPath();ctx.ellipse(X,Y,rr,rr*.8,0,0,7);ctx.stroke()}
+    for(const s of STARS){const d=(s.r+e*520*s.sp)%650,len=6+d*.16;ctx.strokeStyle=`rgba(235,250,255,${Math.min(1,d/90)*.8})`;ctx.lineWidth=s.s*.55;ctx.beginPath();
+      ctx.moveTo(X+Math.cos(s.a)*d,Y+Math.sin(s.a)*d);ctx.lineTo(X+Math.cos(s.a)*(d+len),Y+Math.sin(s.a)*(d+len));ctx.stroke()}ctx.restore()}
   if(c.type==='sukuna'){ctx.fillStyle=`rgba(90,0,8,${.4*fade})`;ctx.fillRect(0,0,W,H);
     evilSky(ctx,W/2,H/2-10,Math.min(1.5,W/400),.45*fade,e*3);
     ctx.save();ctx.strokeStyle='#ff3344';ctx.shadowColor='#ff1a2a';ctx.shadowBlur=16;ctx.globalAlpha=fade*.8;
@@ -1291,7 +1323,7 @@ function drawCutin(){
     ctx.restore()}
   // 2) 回転しながら広がる巨大な呪術陣
   const sp=easeOut(Math.min(1,e/.4));
-  ctx.save();ctx.shadowColor=CR;ctx.shadowBlur=12;sigil(ctx,W/2,H/2,120+150*sp,'#ff2a4a',.55*fade,e*.7,5);ctx.restore();
+  ctx.save();ctx.shadowColor=CR;ctx.shadowBlur=12;sigil(ctx,W/2,H/2,120+150*sp,PL.cr2,.55*fade,e*.7,5);ctx.restore();
   ctx.save();ctx.shadowColor=col;ctx.shadowBlur=10;sigil(ctx,W/2,H/2,70+90*sp,col,.5*fade,-e*1.2,6);ctx.restore();
   // 3) 斜めに走る墨と血の筆致
   for(let i=0;i<3;i++){const p=easeOut(Math.max(0,Math.min(1,(e-.04-i*.07)/.2)));if(p<=0)continue;
@@ -1301,16 +1333,16 @@ function drawCutin(){
     for(let k=n;k>=0;k--){const u=k/n*p,x=-40+u*(W+80),y=y0+(y1-y0)*u,w=th*Math.sin(Math.PI*Math.min(1,u*1.1+.05))*(.6+rnd()*.5);ctx.lineTo(x,y+w)}
     ctx.closePath();ctx.fill();ctx.restore()}
   // 暗転の直後に白い閃光（立ち上がり鋭く、すっと消える）
-  {const fA=e<.03?e/.03:Math.max(0,1-(e-.03)/.12);if(fA>0){ctx.fillStyle=`rgba(255,236,236,${.92*fA*fA})`;ctx.fillRect(0,0,W,H)}}
+  {const fA=e<.03?e/.03:Math.max(0,1-(e-.03)/.12);if(fA>0){ctx.fillStyle=`rgba(${PL.flash},${.92*fA*fA})`;ctx.fillRect(0,0,W,H)}}
   // 4) 上下の黒帯（文字は載せない）
   const band=34*easeOut(Math.min(1,e*7))*Math.min(1,(M-e)/.2);
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,band);ctx.fillRect(0,H-band,W,band);
-  ctx.fillStyle='rgba(196,18,47,.9)';ctx.fillRect(0,band-1,W,1);ctx.fillRect(0,H-band,W,1);
+  ctx.fillStyle=PL.line;ctx.fillRect(0,band-1,W,1);ctx.fillRect(0,H-band,W,1);
   // 5) 中央の帯
   ctx.save();ctx.translate(off,0);
   const y0=L.y0,y1=L.y1;
   const bandP=()=>{ctx.beginPath();ctx.moveTo(-50,y0);ctx.lineTo(W+50,y0-30);ctx.lineTo(W+50,y1);ctx.lineTo(-50,y1+30);ctx.closePath()};
-  const bgr=ctx.createLinearGradient(0,y0,0,y1);bgr.addColorStop(0,'#050205');bgr.addColorStop(.5,'#16050b');bgr.addColorStop(1,'#050205');
+  const bgr=ctx.createLinearGradient(0,y0,0,y1);bgr.addColorStop(0,'#050205');bgr.addColorStop(.5,PL.mid);bgr.addColorStop(1,'#050205');
   bandP();ctx.fillStyle=bgr;ctx.fill();
   ctx.save();ctx.shadowColor=CR;ctx.shadowBlur=14;ctx.strokeStyle=CR;ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(-50,y0);ctx.lineTo(W+50,y0-30);ctx.moveTo(-50,y1+30);ctx.lineTo(W+50,y1);ctx.stroke();ctx.restore();
@@ -1330,13 +1362,13 @@ function drawCutin(){
   drawCutHand(lx,c.type,L.hx+Math.max(0,.5-e)*-360,L.hy,L.hs*push);
   lx.globalCompositeOperation='source-atop';
   const lt=lx.createLinearGradient(0,y0-30,0,y1+30);
-  lt.addColorStop(0,'rgba(0,0,0,.8)');lt.addColorStop(.3,'rgba(10,0,4,.42)');lt.addColorStop(.52,'rgba(0,0,0,.05)');lt.addColorStop(.74,'rgba(170,0,22,.32)');lt.addColorStop(1,'rgba(255,30,50,.7)');
+  lt.addColorStop(0,'rgba(0,0,0,.8)');lt.addColorStop(.3,'rgba(10,0,4,.42)');lt.addColorStop(.52,'rgba(0,0,0,.05)');lt.addColorStop(.74,`rgba(${PL.under},.32)`);lt.addColorStop(1,`rgba(${PL.under2},.7)`);
   lx.fillStyle=lt;lx.fillRect(-60,y0-60,W+120,y1-y0+120);
-  const sideL=lx.createLinearGradient(0,0,W,0);sideL.addColorStop(0,'rgba(0,0,0,.45)');sideL.addColorStop(.35,'rgba(0,0,0,0)');sideL.addColorStop(.85,'rgba(0,0,0,0)');sideL.addColorStop(1,'rgba(255,40,60,.35)');
+  const sideL=lx.createLinearGradient(0,0,W,0);sideL.addColorStop(0,'rgba(0,0,0,.45)');sideL.addColorStop(.35,'rgba(0,0,0,0)');sideL.addColorStop(.85,'rgba(0,0,0,0)');sideL.addColorStop(1,`rgba(${PL.side},.35)`);
   lx.fillStyle=sideL;lx.fillRect(-60,y0-60,W+120,y1-y0+120);
   lx.globalCompositeOperation='source-over';
   ctx.save();ctx.setTransform(1,0,0,1,0,0);
-  ctx.shadowColor='rgba(255,26,48,.95)';ctx.shadowBlur=22*K;ctx.drawImage(lay,0,0);
+  ctx.shadowColor=PL.rim;ctx.shadowBlur=22*K;ctx.drawImage(lay,0,0);
   ctx.shadowBlur=0;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.12+.08*Math.sin(e*18);ctx.drawImage(lay,0,-2*K);ctx.restore();
   ctx.restore();
   // レンズフレア（横一文字の光）とフィルムグレイン
@@ -1364,15 +1396,15 @@ function drawCutin(){
   ctx.save();if(kick)ctx.translate((Math.random()-.5)*9*kick,(Math.random()-.5)*7*kick);
   // 着地の瞬間、文字の背後に赤い脈動
   if(kick){ctx.save();ctx.globalCompositeOperation='lighter';const rg=ctx.createRadialGradient(cxT,mainY-fs*.35,0,cxT,mainY-fs*.35,190);
-    rg.addColorStop(0,`rgba(255,40,60,${.55*kick})`);rg.addColorStop(1,'rgba(255,40,60,0)');ctx.fillStyle=rg;ctx.fillRect(cxT-200,mainY-fs-160,400,fs+320);ctx.restore()}
+    rg.addColorStop(0,`rgba(${PL.pulse},${.55*kick})`);rg.addColorStop(1,`rgba(${PL.pulse},0)`);ctx.fillStyle=rg;ctx.fillRect(cxT-200,mainY-fs-160,400,fs+320);ctx.restore()}
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
   // 上段：「領域展開」（細い線を左右に添える）
   if(pre){const p=Math.max(0,Math.min(1,(e-inT-.02)/.16)),s=1+(1-easeOut(p))*.35;
     ctx.save();ctx.globalAlpha=p;ctx.translate(cxT,preY);ctx.scale(s,s);ctx.font=`24px ${FONT3}`;
     const ls='letterSpacing' in ctx;if(ls)ctx.letterSpacing='10px';
     const pw=ctx.measureText(pre).width;ctx.lineWidth=6;ctx.lineJoin='round';ctx.strokeStyle='#000';ctx.strokeText(pre,5,0);
-    ctx.shadowColor='#ff1a3a';ctx.shadowBlur=14;ctx.fillStyle='#ffe9ea';ctx.fillText(pre,5,0);ctx.shadowBlur=0;if(ls)ctx.letterSpacing='0px';
-    const lw=(L.maxW-pw)/2-14;if(lw>8){ctx.fillStyle='rgba(255,42,74,.9)';const g=easeOut(p);ctx.fillRect(-pw/2-10-lw*g,-9,lw*g,1.5);ctx.fillRect(pw/2+10,-9,lw*g,1.5)}
+    ctx.shadowColor=PL.glow;ctx.shadowBlur=14;ctx.fillStyle=PL.pre;ctx.fillText(pre,5,0);ctx.shadowBlur=0;if(ls)ctx.letterSpacing='0px';
+    const lw=(L.maxW-pw)/2-14;if(lw>8){ctx.fillStyle=PL.preLine;const g=easeOut(p);ctx.fillRect(-pw/2-10-lw*g,-9,lw*g,1.5);ctx.fillRect(pw/2+10,-9,lw*g,1.5)}
     ctx.restore()}
   // 下段：技名を1文字ずつ叩きつける
   ctx.font=`${fs}px ${FONT3}`;const tw=ctx.measureText(main).width;let cx=cxT-tw/2;const xs=[];
@@ -1381,15 +1413,15 @@ function drawCutin(){
     if(p>0){const sc=easeBack(p)*(1+(1-p)*1.2);
       ctx.save();ctx.translate(cx+w/2,mainY);ctx.rotate(rot*(1-p));ctx.scale(sc,sc);ctx.globalAlpha=Math.min(1,p*3);
       ctx.lineWidth=Math.max(6,fs/5.5);ctx.strokeStyle='#000';ctx.lineJoin='round';ctx.shadowColor='rgba(0,0,0,.9)';ctx.shadowBlur=10;ctx.strokeText(ch,0,0);
-      const gr=ctx.createLinearGradient(0,-fs*.85,0,fs*.1);gr.addColorStop(0,'#ffffff');gr.addColorStop(.38,'#ff5a6a');gr.addColorStop(.7,'#d0081f');gr.addColorStop(1,'#4a000c');
-      ctx.shadowColor='#ff1a3a';ctx.shadowBlur=26;ctx.fillStyle=gr;ctx.fillText(ch,0,0);ctx.shadowBlur=0;
+      const gr=ctx.createLinearGradient(0,-fs*.85,0,fs*.1);gr.addColorStop(0,PL.grad[0]);gr.addColorStop(.38,PL.grad[1]);gr.addColorStop(.7,PL.grad[2]);gr.addColorStop(1,PL.grad[3]);
+      ctx.shadowColor=PL.glow;ctx.shadowBlur=26;ctx.fillStyle=gr;ctx.fillText(ch,0,0);ctx.shadowBlur=0;
       // 色ずれ（着地直後と、ときどき）で微小な歪み
       const gl=p>=1&&(kick>0||Math.sin(e*9+i)>.93);
       if(gl){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35;ctx.fillStyle='#ff0030';ctx.fillText(ch,2+Math.random()*2,0);ctx.fillStyle='#00c8ff';ctx.globalAlpha=.22;ctx.fillText(ch,-2-Math.random()*2,0)}
       ctx.restore()}
     cx+=w}
-  // 細い血の雫を数本だけ
-  for(let i=0;i<chars.length;i+=2){const dp=Math.max(0,Math.min(1,(e-land-.05-i*.03)/.6));if(dp<=0)continue;
+  // 細い血の雫を数本だけ（五条は血を垂らさない）
+  for(let i=0;!BLUE&&i<chars.length;i+=2){const dp=Math.max(0,Math.min(1,(e-land-.05-i*.03)/.6));if(dp<=0)continue;
     const dx=xs[i]+(rnd()-.5)*fs*.3,len=(8+rnd()*16)*dp;ctx.save();ctx.globalAlpha=fade*.85;ctx.strokeStyle='#9a0018';ctx.fillStyle='#9a0018';ctx.lineWidth=1.6;ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(dx,mainY+3);ctx.lineTo(dx,mainY+3+len);ctx.stroke();ctx.beginPath();ctx.arc(dx,mainY+4+len,1.8,0,7);ctx.fill();ctx.restore()}
   ctx.restore();
@@ -1540,6 +1572,7 @@ function draw(){
     ctx.fillStyle=b.col;ctx.fillRect(W/2-lw,H/2-40,lw*2,1);ctx.fillRect(W/2-lw,H/2+33,lw*2,1);
     let bf=38;ctx.font=`${bf}px ${FONT2}`;while(ctx.measureText(b.text).width>W-30&&bf>16){bf-=2;ctx.font=`${bf}px ${FONT2}`}ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='#000';ctx.strokeText(b.text,W/2,H/2+12);
     ctx.shadowColor=b.col;ctx.shadowBlur=18;ctx.fillStyle='#fff';ctx.fillText(b.text,W/2,H/2+12);ctx.restore()}
+  if(G.domain>0)drawDomainTimer();
   drawCutin();
   // CRT風の走査線と周辺減光
   ctx.fillStyle=VIG;ctx.fillRect(0,0,W,H);
