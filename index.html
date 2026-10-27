@@ -430,8 +430,8 @@ const LAST=STAGES.length;
 // アンカー間を対数補間して、ステージごとの数値を滑らかに伸ばす
 const lerpLog=(A,s)=>{for(let i=1;i<A.length;i++)if(s<=A[i][0]){const[s0,v0]=A[i-1],[s1,v1]=A[i],k=(s-s0)/(s1-s0);return Math.exp(Math.log(v0)+(Math.log(v1)-Math.log(v0))*k)}return A[A.length-1][1]};
 const HP_A=[[1,1],[3,1.6],[10,9],[20,18],[30,27]];          // 雑魚の耐久倍率
-const BOSS_A=[[1,1800],[3,4000],[10,30000],[20,55000],[30,105000]];
-const MONEY_A=[[1,400],[3,1100],[10,3500],[20,8000],[30,14000]]; // ステージ選択から始めた時の所持金
+const BOSS_A=[[1,1800],[3,4000],[10,30000],[20,52000],[30,92000]];
+const MONEY_A=[[1,450],[3,800],[10,1900],[20,4200],[30,7600]]; // ステージ選択から始めた時の所持金（序盤に1〜2体しか置けない額）
 const AREA_SPD=[1,1.08,1.16],AREA_ARM=[.9,.7,.55];
 const hpMul=s=>lerpLog(HP_A,s),bossHp=s=>Math.round(lerpLog(BOSS_A,s)/100)*100,stageMoney=s=>Math.round(lerpLog(MONEY_A,s)/50)*50;
 let PATH=[],segs=[],pathLen=0,grid=[];
@@ -510,6 +510,26 @@ const DEFS={
     sp:'厨房の調理場',sk:'kitchen',spv:[220,450,850],cut:'領域展開『厨房の調理場』！！',col:'#ff3b3b',unlock:29}
 };
 const CHAR_IDS=Object.keys(DEFS);
+// ===== 少数精鋭の経済 =====
+// 配置・強化は高く、そのぶん1体の性能を大きく引き上げる（盤面に置ける数はおよそ3分の1）。
+// DEFS の数値は従来の基準値のまま書き、ここで一括して換算する
+const ECO={cost:3,up:3.8,dmg:3,rate:1.2,range:1.1,sp:3,money:3,pw:1.6,regen:.6,stun:1.3,push:1.3};
+const SP_DMG={rush:1,bombs:1,domain:1,kitchen:1,nuke:1,quake:1,counter:1,beamNuke:1,rain:1,bleedAll:1,goldRush:1,rika:1};
+{const r10=v=>Math.round(v/10)*10,mul=(a,k,f=Math.round)=>a.map(v=>f(v*k));
+ for(const D of Object.values(DEFS)){
+  D.cost=r10(D.cost*ECO.cost);D.up=mul(D.up,ECO.up,r10);D.range=mul(D.range,ECO.range);
+  if(D.dmg)D.dmg=mul(D.dmg,ECO.dmg);
+  if(D.dot)D.dot=mul(D.dot,ECO.dmg);
+  if(D.rate)D.rate=mul(D.rate,ECO.rate,v=>+v.toFixed(2));
+  if(SP_DMG[D.sk])D.spv=mul(D.spv,ECO.sp);
+  if(D.sk==='push')D.spv2=mul(D.spv2,ECO.sp);
+  if(D.sk==='goldRush')D.spv2=mul(D.spv2,ECO.money,r10);
+  if(D.sk==='jackpot')D.spv=mul(D.spv,ECO.money,r10);
+  if(D.inc)D.inc=mul(D.inc,ECO.money);
+  if(D.pw)D.pw=mul(D.pw,ECO.pw,v=>+v.toFixed(2));
+  if(D.regen)D.regen=mul(D.regen,ECO.regen);
+  if(D.stun)D.stun=mul(D.stun,ECO.stun,v=>+v.toFixed(2));
+  if(D.push)D.push=mul(D.push,ECO.push)}}
 // 役割は5系統。カード枠・役割バッジはこの色で統一する（★は最強格）
 const ROLES={melee:{label:'近接',col:'#ff5a3d'},aoe:{label:'範囲',col:'#c74dff'},ranged:{label:'遠距離',col:'#3ab4ff'},support:{label:'サポート',col:'#5fe87a'},control:{label:'妨害',col:'#ffb020'}};
 const ROLE_ORDER=['melee','aoe','ranged','support','control'];
@@ -627,10 +647,10 @@ function hitOne(t,e,dmg,col,pierce){
 function spawn(t,swarm,at=0){
   const S=STAGES[G.stage-1],d=ETYPES[t],m=hpMul(G.stage)*(1+.14*(Math.max(1,G.wave)-1));
   let hp=t==='boss'?bossHp(G.stage):d.hp*m,arm=t==='boss'?AREA_ARM[S.area]:d.arm||1,spd=d.spd*G.spdK;
-  const rew=t==='boss'?250+60*G.stage:Math.round(d.rew*(1+.08*(G.stage-1)));
+  const rew=t==="boss"?250+60*G.stage:Math.round(d.rew*(1+.05*(G.stage-1))); // 後半の稼ぎすぎを抑える
   const ab=t==='boss'?S.boss:[];
   if(ab.includes('tou')){hp*=1.15;arm*=.5}
-  if(ab.includes('swi'))spd*=1.4;
+  if(ab.includes('swi'))spd*=1.3;
   const p=posAt(at);
   G.enemies.push({t,d:at,x:p.x,y:p.y,hp,maxHp:hp,spd,r:d.r,rew,col:d.col,arm,slow:0,flash:0,wob:Math.random()*6,
     heal:d.heal||0,evade:d.evade||0,split:d.split||0,ab,abT:3,stunT:0,dotT:0,dot:0});
@@ -2247,7 +2267,7 @@ function refreshPop(){
   const pi=pc.getContext('2d');pi.setTransform(DPR,0,0,DPR,0,0);const pg=pi.createLinearGradient(0,0,0,140);
   pg.addColorStop(0,mix(D.rc,'#0d0b14',.85));pg.addColorStop(1,mix(D.rc,'#0d0b14',.55));pi.fillStyle=pg;pi.fillRect(0,0,176,140);drawBust(pi,t.type,88,74,.85);
   const L=t.lv-1,N=Math.min(2,L+1),bar=(lab,f)=>`<span>${lab}</span><div class="bar"><s style="width:${Math.min(100,f(N)*100)}%"></s><u style="width:${Math.min(100,f(L)*100)}%"></u></div>`;
-  $('pBars').innerHTML=(D.pw?bar('効果',l=>D.pw[l]/.5):D.regen?bar('回復',l=>20/D.regen[l]):bar('威力',l=>D.dmg[l]/320))+(D.rate?bar('速さ',l=>D.rate[l]/3.6):D.slow?bar('減速',l=>D.slow[l]):'')+bar('射程',l=>D.range[l]/330);
+  $('pBars').innerHTML=(D.pw?bar('効果',l=>D.pw[l]/.5):D.regen?bar('回復',l=>20/D.regen[l]):bar('威力',l=>D.dmg[l]/800))+(D.rate?bar('速さ',l=>D.rate[l]/4.4):D.slow?bar('減速',l=>D.slow[l]):'')+bar('射程',l=>D.range[l]/370);
   $('pRole').textContent=D.role;
   $('pStat').innerHTML=descOf(t.type,t.lv)+(t.lv<3?`<br>→ LV${t.lv+1}: ${descOf(t.type,t.lv+1)}`:'<br>★ MAX LEVEL ★')+`<br>必殺:『${D.sp}』CT${D.ct}秒`+
     (t.mD>1||t.mR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.mD.toFixed(2)} 速度×${t.mR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'');
@@ -2318,7 +2338,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 newGame(1);fit();showTitle();
-if(location.hash==='#debug')window.__td={get G(){return G},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,HP_A,BOSS_A,MONEY_A,AREA_ARM,
+if(location.hash==="#debug")window.__td={get G(){return G},updateFx,upgrade,posAt,get AUTOv(){return AUTO},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,HP_A,BOSS_A,MONEY_A,AREA_ARM,
   drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,AUTO,get grid(){return grid},get PATH(){return PATH},get pathLen(){return pathLen},next:()=>$('next').onclick()};
 requestAnimationFrame(loop);
 })();
