@@ -282,6 +282,36 @@ canvas#cv{display:block;touch-action:none;background:#000}
 .dks.press{transform:scale(.93)}
 .dk-info{padding:10px 12px;border-radius:14px;background:var(--s1);border:1px solid var(--ln);font-size:12.5px;color:var(--tx)}
 .dk-info .msg{color:var(--tx2);line-height:1.6}
+/* ★の条件（デッキ画面）・相性チップ */
+.dk-stars{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.dk-stars span{display:inline-flex;align-items:center;gap:3px;font:700 10.5px/1.2 var(--f-jp);padding:4px 7px;border-radius:999px;background:var(--s2);color:var(--tx3)}
+.dk-stars span i{font-style:normal;color:#4a4758}
+.dk-stars span.ok{color:#ffe9a8;background:rgba(255,207,74,.12)}.dk-stars span.ok i{color:var(--gold);text-shadow:0 0 6px rgba(255,207,74,.7)}
+.dk-syn{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin-top:-4px;min-height:24px}
+.dk-syn::-webkit-scrollbar{display:none}
+.syn{flex:none;display:inline-flex;align-items:center;gap:4px;font:700 10.5px/1 var(--f-jp);padding:5px 8px;border-radius:999px;background:var(--s2);border:1px dashed var(--ln2);color:var(--tx3);white-space:nowrap}
+.syn b{font:700 10px var(--f-en);color:var(--tx2)}.syn em{font-style:normal;font-weight:500;color:var(--tx3)}
+.syn.on{border-style:solid;border-color:rgba(255,207,74,.6);background:rgba(255,207,74,.12);color:#fff3cf;box-shadow:0 0 10px rgba(255,207,74,.25)}
+.syn.on b{color:var(--gold)}.syn.on em{color:#ffe3a0}
+.syn.none{border-style:solid;border-color:var(--ln)}
+#cm .cm-syn{display:grid;gap:5px}
+#cm .cm-syn div{padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px dashed var(--ln2);font-size:11.5px;color:var(--tx2);line-height:1.5}
+#cm .cm-syn div.on{border:1px solid rgba(255,207,74,.55);background:rgba(255,207,74,.1);color:#fff3cf}
+#cm .cm-syn b{color:var(--tx)}#cm .cm-syn em{font-style:normal;font:700 11px var(--f-en);color:var(--gold)}
+#cm .cm-syn small{display:block;font-size:10.5px;color:var(--tx3)}
+/* ステージ一覧の★ */
+.stg .badge.st{padding:3px 7px 4px 9px;background:rgba(8,7,11,.85);letter-spacing:0;font-size:12px}
+.stg .badge.st i,.tst{font-style:normal;color:#3f3c4c}
+.stg .badge.st i.on,.tst{color:var(--gold);text-shadow:0 0 6px rgba(255,207,74,.6)}
+/* クリア画面の★ */
+#over .res-stars{display:flex;justify-content:center;gap:10px;margin:-4px 0 6px}
+#over .res-stars i{font-style:normal;font-size:40px;line-height:1;color:#2e2b38;text-shadow:0 2px 0 #000}
+#over .res-stars i.on{color:var(--gold);text-shadow:0 0 16px rgba(255,207,74,.8),0 2px 0 #7a5800;animation:starPop .5s cubic-bezier(.3,1.8,.5,1) both}
+@keyframes starPop{from{transform:scale(0) rotate(-40deg);opacity:0}}
+#over .res-cond{display:grid;gap:3px;margin-bottom:8px;text-align:left;font-size:12px;line-height:1.4}
+#over .res-cond span{color:var(--tx3)}#over .res-cond span.ok{color:#fff3cf}
+#over .res-cond b{font:800 10px var(--f-en);color:#06210f;background:var(--mint);padding:1px 5px;border-radius:4px}
+#over .res-stat{display:block;margin-bottom:6px;font-size:12px;color:var(--tx2)}#over .res-stat b{color:#fff;font-family:var(--f-en)}
 .di-head{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .di-name{font:900 15px/1.3 var(--f-jp);margin-right:2px}
 .di-role{margin-top:6px;color:var(--tx2);line-height:1.5;font-size:12px}
@@ -391,9 +421,10 @@ canvas#cv{display:block;touch-action:none;background:#000}
   <!-- HOME：プレイ中は確認してからタイトルへ -->
   <!-- 出撃前のデッキ編成：20体から5体を選ぶ -->
   <div id="deck">
-    <div class="dk-head"><div class="dk-st scr-h" id="dkSt"></div><div class="dk-threat" id="dkThreat"></div></div>
+    <div class="dk-head"><div class="dk-st scr-h" id="dkSt"></div><div class="dk-threat" id="dkThreat"></div><div class="dk-stars" id="dkStars"></div></div>
     <div class="dk-label">DECK <small>出撃する5体・タップで外す</small><em id="dkCnt"></em></div>
     <div class="dk-slots" id="dkSlots"></div>
+    <div class="dk-syn" id="dkSyn"></div>
     <div class="dk-info" id="dkInfo"></div>
     <div class="sortbar" id="dkSort"></div>
     <div class="dk-grid" id="dkGrid"></div>
@@ -580,6 +611,37 @@ const CLS={yuji:'melee',maki:'melee',hakari:'melee',megumi:'aoe',todo:'aoe',yuta
   ijichi:'support',nishimiya:'support',shoko:'support',mei:'support',panda:'control',inumaki:'control',miwa:'control',gojo:'control'};
 const TOP={yuta:1,gojo:1,sukuna:1};
 for(const k of CHAR_IDS){DEFS[k].cls=CLS[k];DEFS[k].tag=ROLES[CLS[k]].label;DEFS[k].rc=ROLES[CLS[k]].col}
+// ===== 相性ボーナス：デッキに揃えると、メンバー全員に効果（d=攻撃力 r=攻撃速度 ct=必殺チャージ速度） =====
+const SYN=[
+  {id:'y1',name:'高専1年トリオ',m:['yuji','megumi','nobara'],need:3,e:{d:.15},txt:'攻撃力+15%'},
+  {id:'y2',name:'高専2年の絆',m:['maki','inumaki','panda'],need:2,e:{r:.12},txt:'攻撃速度+12%'},
+  {id:'kyo',name:'姉妹校・京都',m:['todo','mai','miwa','nishimiya','mechamaru','kamo'],need:3,e:{d:.1,r:.08},txt:'攻撃力+10%・攻撃速度+8%'},
+  {id:'adl',name:'大人の事情',m:['ijichi','shoko','mei','gojo'],need:2,e:{ct:.25},txt:'必殺チャージ+25%'},
+  {id:'bro',name:'兄弟の縁',m:['yuji','choso'],need:2,e:{d:.15},txt:'攻撃力+15%'},
+  {id:'twin',name:'双子の姉妹',m:['maki','mai'],need:2,e:{d:.12,ct:.15},txt:'攻撃力+12%・必殺チャージ+15%'},
+  {id:'vss',name:'器と呪いの王',m:['yuji','sukuna'],need:2,e:{ct:.3},txt:'必殺チャージ+30%'},
+  {id:'top',name:'特級の共鳴',m:['yuta','gojo','sukuna'],need:2,e:{d:.1},txt:'攻撃力+10%'},
+  {id:'gmb',name:'賭場の熱',m:['hakari','todo'],need:2,e:{r:.12},txt:'攻撃速度+12%'}];
+const synOf=deck=>SYN.map(s=>({s,n:s.m.filter(k=>deck.includes(k)).length})).filter(o=>o.n>0);
+// デッキで発動中の相性 → キャラごとの倍率
+function synK(deck){const K={};for(const{s,n}of synOf(deck)){if(n<s.need)continue;
+  for(const k of s.m)if(deck.includes(k)){const o=K[k]||(K[k]={d:1,r:1,ct:1,on:[]});o.d+=s.e.d||0;o.r+=s.e.r||0;o.ct+=s.e.ct||0;o.on.push(s)}}return K}
+const synChips=(deck,all)=>synOf(deck).filter(o=>all||o.n>=o.s.need||o.n>=o.s.need-1).sort((a,b)=>(b.n>=b.s.need)-(a.n>=a.s.need))
+  .map(({s,n})=>`<span class="syn${n>=s.need?' on':''}" title="${s.m.map(k=>DEFS[k].name).join('・')}">🔗 ${s.name} <b>${Math.min(n,s.need)}/${s.need}</b><em>${s.txt}</em></span>`).join('');
+// ===== ★評価：★1クリア ／ ★2 封印7以上 ／ ★3 ステージごとのチャレンジ条件 =====
+const CHAL={
+  nosp:{txt:'必殺技を使わずにクリア',ok:r=>!r.sp},
+  max4:{txt:'同時に置くキャラ4体以下でクリア',ok:r=>r.maxT<=4},
+  life:{txt:'封印を1つも失わずにクリア',ok:r=>r.life>=10},
+  nolv3:{txt:'LV3にせずクリア',ok:r=>!r.lv3},
+  nosup:{txt:'サポートを編成せずにクリア',ok:r=>!r.deck.some(k=>DEFS[k].cls==='support')},
+  notop:{txt:'★キャラ（特級の3人）なしでクリア',ok:r=>!r.deck.some(k=>TOP[k])}};
+const CH_ORDER=['nosp','max4','life','nolv3','nosup'];
+const chalOf=s=>s>=19&&s%3===1?'notop':CH_ORDER[(s-1)%5];
+const STAR_TXT=s=>['ステージクリア','封印7以上でクリア',CHAL[chalOf(s)].txt];
+const starMask=(s,r)=>1|(r.life>=7?2:0)|(CHAL[chalOf(s)].ok(r)?4:0);
+const nStars=m=>(m&1)+(m>>1&1)+(m>>2&1);
+const starHtml=m=>[1,2,4].map(b=>`<i class="${m&b?'on':''}">★</i>`).join('');
 const roleBadge=k=>`<span class="rb" style="--rc:${DEFS[k].rc}">${DEFS[k].tag}${TOP[k]?'★':''}</span>`;
 // 並び替え：解放順・コスト順・ロール別
 const SORTS=[['unlock','解放順'],['cost','コスト順'],['role','ロール別']];
@@ -700,6 +762,9 @@ function newGame(n=1,deck){
 function startStage(){
   G.wave=0;G.life=10;G.state='ready';G.towers=[];G.enemies=[];G.queue=[];G.rushes=[];G.shots=[];G.bombs=[];G.beams=[];
   G.domain=0;G.kitchen=0;G.buffAll=0;G.hasteAll=0;G.warn=0;G.placing=null;G.stageMoney=G.money;G.cutin=null;G.minis=[];G.seen={};
+  // ★評価の記録（必殺使用・最大配置数・LV3）と演出用（コンボ・撃破数・ボス撃破スロー）
+  G.run={sp:false,maxT:0,lv3:false,kills:0,maxCombo:0};G.combo={n:0,t:0,pop:0};G.slowT=0;G.waveLife=10;
+  G.synK=synK(G.deck);
   // 必殺技AUTO・自動進化はステージごとにOFFから始める（ONにできるのはそのステージの中だけ）
   AUTO.sp=AUTO.up=false;autoT=autoGap=0;syncAuto();
   setupStage();closePop();$('over').style.display='none';
@@ -721,6 +786,7 @@ function cutin(type,x,y){const D=DEFS[type];G.cutin={type,txt:D.cut,col:D.col,el
 // 無量空腹：発動0.4秒後から7秒間、ボスも含めて全敵が完全停止し、受けるダメージ+30%
 const DOM_FREEZE=7,DOM_TOTAL=DOM_FREEZE+.4,DOM_AMP=1.3;
 const domainOn=()=>G.domain>0&&G.domain<DOM_FREEZE;
+const COMBO_MS=[10,25,50,100,200];
 // sp=true は必殺技・装甲無視（装甲を貫く）
 function hurt(e,dmg,show,col,sp){
   if(e.dead)return;
@@ -731,6 +797,13 @@ function hurt(e,dmg,show,col,sp){
   if(e.hp<=0){
     e.dead=true;G.money+=e.rew;
     text(e.x,e.y-10,'+'+e.rew+'G','#ffd23f',13);
+    // コンボ：1.5秒以内に倒し続けると数字が伸びる。節目で告知
+    const c=G.combo;c.n++;c.t=1.5;c.pop=1;G.run.kills++;G.run.maxCombo=Math.max(G.run.maxCombo,c.n);
+    if(COMBO_MS.includes(c.n)){G.fx.push({k:'flash',col:'#ffd23f',a:.12,life:.25,max:.25});G.comboMs={n:c.n,t:1.1}}
+    if(e.heavy||e.t==='tank'||e.t==='golem')G.fx.push({k:'ring',x:e.x,y:e.y,r:8,to:46,life:.35,max:.35,col:e.col});
+    // ボス撃破：一瞬のスローと閃光、撃破の告知
+    if(e.t==='boss'&&!e.sub){G.slowT=.9;G.fx.push({k:'flash',col:'#fff',a:.55,life:.4,max:.4},{k:'nova',x:e.x,y:e.y,col:'#ffd23f',R:500,life:.8,max:.8});
+      G.banner={text:'特級呪霊 撃破！！',t:2,col:'#ffd23f'}}
     burst(e.x,e.y,e.col,e.t==='boss'?60:10,e.t==='boss'?300:120);
     // 分裂：小さな呪霊が3体こぼれ落ちる
     if(e.split)for(let i=0;i<e.split;i++)spawn('mini',false,Math.max(0,e.d-6+i*6),{free:1});
@@ -775,7 +848,7 @@ function special(t,auto){
   if(t.spCd>0||G.state!=='wave'&&G.state!=='ready')return;
   const D=DEFS[t.type],L=t.lv,v=D.spv[L-1],al=alive();
   if(!al.length&&D.sk!=='heal'){text(t.x,t.y-30,'敵がいない！','#aaa',14);return}
-  spAuto=!!auto;
+  spAuto=!!auto;G.run.sp=true;
   switch(D.sk){
     case 'rush':G.rushes.push({t,tg:strongest(al),hits:8,timer:.4,dmg:v});shake(.4,7);break;
     case 'push':
@@ -881,7 +954,7 @@ function autoSpecial(){
 const AUTO_FEE=1.5,CARRY_MAX=.2;
 const upCost=(t,auto)=>r10c(upOf(t.type,t.lv)*(auto?AUTO_FEE:1));
 function upgrade(t,auto){const c=upCost(t,auto);if(t.lv>=3||G.money<c)return false;
-  G.money-=c;t.spent+=c;t.lv++;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
+  G.money-=c;t.spent+=c;t.lv++;if(t.lv>=3)G.run.lv3=true;burst(t.x,t.y,'#ffd23f',24,180);G.fx.push({k:'ring',x:t.x,y:t.y,r:10,to:56,life:.4,max:.4,col:'#ffd23f'});
   text(t.x,t.y-30,'LV UP!!','#ffd23f',20);if(G.sel===t)refreshPop();return true}
 function autoUpgrade(){
   if(G.state!=='ready'&&G.state!=='wave')return;
@@ -910,10 +983,12 @@ function update(dt){
     if(Math.random()<dt*8)shake(.1,4);
     if(Math.random()<dt*3)G.fx.push({k:'cut',x:Math.random()*W,y:Math.random()*H,a:Math.random()*3.14,len:240,life:.28,max:.28})}}
 
+  if(G.combo.t>0){G.combo.t-=dt;if(G.combo.t<=0)G.combo.n=0}
+  G.run.maxT=Math.max(G.run.maxT,G.towers.length);
   towerMods();
   for(const t of G.towers){
     const D=DEFS[t.type],L=t.lv-1,R=D.range[L];
-    t.cd=Math.max(0,t.cd-dt);t.spCd=Math.max(0,t.spCd-dt);t.anim=Math.max(0,t.anim-dt);
+    t.cd=Math.max(0,t.cd-dt);t.spCd=Math.max(0,t.spCd-dt*(G.synK[t.type]?G.synK[t.type].ct:1));t.anim=Math.max(0,t.anim-dt);
     if(t.jackT>0)t.jackT-=dt;if(t.hexT>0)t.hexT-=dt;
     // 呪縛弾・狙撃で封じられている間は何もしない
     if(t.stunT>0){t.stunT-=dt;t.active=false;continue}
@@ -1028,7 +1103,7 @@ function update(dt){
     if(G.wave>=5){
       if(G.stage>=LAST){endGame(true);return}
       stageClear(bonus);
-    }else{G.state='ready';G.banner={text:G.wave===4?`ボス戦準備金 +${bonus}G`:`WAVE ${G.wave} CLEAR!  +${bonus}G`,t:2,col:'#ffd23f'}}
+    }else{const pf=G.life>=G.waveLife;G.state='ready';G.banner={text:G.wave===4?`ボス戦準備金 +${bonus}G`:`${pf?'PERFECT':`WAVE ${G.wave} CLEAR`}!  +${bonus}G`,t:2,col:pf?'#7dffcf':'#ffd23f'}}
     syncUI(true);
   }
 }
@@ -1038,7 +1113,7 @@ function towerMods(){
   for(const s of G.towers){const D=DEFS[s.type];if(D.atk!=='aura'||s.stunT>0)continue;const R=D.range[s.lv-1],p=D.pw[s.lv-1];
     for(const t of G.towers){if(t===s||(t.x-s.x)**2+(t.y-s.y)**2>R*R)continue;
       if(D.aura==='dmg'){t.mD=Math.min(1.8,t.mD+p);t.sight=true}else t.mR=Math.min(1.8,t.mR+p)}}
-  for(const t of G.towers){if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}if(t.hexT>0)t.mR*=HEX_RATE}
+  for(const t of G.towers){const sk=G.synK[t.type];if(sk){t.mD*=sk.d;t.mR*=sk.r}if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}if(t.hexT>0)t.mR*=HEX_RATE}
 }
 const incomeBonus=()=>G.towers.reduce((a,t)=>a+(DEFS[t.type].atk==='income'&&!(t.stunT>0)?DEFS[t.type].inc[t.lv-1]:0),0);
 // ボスの特殊能力
@@ -1855,6 +1930,29 @@ const easeBack=p=>{const c1=2.2,q=p-1;return 1+(c1+1)*q*q*q+c1*q*q};
 const easeOut=p=>1-(1-p)*(1-p)*(1-p);
 const SEAL={yuji:'撃',megumi:'影',nobara:'釘',gojo:'無',sukuna:'王'};
 // AUTO必殺の小テロップ：左下からスッと出て1.4秒で消える（盤面は暗くしない）
+// 画面上部の大きなボスHPバー：削れた分が白く遅れて減る
+function drawBossBar(){const b=G.enemies.find(e=>e.t==='boss'&&!e.sub&&!e.dead);if(!b)return;
+  const f=Math.max(0,b.hp/b.maxHp);b.lag=b.lag==null?f:Math.max(f,b.lag-(b.lag-f)*.04-.0015);
+  const x=18,y=8,w=W-36,h=9;ctx.save();
+  ctx.fillStyle='rgba(8,6,12,.78)';ctx.beginPath();ctx.roundRect?ctx.roundRect(x-6,y-4,w+12,h+22,8):ctx.rect(x-6,y-4,w+12,h+22);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.1)';ctx.fillRect(x,y+14,w,h);
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(x,y+14,w*b.lag,h);
+  const g=ctx.createLinearGradient(x,0,x+w,0);g.addColorStop(0,'#ff2d55');g.addColorStop(1,f<.3?'#ff9a3d':'#ff5a8a');
+  ctx.fillStyle=g;ctx.shadowColor='#ff2d55';ctx.shadowBlur=8;ctx.fillRect(x,y+14,w*f,h);ctx.shadowBlur=0;
+  for(const q of [.25,.5,.75]){ctx.fillStyle='rgba(8,6,12,.7)';ctx.fillRect(x+w*q-.5,y+14,1,h)}
+  ctx.font=`italic 800 10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle='#ff6b86';ctx.fillText('BOSS',x,y+5);
+  ctx.font=`700 10px ${FONT2}`;ctx.fillStyle='#fff';ctx.fillText('特級呪霊',x+34,y+5);
+  ctx.textAlign='right';ctx.font=`700 10px ${FONT}`;ctx.fillText(Math.ceil(f*100)+'%',x+w,y+5);ctx.restore()}
+// 連続撃破のカウンター（右上）。節目では大きく告知
+function drawCombo(){const c=G.combo;if(!c||c.n<3)return;
+  const boss=G.enemies.some(e=>e.t==='boss'&&!e.sub),y=boss?52:30,col=c.n>=50?'#ff4dd2':c.n>=25?'#ff8a3d':c.n>=10?'#ffd23f':'#fff';
+  const s=1+c.pop*.35,a=Math.min(1,c.t/.4);ctx.save();ctx.globalAlpha=a;ctx.translate(W-14,y);ctx.scale(s,s);ctx.textAlign='right';ctx.textBaseline='alphabetic';
+  ctx.font=`italic 900 26px ${FONT}`;ctx.lineWidth=5;ctx.strokeStyle='#000';ctx.strokeText(c.n,0,0);ctx.shadowColor=col;ctx.shadowBlur=10;ctx.fillStyle=col;ctx.fillText(c.n,0,0);ctx.shadowBlur=0;
+  ctx.font=`italic 800 10px ${FONT}`;ctx.fillStyle='#fff';ctx.fillText('COMBO',0,12);
+  ctx.fillStyle=col;ctx.fillRect(-52*Math.min(1,c.t/1.5),16,52*Math.min(1,c.t/1.5),2);ctx.restore();
+  if(G.comboMs){const m=G.comboMs,k=easeOut(Math.min(1,(1.1-m.t)/.15));ctx.save();ctx.globalAlpha=Math.min(1,m.t*3);ctx.translate(W/2,H*.3);ctx.scale(.6+k*.4,.6+k*.4);
+    ctx.textAlign='center';ctx.font=`italic 900 30px ${FONT}`;ctx.lineWidth=6;ctx.strokeStyle='#000';ctx.strokeText(`${m.n} COMBO!!`,0,0);
+    ctx.shadowColor=col;ctx.shadowBlur=18;ctx.fillStyle=col;ctx.fillText(`${m.n} COMBO!!`,0,0);ctx.restore()}}
 function drawMinis(){if(!G.minis.length)return;G.minis=G.minis.filter(m=>m.t>0);
   G.minis.forEach((m,i)=>{const age=1.4-m.t,inK=easeOut(Math.min(1,age/.18)),y=H-50-(G.minis.length-1-i)*42;
     ctx.save();ctx.globalAlpha=Math.min(1,m.t/.25);ctx.translate(8-220*(1-inK),y);
@@ -2102,6 +2200,7 @@ function draw(){
     let bf=34;const fnt=s=>`italic 800 ${s}px ${FONT}`;ctx.font=fnt(bf);while(ctx.measureText(b.text).width>W-56&&bf>16){bf-=2;ctx.font=fnt(bf)}
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha*=Math.min(1,Math.max(0,age*5-.4));ctx.fillStyle='#fff';ctx.fillText(b.text,(1-k)*-30,1);ctx.restore()}
   if(G.domain>0)drawDomainTimer();
+  drawBossBar();drawCombo();
   drawMinis();
   drawCutin();
   // CRT風の走査線と周辺減光
@@ -2206,7 +2305,7 @@ function buildPanel(){
  ['pointerup','pointercancel','pointerleave'].forEach(n=>document.addEventListener(n,off,{passive:true}));}
 $('next').onclick=()=>{
   if(G.state!=='ready'||G.wave>=5)return;
-  G.wave++;G.queue=makeWave(G.stage,G.wave);G.waveTotal=G.queue.length;G.state='wave';G.spawnT=.6;
+  G.wave++;G.waveLife=G.life;G.queue=makeWave(G.stage,G.wave);G.waveTotal=G.queue.length;G.state='wave';G.spawnT=.6;
   const fin=G.stage===LAST&&G.wave===5;
   G.banner={text:fin?'FINAL WAVE !!':`STAGE ${G.stage} - WAVE ${G.wave} START`,t:1.6,col:fin||G.wave===5?'#ff4d6d':'#fff'};
   syncUI(true);
@@ -2243,9 +2342,18 @@ const PROG_KEY='jkd_progress',DECK_KEY='jkd_deck',DEBUG=location.hash==='#debug'
 function loadProg(){try{const p=JSON.parse(localStorage.getItem(PROG_KEY));if(p&&p.cl)return p}catch(e){}return{un:1,cl:[]}}
 const isUnlocked=(k,p=loadProg())=>DEBUG||DEFS[k].unlock===0||p.cl.includes(DEFS[k].unlock);
 // クリアを記録し、今回はじめて解放されたキャラを返す
+// ★はステージごとに獲得した分を積み上げる（ビットごとに保存）。G.newStarsに今回の結果を残す
 function markClear(st){track('stage_clear',{stage:st});const p=loadProg(),first=!p.cl.includes(st);
-  p.un=Math.max(p.un,Math.min(LAST,st+1));if(first)p.cl.push(st);try{localStorage.setItem(PROG_KEY,JSON.stringify(p))}catch(e){}
+  p.un=Math.max(p.un,Math.min(LAST,st+1));if(first)p.cl.push(st);
+  const m=starMask(st,{...G.run,life:G.life,deck:G.deck}),old=(p.sb=p.sb||{})[st]||0;p.sb[st]=old|m;G.newStars={m,old,all:old|m};
+  try{localStorage.setItem(PROG_KEY,JSON.stringify(p))}catch(e){}
   return first?CHAR_IDS.filter(k=>DEFS[k].unlock===st):[]}
+const totalStars=(p=loadProg())=>Object.values(p.sb||{}).reduce((a,m)=>a+nStars(m),0);
+// クリア画面の★3つ：今回取れた★は順番にポンと出る。条件も並べる
+function starResult(st){const{m,old}=G.newStars;const tx=STAR_TXT(st);
+  return `<span class="res-stars">${[1,2,4].map((b,i)=>`<i class="${m&b?'on':''}${m&b&&!(old&b)?' new':''}" style="animation-delay:${.25+i*.28}s">★</i>`).join('')}</span>
+  <span class="res-cond">${[1,2,4].map((b,i)=>`<span class="${m&b?'ok':''}">${m&b?'✓':'・'} ${tx[i]}${m&b&&!(old&b)?' <b>NEW</b>':''}</span>`).join('')}</span>
+  <span class="res-stat">撃破 <b>${G.run.kills}</b>体 ／ 最大コンボ <b>${G.run.maxCombo}</b></span>`}
 // ===== デッキ（出撃する5体） =====
 function loadDeck(){let d=[];try{d=JSON.parse(localStorage.getItem(DECK_KEY))||[]}catch(e){}
   const p=loadProg();d=d.filter(k=>DEFS[k]&&isUnlocked(k,p));
@@ -2297,10 +2405,10 @@ function showTitle(){
     const pc=document.createElement('canvas');pc.width=Math.round(96*DPR);pc.height=Math.round(139*DPR);const px=pc.getContext('2d');px.scale(DPR,DPR);drawPreview(px,S);el.appendChild(pc);
     const un=CHAR_IDS.filter(k=>DEFS[k].unlock===n);
     el.insertAdjacentHTML('beforeend',`<div class="num"><small>STAGE</small>${String(n).padStart(2,'0')}</div><div class="info"><div class="nm">${S.name}</div>
-      <div class="tr">${n%10===0?'<i class="boss">BOSS</i>':''}${[...S.tr].map(c=>`<i>${TRAIT_TXT[c]}</i>`).join('')}</div>${un.length&&!cl?`<div class="rw">＋ 新キャラ ${DEFS[un[0]].name}</div>`:''}</div>${cl?'<span class="badge">CLEAR</span>':''}`);
+      <div class="tr">${n%10===0?'<i class="boss">BOSS</i>':''}${[...S.tr].map(c=>`<i>${TRAIT_TXT[c]}</i>`).join('')}</div>${un.length&&!cl?`<div class="rw">＋ 新キャラ ${DEFS[un[0]].name}</div>`:''}</div>${cl?`<span class="badge st">${starHtml(((p.sb||{})[n]||0)|1)}</span>`:''}`);
     if(!lock)el.onclick=()=>openDeck(n);
     box.appendChild(el)});
-  $('selH').innerHTML=`<span>STAGE SELECT</span><b>CLEAR <em>${p.cl.length}</em> / ${LAST}</b>`;
+  $('selH').innerHTML=`<span>STAGE SELECT</span><b>CLEAR <em>${p.cl.length}</em>/${LAST} ・ <i class="tst">★</i> <em>${Math.max(totalStars(p),p.cl.length)}</em>/${LAST*3}</b>`;
   $('title').style.display='flex';drawHero();syncUI(true);
 }
 // ===== デッキ編成（出撃前） =====
@@ -2311,6 +2419,8 @@ function openDeck(st,carry=0){
   $('dkSt').innerHTML=`<div class="ttl"><small>AREA ${S.area+1} ・ STAGE ${String(st).padStart(2,'0')}</small><b>${S.name}</b></div>`;
   $('dkThreat').innerHTML=(S.tr?[...S.tr].map(c=>`<span class="th" title="${TRAIT_HINT[c]}">${TRAIT_TXT[c]}<em>→${TRAIT_HINT[c]}</em></span>`).join(''):'<span class="th">基本の呪霊のみ</span>')+
     (S.boss.length?`<span class="th boss">ボス：${S.boss.map(a=>BOSS_TXT[a]).join('／')}</span>`:'');
+  {const m=(p.sb||{})[st]||0,tx=STAR_TXT(st);
+    $('dkStars').innerHTML=[1,2,4].map((b,i)=>`<span class="${m&b?'ok':''}"><i>★</i>${tx[i]}</span>`).join('')}
   const grid=$('dkGrid');grid.innerHTML='';
   sortBar($('dkSort'),()=>{for(const k of sortedIds())grid.appendChild(grid.querySelector(`[data-k="${k}"]`));grid.scrollTop=0});
   for(const k of sortedIds()){const D=DEFS[k],lock=!isUnlocked(k,p),el=document.createElement('div');el.className='dkc'+(lock?' lock':'');el.dataset.k=k;
@@ -2342,6 +2452,8 @@ function openCharModal(k,o={}){
     <h4>STATUS（LV1）</h4><div class="di-stats">${statList(k,1).map(([i,t])=>`<span><i>${i}</i>${t}</span>`).join('')}</div>
     <h4>LEVEL UP</h4><div class="lv">${[1,2,3].map(L=>`<div><b>LV${L}</b>${descOf(k,L)}${L>1?`（強化 ${o.deck?upOf(k,L-1,st):D.up[L-2]}G）`:''}</div>`).join('')}</div>
     <h4>SPECIAL</h4><div class="sp">✦ <b>『${D.sp}』</b> CT${D.ct}秒<br>${spDesc(k,1)}<small>LV3：${spDesc(k,3)}／「必殺技AUTO」ONで自動発動</small></div>
+    ${SYN.some(s=>s.m.includes(k))?`<h4>SYNERGY</h4><div class="cm-syn">${SYN.filter(s=>s.m.includes(k)).map(s=>{const n=o.deck?s.m.filter(x=>dk.deck.includes(x)||x===k).length:0;
+      return `<div class="${o.deck&&n>=s.need?'on':''}"><b>🔗 ${s.name}</b>（${s.need}体以上：${s.txt}）${o.deck?` <em>${Math.min(n,s.need)}/${s.need}</em>`:''}<small>${s.m.map(x=>isUnlocked(x,p)?DEFS[x].name:'？？？').join('・')}</small></div>`}).join('')}</div>`:''}
     ${ctr.length?`<h4>EFFECTIVE</h4><div class="ctr">${ctr.map(c=>`<span>${TRAIT_TXT[c]}に強い</span>`).join('')}</div>`:''}`}
   </div><div class="acts">${o.deck&&!lock?`<button class="btn ${inDeck?'rm':'add'}" id="cmAdd" ${full?'disabled':''}>${inDeck?'デッキから外す':full?'デッキが満員（5体）':'このキャラを編成する'}</button>`:''}<button class="btn blue" id="cmClose">閉じる</button></div>`;
   box.querySelector('.art').appendChild(charIcon(k,380,230,{lock,s:1.25,cy:130}));
@@ -2374,6 +2486,8 @@ function syncDeck(msg){
     if(k){b.style.setProperty('--rc',DEFS[k].rc);b.appendChild(charIcon(k,64));b.insertAdjacentHTML('beforeend',`<span>${DEFS[k].tag}</span>`);b.onclick=()=>{dk.deck.splice(i,1);dk.info=null;syncDeck()}}
     else b.textContent=i+1;sl.appendChild(b)}
   $('dkCnt').textContent=dk.deck.length+' / 5';
+  // 相性：発動中は光らせ、あと1体で発動するものも薄く見せる
+  {const h=synChips(dk.deck);$('dkSyn').innerHTML=h||'<span class="syn none">🔗 相性ボーナス：特定の組み合わせで編成すると発動</span>'}
   for(const el of $('dkGrid').children){const i=dk.deck.indexOf(el.dataset.k);el.classList.toggle('on',i>=0);const no=el.querySelector('.no');if(no)no.textContent=i>=0?i+1:''}
   const k=dk.info,D=k&&DEFS[k];
   $('dkInfo').innerHTML=msg?`<div class="msg">${msg}</div>`:D?`<div class="di-head"><span class="di-name" style="color:${D.col}">${D.name}</span>
@@ -2417,9 +2531,10 @@ function stageClear(bonus){
   const nxt=G.stage+1;
   // 稼ぎを次のステージへ溜め込めないよう、持ち越しは次の初期呪力の20%まで（キャラの返金はなし）
   const keep=Math.min(G.money,Math.round(stageMoney(Math.min(nxt,LAST))*CARRY_MAX/10)*10);
-  showOver('STAGE CLEAR!','#ffd23f',`STAGE ${G.stage}「${S.name}」突破！<br>WAVEボーナス +${bonus}G ／ 残った呪力から +${keep}G を持ち越し（上限20%）${un?'<br>'+un:''}`,
+  const ns=nStars(G.newStars.all);
+  showOver('STAGE CLEAR!','#ffd23f',`${starResult(G.stage)}STAGE ${G.stage}「${S.name}」突破！<br>WAVEボーナス +${bonus}G ／ 残った呪力から +${keep}G を持ち越し（上限20%）${un?'<br>'+un:''}`,
     '次のステージへ ▶',()=>openDeck(nxt,stageMoney(Math.min(nxt,LAST))+keep),'ステージ選択',showTitle,
-    shareText(`STAGE ${G.stage}「${S.name}」を突破！`+(newly.length?`新キャラ『${DEFS[newly[0]].name}』を解放`:''),G.life));
+    shareText(`STAGE ${G.stage}「${S.name}」を${'★'.repeat(ns)+'☆'.repeat(3-ns)}で突破！`+(newly.length?`新キャラ『${DEFS[newly[0]].name}』を解放`:''),G.life));
   for(const u of $('oMsg').querySelectorAll('.unl'))u.prepend(charIcon(u.dataset.k,64,64));
 }
 for(const b of $('spd').children)b.onclick=()=>{G.speed=+b.dataset.s;syncSpd()};
@@ -2482,6 +2597,7 @@ function refreshPop(){
     $('pNow').innerHTML=r.map(s=>`<span>${s}</span>`).join('')}
   $('pStat').innerHTML=descOf(t.type,t.lv)+(t.lv<3?`<br>→ LV${t.lv+1}: ${descOf(t.type,t.lv+1)}`:'<br>★ MAX LEVEL ★')+
     (countersOf(t.type).length?`<br><span style="color:#9be8c0">得意：${countersOf(t.type).map(c=>TRAIT_TXT[c]).join('・')}</span>`:'')+
+    (G.synK[t.type]?`<br><span style="color:#ffd27a">🔗 相性：${G.synK[t.type].on.map(s=>`${s.name}（${s.txt}）`).join('／')}</span>`:'')+
     (t.mD>1||t.mR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.mD.toFixed(2)} 速度×${t.mR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'')+
     (t.hexT>0?`<br><span style="color:#d48aff">呪詛：攻撃速度ダウン（あと${Math.ceil(t.hexT)}秒）</span>`:'');
   const up=$('pUp');
@@ -2521,8 +2637,8 @@ function syncUI(force){
 function endGame(win){
   if(G.state==='win'||G.state==='lose')return;
   G.state=win?'win':'lose';closePop();G.placing=null;G.winT=0;
-  if(win){markClear(LAST);showOver('🎉 ALL CLEAR!!','#ffd23f',`『呪界ディフェンス』完全制覇！<br>全${LAST}ステージ・${LAST*5}WAVE突破、呪いの王の厨房を制圧した！<br>残り封印 ${G.life}/10`,'ステージ選択へ',showTitle,null,null,
-    shareText(`全${LAST}ステージ・${LAST*5}WAVEを完全制覇！呪いの王を討ち取った👑`,G.life))}
+  if(win){markClear(LAST);showOver('🎉 ALL CLEAR!!','#ffd23f',`${starResult(LAST)}『呪界ディフェンス』完全制覇！<br>全${LAST}ステージ・${LAST*5}WAVE突破、呪いの王の厨房を制圧した！<br>残り封印 ${G.life}/10 ／ 獲得★ ${totalStars()}/${LAST*3}`,'ステージ選択へ',showTitle,null,null,
+    shareText(`全${LAST}ステージ・${LAST*5}WAVEを完全制覇！呪いの王を討ち取った👑（★${totalStars()}/${LAST*3}）`,G.life))}
   else{track('game_over',{stage:G.stage,wave:G.wave});}
   if(!win)showOver('GAME OVER','#ff4d6d',`STAGE ${G.stage} - WAVE ${G.wave} で拠点が陥落…`,
     'このステージから再挑戦',()=>{G.money=G.stageMoney;startStage()},'ステージ選択',showTitle);
@@ -2546,7 +2662,10 @@ let prev=performance.now(),uiT=0;
 function loop(now){
   const dt=Math.min(.05,(now-prev)/1000);prev=now;
   // カットイン中はスローモーション
-  const sdt=dt*G.speed*(G.cutin&&G.cutin.el<1.5?.3:1);
+  // ボス撃破の瞬間も短いスロー（実時間で0.9秒）
+  if(G.slowT>0)G.slowT-=dt;if(G.comboMs){G.comboMs.t-=dt;if(G.comboMs.t<=0)G.comboMs=null}
+  if(G.combo&&G.combo.pop>0)G.combo.pop=Math.max(0,G.combo.pop-dt*5);
+  const sdt=dt*G.speed*(G.cutin&&G.cutin.el<1.5?.3:1)*(G.slowT>0?.3:1);
   // 倍速でも判定が粗くならないよう 1/60 秒刻みで更新
   const live=()=>(G.state==='ready'||G.state==='wave')&&!G.paused;
   for(let rem=sdt;rem>1e-6&&live();rem-=1/60)update(Math.min(rem,1/60));
