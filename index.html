@@ -73,10 +73,13 @@ a.btn{text-align:center}
 #wrap{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:0}
 canvas#cv{display:block;touch-action:none;background:#000}
 @media (min-width:600px){#wrap{padding:6px}canvas#cv{border-radius:10px}}
-#hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);display:none;z-index:4;max-width:92%;padding:8px 14px;border-radius:999px;pointer-events:none;
-  background:rgba(12,11,17,.9);border:1px solid var(--ln2);font:700 12px/1.4 var(--f-jp);color:var(--tx);text-align:center;white-space:normal;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#undo{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:none;z-index:6;min-height:46px;background:rgba(27,26,36,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#undo.press{transform:translateX(-50%) scale(.95)}
+/* 配置中の情報：盤面の上端か下端のうち、置けるマスが少ない側に寄せる（syncHintPos） */
+#hint{position:absolute;left:50%;top:6px;transform:translateX(-50%);display:none;z-index:4;width:max-content;max-width:min(94%,360px);padding:7px 12px;border-radius:999px;pointer-events:none;
+  background:rgba(12,11,17,.88);border:1px solid var(--ln2);font:700 12px/1.4 var(--f-jp);color:var(--tx);text-align:center;white-space:normal;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#hint.mini .hs:not(.go){display:none}
+#undo{position:absolute;right:8px;top:calc(7px + env(safe-area-inset-top));display:none;z-index:8;min-height:40px;padding:0 14px;font-size:13px;
+  background:rgba(40,32,14,.97);border-color:var(--gold);color:#fff3cf;box-shadow:0 0 14px rgba(255,207,74,.35);animation:cmIn .15s ease-out}
+#undo.press{transform:scale(.95)}
 
 /* ---------- 下部ドック：出撃キャラ＋操作 ---------- */
 #dock{flex:none;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--s1);border-top:1px solid var(--ln)}
@@ -109,11 +112,27 @@ canvas#cv{display:block;touch-action:none;background:#000}
 .tgl.up.on{background:rgba(255,207,74,.12);border-color:rgba(255,207,74,.6);color:#fff3cf}
 .tgl.up.on i{background:var(--gold)}
 .tgl.press{transform:scale(.92)}
-#ctrl #next,#ctrl #cancelPlace{flex:1;min-width:0;padding:0 8px;font-size:15px}
+#ctrl #next,#ctrl #cancelPlace{flex:1;min-width:0;padding:0 6px;font-size:15px;white-space:normal;line-height:1.15}
+/* 背の低いスマホ：盤面を少しでも大きくするため、HUDと下のキャラ札を薄くする */
+@media (max-height:700px){
+  #hud{padding-top:calc(5px + env(safe-area-inset-top));padding-bottom:5px}
+  #dock{padding-top:6px}
+  .card canvas,.card>div{aspect-ratio:1.3}.card canvas{object-fit:cover;object-position:50% 30%}
+  .card .cs{font-size:14px;padding-top:6px}
+  #ctrl{margin-top:6px}.spdseg button,.tgl,#ctrl .btn{min-height:44px}
+}
+/* 幅の狭いスマホ：ボタン文字が切れないよう操作列を詰める */
+@media (max-width:389px){
+  .spdseg button{min-width:34px;font-size:14px}.tgl{width:46px}
+  #ctrl #next,#ctrl #cancelPlace{font-size:13.5px}
+  .stat{padding:0 7px}.homebtn{padding:0 9px}
+}
+/* さらに狭い端末（幅320など）：HUDのロゴを外してHOMEボタンを画面内に収める */
+@media (max-width:359px){#hud .title{display:none}#hud .stat:first-of-type{border-left:none}}
 #cancelPlace{display:none}
 
 /* ---------- 強化パネル（ボトムシート） ---------- */
-#pop{position:absolute;left:8px;right:8px;bottom:8px;top:auto;display:none;z-index:5;padding:14px;border-radius:18px;max-height:calc(100% - 12px);overflow-y:auto;
+#pop{position:absolute;left:8px;right:8px;bottom:8px;top:auto;display:none;z-index:7;padding:12px 14px;border-radius:18px;max-height:60%;overscroll-behavior:contain;overflow-y:auto;
   background:linear-gradient(160deg,rgba(40,36,58,.78),rgba(14,13,20,.86));border:1px solid color-mix(in srgb,var(--rc,#fff) 55%,transparent);
   box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 18px color-mix(in srgb,var(--rc,#fff) 28%,transparent),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3)}
 #pop .now{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:6px;font-size:11.5px;font-weight:700}
@@ -149,6 +168,9 @@ canvas#cv{display:block;touch-action:none;background:#000}
 #cm .ctr span{font:700 11px/1 var(--f-jp);padding:5px 8px;border-radius:999px;background:rgba(62,224,143,.12);border:1px solid rgba(62,224,143,.35);color:#bff5d8}
 #cm .lockm{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);font-size:12.5px;color:var(--tx2);text-align:center}
 #cm .acts{display:flex;gap:8px;padding:14px 16px 0}
+/* 編成ボタンはスクロールしなくても押せるよう、モーダルの下端に固定 */
+#cm .cmc{padding-bottom:0}
+#cm .acts{position:sticky;bottom:0;z-index:2;padding:16px 16px 14px;background:linear-gradient(rgba(15,14,22,0),rgba(15,14,22,.97) 30%)}
 #cm .acts .btn{flex:1;white-space:normal;line-height:1.3;font-size:14px}
 #cm .acts .btn.add{flex:1.6;border:none;background:var(--mint);color:#06210f;font-weight:900;box-shadow:0 0 16px rgba(62,224,143,.35)}
 #cm .acts .btn.rm{flex:1.6;background:rgba(255,45,85,.16);border-color:rgba(255,45,85,.6);color:#ffd3dc;font-weight:900}
@@ -177,11 +199,27 @@ canvas#cv{display:block;touch-action:none;background:#000}
 #pop .btn.up:disabled{background:var(--s2);color:var(--tx3);opacity:1}
 #pop .btn.sell{background:none;border-color:rgba(255,45,85,.4);color:var(--acc2)}
 #pop .btn.sell.armed{background:var(--acc);border-color:var(--acc);color:#fff}
-#pop .psep{height:1px;margin:12px 0 0;background:var(--ln)}
+#pop .pacts{display:flex;gap:8px}
+#pop .pacts .btn{flex:1;min-width:0;padding:0 8px;font-size:13.5px}
+#pop .bars{margin-top:10px}
+#pop .btn.sell{min-height:42px;margin-top:10px;font-size:12.5px}
+/* 背の低いスマホでは、強化パネルをさらに詰める */
+@media (max-height:760px){
+  #pop{padding:10px 12px}
+  #pop .phead{gap:10px;margin-bottom:6px}#pop canvas{width:64px;height:51px}
+  #pop .pt{font-size:15px}#pop .lvp{margin:3px 0 2px}
+  #pop .now{padding:6px 8px;font-size:11px}
+  #pop .btn{min-height:46px}
+}
 
 /* ---------- 結果画面 ---------- */
 #over{position:absolute;inset:0;z-index:10;display:none;flex-direction:column;align-items:stretch;justify-content:center;gap:12px;padding:24px 20px;text-align:center;
   background:rgba(8,7,11,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+/* 画面に収まらないときは上が切れずにスクロールできるように（中央寄せはmargin:autoで） */
+#over,#unlk .sc{justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;padding-top:calc(20px + env(safe-area-inset-top));padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+#over>:first-child,#unlk .tag{margin-top:auto}#over>:last-child,#unlk .row{margin-bottom:auto}
+#over>*,#unlk .sc>*{flex-shrink:0}
+#unlk .sc{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding-left:20px;padding-right:20px}
 #over h1{font:italic 900 46px/1 var(--f-en);letter-spacing:.01em;text-transform:uppercase}
 #over p{font-size:13.5px;line-height:1.8;color:#dcd9e6;padding:14px 16px;border-radius:14px;background:var(--s1);border:1px solid var(--ln)}
 #over .row{display:flex;gap:8px}
@@ -202,13 +240,13 @@ canvas#cv{display:block;touch-action:none;background:#000}
   -webkit-mask:radial-gradient(circle,#000 8%,transparent 55%);mask:radial-gradient(circle,#000 8%,transparent 55%)}
 #unlk.show .rays{animation:ulRays 1s .9s ease-out forwards,ulSpin 18s linear infinite}
 @keyframes ulRays{to{opacity:.9}}@keyframes ulSpin{to{transform:rotate(360deg)}}
-#unlk .fl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#unlk .fl{position:absolute;inset:0;z-index:2;background:#fff;opacity:0;pointer-events:none}
 #unlk.show .fl{animation:ulFlash .6s .88s ease-out}
 @keyframes ulFlash{0%{opacity:.95}100%{opacity:0}}
 #unlk .tag{position:relative;font:900 13px/1 var(--f-jp);letter-spacing:.3em;color:var(--tx2)}
 #unlk.show .tag{animation:ulTag .9s ease-in-out both}
 @keyframes ulTag{0%{opacity:0;letter-spacing:.8em}60%{opacity:1}100%{letter-spacing:.3em}}
-#unlk .art{position:relative;width:min(300px,78vw);aspect-ratio:300/240;border-radius:20px;overflow:hidden;
+#unlk .art{position:relative;width:min(300px,78vw,max(180px,(100dvh - 330px)*1.25));aspect-ratio:300/240;border-radius:20px;overflow:hidden;
   box-shadow:0 0 0 2px color-mix(in srgb,var(--rc) 80%,#fff),0 0 40px color-mix(in srgb,var(--rc) 60%,transparent),0 20px 60px rgba(0,0,0,.7)}
 #unlk .art canvas{position:absolute;inset:0;width:100%;height:100%}
 #unlk.show .art{animation:ulShake .9s ease-in both,ulPop .5s .9s cubic-bezier(.3,1.7,.5,1)}
@@ -380,6 +418,13 @@ canvas#cv{display:block;touch-action:none;background:#000}
 .dkc.lock>.rb{margin:0 7px}
 .dkc.press{transform:scale(.95)}
 .dk-foot{display:flex;gap:8px}
+/* 背の低いスマホ：キャラ一覧だけが小さな窓になるので、画面ごとスクロールさせ下のボタンは固定 */
+@media (max-height:760px){
+  #deck{overflow-y:auto;overscroll-behavior:contain;padding-bottom:0}
+  #deck>*{flex-shrink:0}
+  #deck .dk-grid{flex:none;overflow:visible}
+  #deck .dk-foot{position:sticky;bottom:0;z-index:3;margin:0 -12px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(rgba(11,10,15,0),var(--bg) 26%)}
+}
 .dk-foot .btn{flex:1;padding:0 8px}
 .dk-foot #dkGo{flex:1.5;font-size:16px}
 
@@ -418,21 +463,21 @@ canvas#cv{display:block;touch-action:none;background:#000}
   <div id="wrap">
     <canvas id="cv"></canvas>
     <div id="hint"></div>
-    <button class="btn" id="undo">↶ 置き直す（全額返金）</button>
-    <div id="pop">
-      <button class="x" id="pClose">×</button>
-      <div class="phead"><canvas id="pImg" width="176" height="140"></canvas>
-        <div class="pinfo"><div class="pt" id="pTitle"></div><div class="lvp" id="pLv"></div><div class="pr" id="pRole"></div></div></div>
-      <div class="bars" id="pBars"></div>
-      <div class="now" id="pNow"></div>
-      <div class="ps" id="pStat"></div>
-      <button class="btn up" id="pUp"></button>
-      <div class="spi" id="pSpI"></div>
-      <div class="ctbar"><div id="pCt"></div></div>
-      <button class="btn sp" id="pSp"></button>
-      <div class="psep"></div>
-      <button class="btn sell" id="pSell"></button>
-    </div>
+  </div>
+  <!-- 置いた直後の取り消し：盤面のマスに被らないようHUDの上に出す -->
+  <button class="btn" id="undo">↶ 置き直す（返金）</button>
+  <!-- 強化パネル：盤面の外（HUD/ドック側）まで使い、選んだキャラと反対側に寄せる -->
+  <div id="pop">
+    <button class="x" id="pClose">×</button>
+    <div class="phead"><canvas id="pImg" width="176" height="140"></canvas>
+      <div class="pinfo"><div class="pt" id="pTitle"></div><div class="lvp" id="pLv"></div><div class="pr" id="pRole"></div></div></div>
+    <div class="now" id="pNow"></div>
+    <div class="pacts"><button class="btn up" id="pUp"></button><button class="btn sp" id="pSp"></button></div>
+    <div class="spi" id="pSpI"></div>
+    <div class="ctbar"><div id="pCt"></div></div>
+    <div class="bars" id="pBars"></div>
+    <div class="ps" id="pStat"></div>
+    <button class="btn sell" id="pSell"></button>
   </div>
   <!-- 親指で操作する下部パネル：キャラ（タップで配置）＋操作ボタン。必殺技は「必殺技AUTO」で自動発動 -->
   <div id="dock">
@@ -442,7 +487,7 @@ canvas#cv{display:block;touch-action:none;background:#000}
       <button class="tgl" id="autoSp" aria-pressed="false" title="必殺技を賢く自動発動"><i></i><span>必殺技</span><b>AUTO</b></button>
       <button class="tgl up" id="autoUp" aria-pressed="false" title="呪力があれば自動で強化（手数料込みで強化費1.5倍）"><i></i><span>自動</span><b class="jp">進化</b></button>
       <button class="btn" id="next">WAVE開始 ▶</button>
-      <button class="btn red" id="cancelPlace">× 配置キャンセル</button>
+      <button class="btn red" id="cancelPlace">× キャンセル</button>
     </div>
   </div>
   <div id="title">
@@ -462,9 +507,9 @@ canvas#cv{display:block;touch-action:none;background:#000}
     </footer>
   </div>
   <div id="unlk" role="dialog" aria-modal="true" aria-labelledby="ulName"><div class="rays"></div><div id="ulSpk"></div>
-    <div class="tag">✦ 封印解除 ✦</div><div class="art" id="ulArt"></div>
+    <div class="sc"><div class="tag">✦ 封印解除 ✦</div><div class="art" id="ulArt"></div>
     <div class="in"><span class="nc">NEW CHARACTER!</span><h2 id="ulName"></h2><div id="ulRole"></div><p class="sk" id="ulSk"></p></div>
-    <div class="row"><a class="btn xshare" id="ulShare" target="_blank" rel="noopener">𝕏 で解放をシェア</a><button class="btn red" id="ulOk">つづける ▶</button></div><div class="fl"></div></div>
+    <div class="row"><a class="btn xshare" id="ulShare" target="_blank" rel="noopener">𝕏 で解放をシェア</a><button class="btn red" id="ulOk">つづける ▶</button></div></div><div class="fl"></div></div>
   <div id="over"><h1 id="oTitle"></h1><p id="oMsg"></p><div class="row"><button class="btn red" id="oBtn1"></button><button class="btn blue" id="oBtn2"></button></div><a class="btn xshare" id="oShare" target="_blank" rel="noopener">𝕏 でシェアする</a><a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a><a class="fb-link" id="fbResult" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a></div>
   <!-- HOME：プレイ中は確認してからタイトルへ -->
   <!-- 出撃前のデッキ編成：20体から5体を選ぶ -->
@@ -1156,12 +1201,13 @@ function update(dt){
   }
 }
 // 支援キャラの効果：周囲の味方の攻撃力・攻撃速度。眼鏡補佐の範囲内は幽霊を見破る
+// mD/mR=実効倍率（支援・相性・必殺バフ込み）、aD/aR=支援キャラだけの倍率（強化パネルの「支援中」表示用）
 function towerMods(){
   for(const t of G.towers){t.mD=1;t.mR=1;t.sight=false}
   for(const s of G.towers){const D=DEFS[s.type];if(D.atk!=='aura'||s.stunT>0)continue;const R=D.range[s.lv-1],p=D.pw[s.lv-1];
     for(const t of G.towers){if(t===s||(t.x-s.x)**2+(t.y-s.y)**2>R*R)continue;
       if(D.aura==='dmg'){t.mD=Math.min(1.8,t.mD+p);t.sight=true}else t.mR=Math.min(1.8,t.mR+p)}}
-  for(const t of G.towers){const sk=G.synK[t.type];if(sk){t.mD*=sk.d;t.mR*=sk.r}if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}if(t.hexT>0)t.mR*=HEX_RATE}
+  for(const t of G.towers){t.aD=t.mD;t.aR=t.mR;const sk=G.synK[t.type];if(sk){t.mD*=sk.d;t.mR*=sk.r}if(G.buffAll>0)t.mD*=G.buffMul;if(G.hasteAll>0)t.mR*=G.hasteMul;if(t.jackT>0){t.mD*=2.5;t.mR*=1.6}if(t.hexT>0)t.mR*=HEX_RATE}
 }
 const incomeBonus=()=>G.towers.reduce((a,t)=>a+(DEFS[t.type].atk==='income'&&!(t.stunT>0)?DEFS[t.type].inc[t.lv-1]:0),0);
 // ボスの特殊能力
@@ -2697,9 +2743,12 @@ const shareText=(head,life)=>`『呪界ディフェンス』${head}\n残り封�
 function openPop(t){hideUndo();sellArm=0;G.sel=t;G.placing=null;$('pop').style.display='block';refreshPop();placePop();syncUI(true)}
 function closePop(){if(G)G.sel=null;$('pop').style.display='none'}
 function placePop(){
-  // 縦画面：タワーが下半分なら上端に、上半分なら下端にドック（タワーを隠さない）
-  const t=G.sel;if(!t)return;const pop=$('pop'),top=t.y>H/2;
-  pop.style.top=top?'6px':'auto';pop.style.bottom=top?'auto':'6px';
+  // タワーが下半分なら上（HUDの下）、上半分なら下（ドックの上に重ねる）に出す。
+  // 高さはタワーの手前で止め、選んだキャラと射程が見えるようにする（収まらない分はパネル内スクロール）
+  const t=G.sel;if(!t)return;const pop=$('pop'),top=t.y>H/2,ar=$('app').getBoundingClientRect(),cr=cv.getBoundingClientRect(),k=cr.height/H;
+  const ty=cr.top-ar.top+t.y*k,hb=$('hud').getBoundingClientRect().bottom-ar.top;
+  if(top){pop.style.top=(hb+6)+'px';pop.style.bottom='auto';pop.style.maxHeight=Math.min(ar.height*.56,Math.max(230,ty-46*k-hb-6))+'px'}
+  else{pop.style.top='auto';pop.style.bottom='calc(8px + env(safe-area-inset-bottom))';pop.style.maxHeight=Math.min(ar.height*.56,Math.max(230,ar.height-8-(ty+26*k)))+'px'}
 }
 function refreshPop(){
   const t=G.sel;if(!t)return;const D=DEFS[t.type];
@@ -2728,17 +2777,17 @@ function refreshPop(){
   $('pStat').innerHTML=descOf(t.type,t.lv)+(t.lv<3?`<br>→ LV${t.lv+1}: ${descOf(t.type,t.lv+1)}`:'<br>★ MAX LEVEL ★')+
     (countersOf(t.type).length?`<br><span style="color:#9be8c0">得意：${countersOf(t.type).map(c=>TRAIT_TXT[c]).join('・')}</span>`:'')+
     (G.synK[t.type]?`<br><span style="color:#ffd27a">🔗 相性：${G.synK[t.type].on.map(s=>`${s.name}（${s.txt}）`).join('／')}</span>`:'')+
-    (t.mD>1||t.mR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.mD.toFixed(2)} 速度×${t.mR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'')+
+    (t.aD>1||t.aR>1?`<br><span style="color:#7fb0ff">支援中：攻撃力×${t.aD.toFixed(2)} 速度×${t.aR.toFixed(2)}${t.sight?'・見破り':''}</span>`:'')+
     (t.hexT>0?`<br><span style="color:#d48aff">呪詛：攻撃速度ダウン（あと${Math.ceil(t.hexT)}秒）</span>`:'');
   const up=$('pUp');
   if(t.lv>=3){up.textContent='LV MAX';up.disabled=true}
   else{const c=upCost(t);up.textContent=`LV UP（強化） ${c}G`;up.disabled=G.money<c}
   // 必殺技：効果とチャージ状況＋このキャラだけの発動ボタン（常設ボタンは置かない）
   $('pSpI').innerHTML=`✦ <b>必殺『${D.sp}』</b> ${t.spCd>0?`チャージ中 あと${Math.ceil(t.spCd)}秒`:'<b>準備OK</b>'}<br>${spDesc(t.type,t.lv)}`+
-    `<small>${AUTO.sp?'必殺技AUTO：ON（最適なタイミングで自動発動）':'下のボタンで発動／「必殺技AUTO」ONで自動発動'}</small>`;
+    `<small>${AUTO.sp?'必殺技AUTO：ON（最適なタイミングで自動発動）':'上の「必殺」ボタンで発動／「必殺技AUTO」ONで自動発動'}</small>`;
   {const sp=$('pSp'),live=(G.state==='wave'||G.state==='ready')&&(alive().length>0||D.sk==='heal'),rd=t.spCd<=0;
     sp.disabled=!rd||!live;sp.classList.toggle('ready',rd&&live);
-    sp.textContent=!rd?`必殺 チャージ中 ${Math.ceil(t.spCd)}s`:live?`✦ 必殺技『${D.sp}』発動！`:'必殺 準備OK（敵が来たら撃てる）'}
+    sp.textContent=!rd?`必殺 チャージ中 ${Math.ceil(t.spCd)}s`:live?'✦ 必殺 発動！':'必殺 準備OK'}
   $('pCt').style.width=(100*(1-t.spCd/D.ct))+'%';
   const armed=performance.now()<sellArm;$('pSell').classList.toggle('armed',armed);
   $('pSell').textContent=armed?`⚠ もう一度タップで撤去（+${Math.floor(t.spent*.6)}G）`:`🗑️ 撤去（売却 +${Math.floor(t.spent*.6)}G）`;
@@ -2759,10 +2808,22 @@ function syncUI(force){
   for(const k in cards)cards[k].classList.toggle('sel',G.placing===k);
   const hint=$('hint');
   // 配置中：選んだキャラのミニ情報（役割・LV1性能・必殺）＋操作の案内
-  if(G.placing){const k=G.placing,D=DEFS[k];hint.style.display='block';hint.className='card-i';hint.style.setProperty('--rc',D.rc);
-    if(hint.dataset.k!==k){hint.dataset.k=k;hint.innerHTML=`<span class="hn" style="color:${D.col}">${D.name}</span> ${roleBadge(k)} <b style="color:var(--gold)">${costOf(k)}G</b>
-      <span class="hs">${D.role}</span><span class="hs">${descOf(k,1)} ／ 射程${D.range[0]}</span><span class="hs">✦ 必殺『${D.sp}』${spDesc(k,1)}</span><span class="hs" style="color:var(--tx)">光っているマスをタップして配置</span>`}}
-  else{hint.style.display='none';hint.className='';hint.dataset.k=''}
+  if(G.placing){const k=G.placing,D=DEFS[k];hint.style.display='block';hint.classList.add('card-i');hint.style.setProperty('--rc',D.rc);
+    if(hint.dataset.k!==k){hint.dataset.k=k;hint.classList.remove('mini');hint.innerHTML=`<span class="hn" style="color:${D.col}">${D.name}</span> ${roleBadge(k)} <b style="color:var(--gold)">${costOf(k)}G</b>
+      <span class="hs">${D.role}</span><span class="hs">${descOf(k,1)} ／ 射程${D.range[0]}</span><span class="hs">✦ 必殺『${D.sp}』${spDesc(k,1)}</span><span class="hs go" style="color:var(--tx)">光っているマスをタップして配置</span>`;
+      // 説明は4秒で1行に畳む（盤面をなるべく隠さない）
+      clearTimeout(hintTimer);hintTimer=setTimeout(()=>hint.classList.add('mini'),4000)}
+    syncHintPos()}
+  else{clearTimeout(hintTimer);hint.style.display='none';hint.className='';hint.dataset.k=''}
+}
+// 配置情報は、盤面の上端と下端のうち「隠れる範囲に置けるマスが少ない側」に出す
+var hintTimer=0; // 起動時のsyncUIより後に宣言されるのでvar
+function syncHintPos(){
+  const hint=$('hint'),cr=cv.getBoundingClientRect(),wr=wrap.getBoundingClientRect(),k=cr.height/H;
+  const rows=Math.ceil((hint.offsetHeight+8)/k/CS),free=r=>{let n=0;for(let c=0;c<COLS;c++)if(canPlace(c,r))n++;return n};
+  let up=0,dn=0;for(let i=0;i<rows;i++){up+=free(i);dn+=free(ROWS-1-i)}
+  const atTop=up<=dn;
+  hint.style.top=atTop?(cr.top-wr.top+6)+'px':'auto';hint.style.bottom=atTop?'auto':(wr.bottom-cr.bottom+6)+'px';
 }
 function endGame(win){
   if(G.state==='win'||G.state==='lose')return;
