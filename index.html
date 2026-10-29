@@ -11,6 +11,9 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://red-freegames.github.io/jukai-defense/">
 <meta property="og:image" content="https://red-freegames.github.io/jukai-defense/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://red-freegames.github.io/jukai-defense/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://red-freegames.github.io/jukai-defense/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,6 +193,47 @@ canvas#cv{display:block;touch-action:none;background:#000}
 #over .unl small{font:italic 800 11px/1 var(--f-en);letter-spacing:.14em;color:var(--mint)}
 #over .unl b{font:900 15px/1.3 var(--f-jp);color:#fff}
 #over .unl .rb{justify-self:start}
+/* 新キャラ解放：シルエット→閃光→カラーで姿を見せる */
+#unlk{position:absolute;inset:0;z-index:12;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;text-align:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--rc) 30%,#08070c) 0%,rgba(6,5,9,.97) 60%)}
+#unlk.show{display:flex;animation:cmIn .25s ease-out}
+#unlk .rays{position:absolute;left:50%;top:38%;width:1000px;height:1000px;margin:-500px 0 0 -500px;pointer-events:none;opacity:0;
+  background:repeating-conic-gradient(color-mix(in srgb,var(--rc) 45%,transparent) 0 5deg,transparent 5deg 15deg);
+  -webkit-mask:radial-gradient(circle,#000 8%,transparent 55%);mask:radial-gradient(circle,#000 8%,transparent 55%)}
+#unlk.show .rays{animation:ulRays 1s .9s ease-out forwards,ulSpin 18s linear infinite}
+@keyframes ulRays{to{opacity:.9}}@keyframes ulSpin{to{transform:rotate(360deg)}}
+#unlk .fl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#unlk.show .fl{animation:ulFlash .6s .88s ease-out}
+@keyframes ulFlash{0%{opacity:.95}100%{opacity:0}}
+#unlk .tag{position:relative;font:900 13px/1 var(--f-jp);letter-spacing:.3em;color:var(--tx2)}
+#unlk.show .tag{animation:ulTag .9s ease-in-out both}
+@keyframes ulTag{0%{opacity:0;letter-spacing:.8em}60%{opacity:1}100%{letter-spacing:.3em}}
+#unlk .art{position:relative;width:min(300px,78vw);aspect-ratio:300/240;border-radius:20px;overflow:hidden;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--rc) 80%,#fff),0 0 40px color-mix(in srgb,var(--rc) 60%,transparent),0 20px 60px rgba(0,0,0,.7)}
+#unlk .art canvas{position:absolute;inset:0;width:100%;height:100%}
+#unlk.show .art{animation:ulShake .9s ease-in both,ulPop .5s .9s cubic-bezier(.3,1.7,.5,1)}
+@keyframes ulShake{0%{transform:scale(.6);opacity:0}30%{transform:scale(1);opacity:1}40%,60%,80%{transform:translateX(-3px)}50%,70%,90%{transform:translateX(3px)}}
+@keyframes ulPop{from{transform:scale(1.18)}}
+#unlk .art canvas+canvas{opacity:0}
+#unlk.show .art canvas+canvas{animation:ulCol .5s .88s ease-out forwards}
+@keyframes ulCol{from{opacity:1;filter:brightness(3) saturate(0)}to{opacity:1;filter:none}}
+#unlk .art::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);transform:translateX(-120%)}
+#unlk.show .art::after{animation:ulShine .9s 1.4s ease-in-out}
+@keyframes ulShine{to{transform:translateX(120%)}}
+#unlk .in{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0}
+#unlk.show .in{animation:ulIn .45s 1.15s ease-out forwards}
+@keyframes ulIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#unlk .nc{font:italic 900 20px/1 var(--f-en);letter-spacing:.12em;color:var(--gold);text-shadow:0 0 14px rgba(255,207,74,.6)}
+#unlk h2{font:400 26px/1.2 var(--f-logo);color:#fff;text-shadow:0 0 18px color-mix(in srgb,var(--rc) 70%,transparent),0 3px 0 #000}
+#unlk .sk{font-size:12.5px;line-height:1.6;color:var(--tx2)}#unlk .sk b{color:#fff}
+#unlk .row{position:relative;display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px;margin-top:6px;opacity:0}
+#unlk.show .row{animation:ulIn .4s 1.5s ease-out forwards}
+#unlk .btn{min-height:50px;justify-content:center;text-decoration:none}
+#unlk .xshare{background:#fff;color:#000;border:none}
+#unlk .spk{position:absolute;left:50%;top:38%;width:8px;height:8px;margin:-4px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);opacity:0;pointer-events:none}
+#unlk.show .spk{animation:ulSpk 1s .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes ulSpk{0%{opacity:1;transform:none}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
+@media (prefers-reduced-motion:reduce){#unlk.show *{animation-duration:.01s!important;animation-delay:0s!important}#unlk .rays{display:none}}
 
 /* ---------- タイトル／ステージ選択 ---------- */
 #title{position:absolute;inset:0;z-index:9;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;background:var(--bg);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
@@ -417,6 +461,10 @@ canvas#cv{display:block;touch-action:none;background:#000}
       <a href="https://red-freegames.github.io/privacy.html" target="_blank" rel="noopener">プライバシー</a>
     </footer>
   </div>
+  <div id="unlk" role="dialog" aria-modal="true" aria-labelledby="ulName"><div class="rays"></div><div id="ulSpk"></div>
+    <div class="tag">✦ 封印解除 ✦</div><div class="art" id="ulArt"></div>
+    <div class="in"><span class="nc">NEW CHARACTER!</span><h2 id="ulName"></h2><div id="ulRole"></div><p class="sk" id="ulSk"></p></div>
+    <div class="row"><a class="btn xshare" id="ulShare" target="_blank" rel="noopener">𝕏 で解放をシェア</a><button class="btn red" id="ulOk">つづける ▶</button></div><div class="fl"></div></div>
   <div id="over"><h1 id="oTitle"></h1><p id="oMsg"></p><div class="row"><button class="btn red" id="oBtn1"></button><button class="btn blue" id="oBtn2"></button></div><a class="btn xshare" id="oShare" target="_blank" rel="noopener">𝕏 でシェアする</a><a class="btn more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a><a class="fb-link" id="fbResult" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a></div>
   <!-- HOME：プレイ中は確認してからタイトルへ -->
   <!-- 出撃前のデッキ編成：20体から5体を選ぶ -->
@@ -2451,7 +2499,7 @@ function drawPreview(c,S){
 }
 let curArea=null;
 function showTitle(){
-  closePop();$('cm').classList.remove('show');if(G){G.state='title';G.placing=null;G.cutin=null}$('over').style.display='none';$('deck').style.display='none';$('codex').style.display='none';
+  closePop();$('cm').classList.remove('show');ulQ=[];$('unlk').classList.remove('show');if(G){G.state='title';G.placing=null;G.cutin=null}$('over').style.display='none';$('deck').style.display='none';$('codex').style.display='none';
   const p=loadProg();if(curArea===null)curArea=Math.min(2,Math.floor((Math.min(p.un,LAST)-1)/10));
   // エリアの切り替え
   const tabs=$('areaTabs');tabs.innerHTML='';
@@ -2592,8 +2640,10 @@ function stageClear(bonus){
   const ns=nStars(G.newStars.all);
   showOver('STAGE CLEAR!','#ffd23f',`${starResult(G.stage)}STAGE ${G.stage}「${S.name}」突破！<br>WAVEボーナス +${bonus}G ／ 残った呪力から +${keep}G を持ち越し（上限20%）${un?'<br>'+un:''}`,
     '次のステージへ ▶',()=>openDeck(nxt,stageMoney(Math.min(nxt,LAST))+keep),'ステージ選択',showTitle,
-    shareText(`STAGE ${G.stage}「${S.name}」を${'★'.repeat(ns)+'☆'.repeat(3-ns)}で突破！`+(newly.length?`新キャラ『${DEFS[newly[0]].name}』を解放`:''),G.life));
+    shareText(`STAGE ${G.stage}「${S.name}」を${'★'.repeat(ns)+'☆'.repeat(3-ns)}で突破！`+(newly.length?`新キャラ『${DEFS[newly[0]].name}』を解放`:''),G.life),
+    newly.length?charUrl(newly[0]):SITE);
   for(const u of $('oMsg').querySelectorAll('.unl'))u.prepend(charIcon(u.dataset.k,64,64));
+  if(newly.length)showUnlock(newly);
 }
 for(const b of $('spd').children)b.onclick=()=>{G.speed=+b.dataset.s;syncSpd()};
 function syncSpd(){for(const b of $('spd').children)b.classList.toggle('on',+b.dataset.s===G.speed)}
@@ -2611,13 +2661,35 @@ $('pSell').onclick=()=>{const t=G.sel;if(!t)return;const v=Math.floor(t.spent*.6
   sellArm=0;G.money+=v;
   G.towers=G.towers.filter(o=>o!==t);text(t.x,t.y,'+'+v+'G','#ffd23f');burst(t.x,t.y,'#aaa',10);closePop();syncUI(true)};
 
-function showOver(title,col,msg,b1,f1,b2,f2,share){
+// ===== 新キャラ解放の演出。複数解放なら1体ずつ順番に見せる =====
+// シェアはキャラ専用ページ（c/キャラ.html）を貼る。そのページのOGPがキャラ画像になっている
+const SITE='https://red-freegames.github.io/jukai-defense/',charUrl=k=>SITE+'c/'+k+'.html';
+var ulQ=[]; // showTitle()が先に呼ばれても困らないようvar
+function showUnlock(list){ulQ=[...list];nextUnlock()}
+function nextUnlock(){
+  const el=$('unlk'),k=ulQ.shift();el.classList.remove('show');if(!k)return;
+  const D=DEFS[k];el.style.setProperty('--rc',D.rc);
+  const a=$('ulArt');a.innerHTML='';a.append(charIcon(k,300,240,{lock:1,s:1.3,cy:138}),charIcon(k,300,240,{s:1.3,cy:138}));
+  $('ulName').textContent=D.name;$('ulRole').innerHTML=roleBadge(k);
+  $('ulSk').innerHTML=`${D.role}<br>必殺技 <b>『${D.sp}』</b>`;
+  // 閃光と同時に飛び散る火花
+  $('ulSpk').innerHTML=Array.from({length:18},(_,i)=>{const a=i/18*6.283+Math.random()*.3,r=110+Math.random()*90;
+    return `<i class="spk" style="--c:${i%3?D.rc:'#ffcf4a'};--dx:${Math.cos(a)*r|0}px;--dy:${Math.sin(a)*r|0}px"></i>`}).join('');
+  const txt=`『呪界ディフェンス』で新キャラ『${D.name}』を解放！\n必殺技『${D.sp}』で呪霊の群れを蹴散らす⚔️\n#呪界ディフェンス #REDFREEGAMES`;
+  $('ulShare').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(txt)+'&url='+encodeURIComponent(charUrl(k));
+  $('ulShare').onclick=()=>track('share',{kind:'unlock',char:k});
+  void el.offsetWidth;el.classList.add('show');
+  try{navigator.vibrate&&navigator.vibrate([20,60,60])}catch(e){}
+  track('unlock_view',{char:k});
+}
+$('ulOk').onclick=nextUnlock;
+function showOver(title,col,msg,b1,f1,b2,f2,share,url=SITE){
   $('oTitle').textContent=title;$('oTitle').style.color=col;$('oMsg').innerHTML=msg;
   $('oBtn1').textContent=b1;$('oBtn1').onclick=f1;
   $('oBtn2').style.display=b2?'':'none';if(b2){$('oBtn2').textContent=b2;$('oBtn2').onclick=f2}
   // クリア時だけXシェアを出す（本文・ハッシュタグ・URL入り）
   const sh=$('oShare');sh.style.display=share?'flex':'none';
-  if(share){sh.href='https://twitter.com/intent/tweet?text='+encodeURIComponent(share)+'&url='+encodeURIComponent('https://red-freegames.github.io/jukai-defense/');
+  if(share){sh.href='https://twitter.com/intent/tweet?text='+encodeURIComponent(share)+'&url='+encodeURIComponent(url);
     sh.onclick=()=>track('share',{stage:G.stage,all:G.state==='win'})}
   $('over').style.display='flex';
 }
@@ -2734,7 +2806,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 newGame(1);fit();showTitle();
-if(location.hash==="#debug")window.__td={get G(){return G},updateFx,upgrade,posAt,get AUTOv(){return AUTO},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,costOf,upOf,COST_A,HP_A,BOSS_A,MONEY_A,AREA_ARM,
+if(location.hash==="#debug")window.__td={get G(){return G},mix,TOP,showUnlock,stageClear,updateFx,upgrade,posAt,get AUTOv(){return AUTO},special,startStage,setupStage,update,makeWave,newGame,buildPanel,recommendDeck,openDeck,STAGES,DEFS,ETYPES,CHAR_IDS,hpMul,bossHp,stageMoney,costOf,upOf,COST_A,HP_A,BOSS_A,MONEY_A,AREA_ARM,
   drawBust,drawUnit,drawCutHand,evilSky,drawEnemy,ETY:ETYPES,canPlace,AUTO,get grid(){return grid},get PATH(){return PATH},get pathLen(){return pathLen},next:()=>$('next').onclick()};
 requestAnimationFrame(loop);
 })();
